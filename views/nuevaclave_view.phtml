@@ -1,0 +1,94 @@
+<?php 
+{
+
+?>
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8"/>
+		<title><?php echo $tema; ?></title>
+		<script type='text/javascript' src='views/js/funciones2.js'></script>
+		<script type="text/javascript" src="views/js/chekear_usuario.js" ></script>
+		<script type="text/javascript" src="views/js/chekear_dni.js" ></script>
+		<link rel="stylesheet" type="text/css" href="views/css/estilo_formularios.css" />
+		<link rel='stylesheet' type='text/css' href='views/css/mensajes_validacion.css'/>
+	</head>
+<body>
+<?php
+// print_r($_POST);
+$mostrarFormulario=true;
+$validacion=false;
+//Validando del lado de PHP
+if(isset($_POST['enviar']))
+	{
+	if(empty($_POST['clave1']))
+		echo "<center><div class='validacion' style='margin-right:265px; width:60%;'><img style='margin:0px;padding:0px; 'src='views/imagen/exclamation.png'>&nbsp;&nbsp;Ingrese la contraseña</div></center>";	
+	else if(strlen($_POST['clave1'])<8)
+		echo "<center><div class='validacion' style='margin-right:265px; width:60%;'><img style='margin:0px;padding:0px; 'src='views/imagen/exclamation.png'>&nbsp;&nbsp;Ingrese una contraseña con al menos 8 caracteres</div></center>";
+	else if (!preg_match('`[a-z]`',$_POST['clave1']))
+		echo "<center><div class='validacion' style='margin-right:265px; width:60%;'><img style='margin:0px;padding:0px;'src='views/imagen/exclamation.png'>&nbsp;&nbsp;La contraseña debe contener al menos una letra minúscula</div></center>";
+	else if (!preg_match('`[A-Z]`',$_POST['clave1']))
+		echo "<center><div class='validacion' style='margin-right:265px; width:60%;'><img style='margin:0px;padding:0px;'src='views/imagen/exclamation.png'>&nbsp;&nbsp;La contraseña debe contener letra mayúscula</div></center>";
+	else if (!preg_match('`[0-9]`',$_POST['clave1']))
+		echo "<center><div class='validacion' style='margin-right:265px; width:60%;'><img style='margin:0px;padding:0px;'src='views/imagen/exclamation.png'>&nbsp;&nbsp;La contraseña debe contener número</div></center>";
+	else if(empty($_POST['clave2']))
+		echo "<center><div class='validacion' style='margin-right:265px; width:60%;'><img style='margin:0px;padding:0px;'src='views/imagen/exclamation.png'>&nbsp;&nbsp;Repite la contraseña</div></center>";
+	else if($_POST['clave2']!=$_POST['clave1'])
+		echo "<center><div class='validacion' style='margin-right:265px; width:60%;'><img style='margin:0px;padding:0px;'src='views/imagen/exclamation.png'>&nbsp;&nbsp;Las contraseñas no coincide.</div></center>";	
+	else
+		{
+		$res=$usuario->cambiarClave($_SESSION['dni_r'],$_POST['clave1']);
+		if($res)
+			{
+			Historial::Movimiento($_SESSION['codigo_r'],"Recuperó contraseña");
+			$mjs['envio']="<center><div class='mensaje_envio' style='margin-right:265px; width:60%;'>La contraseña fue cambiada correctamente</div></center>";
+			$mostrarFormulario=false;				
+			}
+		else
+			{
+			$msj['error']="<center><div class='validacion' style='margin-right:265px; width:60%;'><img style='margin:0px;padding:0px;'src='views/imagen/exclamation.png'>&nbsp;&nbsp;Problemas al recuperar la contraseña. Contacte a su administrador de sistema</div></center>";
+			$mostrarFormulario=false;	
+			}
+		}
+	}
+if($mostrarFormulario)
+{
+?>
+<div class='tema' style='margin-right:300px;'><p><?php echo $tema; ?></p></div>
+<form class="principal" action="" method="POST" name='form' onSubmit='return validarCamposUsuario();'>
+<table style='margin-right:415px;' class="principal" cellspacing="15px" border="0" align='center'>
+	<tr>
+		<td colspan='2'>Nueva contraseña:</BR><input class='input' style='width:150px;' value="<?php if(!empty($_POST['clave1'])) echo $_POST['clave1']; ?>" type="password" maxlength="16" name="clave1" id='clave1' ></td>
+	</tr>
+	<tr>
+		<td colspan='2'>Repita la contraseña:<br> <input class='input' style='width:150px;' value="<?php if(!empty($_POST['clave2'])) echo $_POST['clave2']; ?>" type="password" maxlength="26" name="clave2" id='clave2'></td>
+	</tr>
+	<tr style='text-align:center;'>
+		<td colspan='2' ><input class='accion' type='submit' name='enviar' value='Aceptar'></td>
+	</tr>
+	</table>
+</form>
+<?php
+}
+if(isset($res))
+	{
+	if($res)
+		{
+		echo $mjs['envio'];
+		header("refresh:2;url=?opcion=iniciarsesion");
+		}
+	else
+		{
+		if(!$validacion)
+			{
+			echo $msj['error'];
+			header("refresh:3;url=?opcion=inicio");			
+			}
+		}
+	}
+?>
+</body>
+</html>
+<?php
+}
+?>

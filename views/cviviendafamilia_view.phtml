@@ -1,0 +1,56 @@
+<?php
+$lista=$vivienda->consultarViviendaPorIdFamilia($_GET['id_rep']);
+?>
+<!doctype html>
+<html>
+	<head>
+	<meta charset="utf-8" />
+		<title><?php echo $tema; ?></title>
+		<link rel='stylesheet' type='text/css' href='views/css/consultar.css'/>
+		<script type='text/javascript' language='javascript' src='views/js/funciones.js'></script>
+	</head>
+<body>
+<div class='tema'>
+<label class='titulo'><?php echo $tema; ?></label>
+</div>
+	<table  cellspacing='02'>
+		<tr>
+			<td colspan='7' style='background:gray; border-top:0px;'><b>SECTOR: <?php echo strtoupper($lista[0]['sector']); ?></b></td>
+		</tr>
+		<tr>
+			<th align=center colspan='4' title='Representante familiar'><a href='#'>REPRESENTANTE FAMILIAR: <?php echo "<label style='font-weight:normal;'>".$lista[0]['tipo_dni']."-".$lista[0]['dni']." ".$lista[0]['nombre']." ".$lista[0]['apellido']."</label>"; ?></a></th>
+		</tr>
+		<tr>
+			<td title='<?php echo $lista[0]['tipo_vivienda']; ?>'><b>Tipo de vivienda: </b><?php echo $lista[0]['tipo_vivienda']; ?></td>
+			<td title='<?php echo $lista[0]['ocupacion_vivienda']; ?>'><b>Ocupación de la vivienda: </b><?php echo $lista[0]['ocupacion_vivienda']; ?></td>
+			<td title='<?php echo $lista[0]['uso_vivienda']." años";  ?>'><b>Uso de la vivienda: </b><?php echo $lista[0]['uso_vivienda'];  ?></td>
+			<td title='<?php echo $lista[0]['tipo_techo']; ?>'><b>Tipo de techo: </b><?php echo $lista[0]['tipo_techo']; ?></td>
+		</tr>
+		<tr>
+			<td title='<?php echo $lista[0]['tipo_paredes']; ?>'><b>Tipo de paredes: </b><?php echo $lista[0]['tipo_paredes']; ?></td>
+			<td title='<?php echo $lista[0]['tipo_piso']; ?>'><b>Tipo de piso: </b><?php echo $lista[0]['tipo_piso']; ?></td>
+			<td title='<?php echo $lista[0]['nivel_vivienda']." años";  ?>'><b>Nivel de la vivienda: </b><?php echo $lista[0]['nivel_vivienda'];  ?></td>
+			<td title='<?php echo $lista[0]['propiedad_vivienda']; ?>'><b>Propieda de la vivienda: </b><?php echo $lista[0]['propiedad_vivienda']; ?></td>
+		</tr>
+		<tr>
+				<td class='td_v'><b>Baños: </b><?php echo $lista[0]['banio']=(empty($lista[0]['banio']))?'No':$lista[0]['banio']; ?></td>
+				<td class='td_v'><b>Dormitorios: </b><?php echo $lista[0]['dormitorio']=(empty($lista[0]['dormitorio']))?'No':$lista[0]['dormitorio']; ?></td>
+				<td class='td_v'><b>Cocinas: </b><?php echo $lista[0]['cocina']=(empty($lista[0]['cocina']))?'No':$lista[0]['cocina'];  ?></td>
+				<td class='td_v'><b>Neveras: </b><?php echo $lista[0]['nevera']=(empty($lista[0]['nevera']))?'No ':$lista[0]['nevera']; ?></td>
+			</tr>
+		<tr>
+			<td title='<?php echo $lista[0]['aguas_blancas']; ?>'><b>Aguas blancas: </b><?php echo $lista[0]['aguas_blancas']=$lista[0]['aguas_blancas']?'Si':'No'; ?></td>
+			<td title='<?php echo $lista[0]['gas']; ?>'><b>Gas: </b><?php echo $lista[0]['gas']=$lista[0]['gas']?'Si':'No'; ?></td>
+			<td title='<?php echo $lista[0]['electricidad']." años";  ?>'><b>Electricidad: </b><?php echo $lista[0]['electricidad']=$lista[0]['electricidad']?'Si':'No';  ?></td>
+			<td title='<?php echo $lista[0]['tv_radio']; ?>'><b>TV o Radio: </b><?php echo $lista[0]['tv_radio']=$lista[0]['tv_radio']?'Si':'No'; ?></td>
+		</tr>
+		<tr>
+			<td colspan='4' title='<?php echo $lista[0]['observacion']; ?>'><b>Observaciones: </b><?php echo $lista[0]['observacion']; ?></td>
+		</tr>
+		<tr>
+			<td colspan='4' style='text-align:right; padding-right:20px;' ><a href='?opcion=evivienda&id=<?php echo $_GET['id_rep']; ?>'><img class='ico_op' src='views/imagen/modificar.png'></img> <font COLOR='blue'>Editar</font></a></td>
+		</tr>
+</table>
+<div class='papelera' title='Atrás'><a href='?opcion=cfamilia&pagina='><img src='views/imagen/go-back.png'><br>Atrás</a></div>
+</body>
+</html>

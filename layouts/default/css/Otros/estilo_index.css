@@ -1,0 +1,51 @@
+body{
+	margin: auto;
+	background-image:URL('../imagen/bg.png');
+}
+.cuerpo{
+	font-family: Helvetica;
+	width: 400px; 
+	height:220px;
+	background-color: #F8FDFE;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 120px;
+	margin-bottom: 50px;
+	border-radius: 15px;
+	box-shadow:0 0px 010px rgba(0,0,0, .7) inset,0 0px 010px rgba(0,0,0, .7);
+	
+	}
+header img{
+		width: 100%; ;
+		border-radius: 0 0 4px 4px;
+	
+	}
+#titulo{
+		font:bold 19px Arial,Helvetica,sans-serif;
+		margin-left: 30%;	
+	}
+#ab{
+	font:bold 17px Arial,Helvetica,;
+		margin-left: 25px;	
+	
+	}
+#bc{
+	font:bold 17px Arial,Helvetica,;
+		margin-left: 25px;	
+	
+	}
+input{
+	
+	margin-left: 25px;
+	}	
+.accion{
+	background-color: ;
+	border-radius: 6px;
+	margin-left: 150px;
+	box-shadow:0 0px 02px rgba(0,0,0, .4) inset,0 0px 02px rgba(0,0,0, .4);
+	background-color: #87CEEB;
+	}
+	a{
+		margin-left: 150px;
+		
+		}

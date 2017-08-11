@@ -1,0 +1,146 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+	<title><?php echo $tema; ?></title>
+	<link rel='stylesheet' type='text/css' href='views/css/consultar.css'/>
+	<script type='text/javascript' src='views/js/funciones.js'></script>
+	<link rel='stylesheet' type='text/css' href='views/css/mensajes_validacion.css'/>
+</head>
+<body>
+<?php
+if(count($lista)==0)
+	echo $mensaje['not_data'];
+else
+{
+?>
+<div class='tema'>
+<label class='titulo'><?php echo $tema; ?></label>
+</div>
+<!-- Mostrar voceros -->
+	<table cellspacing='02'>
+	<tr>
+		<!--<th title='Documento de Identidad' style='width:120px;'><a href='#'>Documento de Identidad</a></th>-->
+		<th title='Nombre y apellido del vocero'><a href='#'>Nombre y apellido</a></th>
+		<th align="center" title='Número de cédula de identidad del vocero'><a href='#'>Teléfono</a></th>
+		<th align="center" title='Período del vocero' ><a href='#'>Período</a></th>		
+<?php if($_SESSION['nivel_usuario']=='Administrador') 
+		{?>
+		<th align="center" title='Restaurar vocero' ><a href='#'>Restaurar</a></th>
+<?php }?>
+		<th title='Detalles del vocero' align="center"><a href='#'>Detalles</a></th>
+	</tr>
+<?php
+for($i=0;$i<count($lista);$i++)
+	{
+	//Consultando la vocería para verificar su estatus y validar si se puede mostar cambiar el estaus o no.
+	$estatusVoceria=$voceria->consultarVoceriaPorId($lista[$i]['id_voceria']);
+	$estatusPersona=$familia->consultarPersonaDni($lista[$i]['dni_vocero']);
+	//Cambiando formato de fecha a dd/mm/aaaa
+	$fecha=$lista[$i]['fecha_vigencia'];
+	$fecha_m=explode("-",$fecha);
+	$dia_m=$fecha_m[2];
+	$mes_m=$fecha_m[1];
+	$anio_m=$fecha_m[0];
+	$p_inicio=$anio_m;
+	$p_final=$anio_m+2;
+
+	$f=$config[0]['periodo_actual'];
+	$_f=explode("/",$f);
+	$a=$_f[2];
+	$m=$_f[1];
+	$d=$_f[0];
+	$periodo_actual=$a."-".$m."-".$d;
+	//echo $periodo_actual;
+	$segundos=strtotime($periodo_actual) - strtotime($lista[$i]['fecha_vigencia']);//Calculando las diferencias de fechas para medir el tiempo del vocero 
+	$diferencia_dias=intval($segundos/60/60/24); //Se está probando si funciona la fecha
+?>
+	<tr id="<?php echo "id_$i"; ?>" onMouseMove="cambiarColor('<?php echo "id_$i"; ?>','#D8D8D8 url(views/imagen/background.png) repeat-x 0 -10px');" onMouseOut="cambiarColor('<?php echo "id_$i"; ?>','#fff');" >
+		<!--<td title='<?php echo $lista[$i]['tipo_dni']."-".$lista[$i]['dni_vocero']; ?>'><?php echo $lista[$i]['tipo_dni']."-".$lista[$i]['dni_vocero']; ?></td>-->
+		<td title="<?php echo $lista[$i]['nombre']." ".$lista[$i]['apellido']; ?>"><?php echo $lista[$i]['nombre']." ".$lista[$i]['apellido']; ?></td>
+		<td align="center" title='<?php echo $lista[$i]['telefono_vocero']; ?>'><?php echo $lista[$i]['telefono_vocero']; ?></td>
+		<td align="center" title='<?php echo $p_inicio."-".$p_final; ?>'><?php if($diferencia_dias>365) echo "Expirado"; else echo $p_inicio."-".$p_final; ?></td>
+<?php
+if($_SESSION['nivel_usuario']=='Administrador') 
+{
+		?>
+		<td align="center" >
+<?php
+if($estatusVoceria[$i]['estatus']=='1'&&$estatusPersona[$i]['mudado']!='1'&&$estatusPersona[$i]['fallecido']!='1')
+	{
+
+?>	
+		<a title='Restaurar' href='?opcion=svocero&dni=<?php echo $lista[$i]['dni_vocero']; ?>&id=<?php echo $lista[$i]['id']; ?>&elimina=<?php echo $lista[$i]['eliminado']; ?>' onClick='return preguntaRestaurar();'>
+<img src='views/imagen/restaurar.png'></img></a>
+
+<?php
+	}
+	else 
+		echo "N/A";
+}
+
+?>		</td>
+		<td align="center"><a href="javascript: abrir_nueva_ventana('views/cdvocero_view.phtml?dni=<?php echo $lista[$i]['dni_vocero']; ?>');"><img style='border:0px;' title='Ver más' src='views/imagen/detail.png'></img></a></td>
+
+	</tr>
+	
+<?php
+		
+	}
+}
+?>
+</table>
+<?php
+
+if($_REQUEST['opc']=='todos')
+{
+?>
+<!-- FUENTE: www.CesarCancino.com -->
+<div class='paginador' align='center' >
+<ul>
+	<li style="display:inline; margin-right:6px;">
+	<?php if($params['primero']):	?>
+		<a  class='parametro'  href="?opcion=<?php echo $opcion; ?>&pagina=<?php echo $params['primero']; ?>">
+		Primero
+		</a>
+	<?php	else: ?>
+		Primero
+	<?php	endif; ?>
+	
+	</li>
+	<li style="display:inline; margin-right:6px;">
+	<?php if($params['anterior']):	?>
+		<a  class='parametro'  href="?opcion=<?php echo $opcion; ?>&pagina=<?php echo $params['anterior']; ?>">
+		Anterior
+		</a>
+	<?php	else: ?>
+		Anterior
+	<?php	endif; ?>
+	</li>
+	<li style="display:inline; margin-right:6px;">
+	<?php if($params['siguiente']):	?>
+		<a  class='parametro'  href="?opcion=<?php echo $opcion; ?>&pagina=<?php echo $params['siguiente']; ?>">
+		Siguiente
+		</a>	
+	<?php	else: ?>
+		Siguiente
+	<?php	endif; ?>
+	</li>
+	</li>
+	<li style="display:inline; margin-right:5px;">
+	<?php if($params['ultimo']):	?>
+		<a  class='parametro'  class='parametro' href="?opcion=<?php echo $opcion; ?>&pagina=<?php echo $params['ultimo']; ?>">
+		Último
+		</a>
+	<?php	else: ?>
+		Último
+	<?php	endif; ?>
+	</li>
+</ul>
+</div>
+<?php
+}
+?>
+<div class='papelera'><a href='?opcion=cvocero&opc=todos&pagina='><img style='width:20px; height:20px; right:6PX;' src='views/imagen/go-back.png'><br>Atrás</a></div>
+</body>
+</html>

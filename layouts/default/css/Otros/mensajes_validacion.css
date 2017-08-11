@@ -1,0 +1,48 @@
+*
+	{
+	margin:0px;
+	padding:0px;
+	}
+.validacion
+	{
+	width:60%;
+	border: 1px dashed #BC1010; 
+	border-top:0px;
+	color:#BC1010;
+	/* background: none repeat scroll 0 0 #DBCC29; */
+	background:#fff;
+	margin:0px auto; 
+	padding:5px;
+	text-align:center;
+	font-weight: bold;
+	}
+.bottom
+	{
+	border:1px solid #000;
+	margin-top:0px;
+	}
+.validacion_cedula
+	{
+	width:50%;
+	border: 1px solid #BC1010; 
+	border-top:0px;
+	color:#BC1010;
+	background: none repeat scroll 0 0 #DBCC29;
+	margin:0px auto; 
+	padding:5px; 
+	text-align:center;
+	font-weight: bold;
+	}
+.mensaje_envio
+	{
+	width:50%;
+	border: 0px solid #000; 
+	border-top:0px;
+	color: white;
+    font-weight: bold;
+    background: none repeat scroll 0 0 #1EA700;
+	margin:0px auto; 
+	padding:5px; 
+	text-align:center;
+	}
+

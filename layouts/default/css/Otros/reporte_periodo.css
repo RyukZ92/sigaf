@@ -1,0 +1,79 @@
+*{
+font-size:14px;
+font-family:sans-serif,arial,tahome;
+}
+.pagina
+	{
+	width:530px;
+	margin:0px;
+	}
+.titulo
+	{
+	margin-top:30px;
+	text-align:left;
+	font-size:16px;
+	font-weight:bold;
+	margin-bottom:0px;
+	}
+table
+	{	
+	border:1px solid black;
+	margin:0px auto;
+	text-align:left;
+	width:530px;
+	}
+td
+	{
+	width:170px;
+	padding-left:10px;
+	border:1px solid black;
+	height:30px;
+	border-bottom:0px;
+	border-left:0px;
+	}
+.ultima
+	{
+	text-align:left;
+	border-right:0px;
+	}
+th
+	{
+	width:0px auto;
+	margin:0px;
+	color:#000;
+	border:1px solid #000;
+	text-decoration:none;
+	padding-left:5px;
+	background:#f0f0f0;
+	height:30px;
+	border-left:0px;
+	border-bottom:0px;
+	
+	}
+th.top
+	{
+	text-align:center;
+	color:#fff;
+	border:0px solid #000;
+	background:#A4A4A4;
+	}
+td.right
+	{
+	border-right:0px;
+	}
+tr
+	{
+	font-size:14px;
+	background:#fff;
+	text-align:left;
+	}
+.detail
+	{
+	size:14px;
+	margin-left:35px;
+	}
+td.td_2
+	{
+	border-right:0px;
+	width:170px;
+	}

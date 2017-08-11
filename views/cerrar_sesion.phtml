@@ -1,0 +1,7 @@
+<?php
+session_start();
+session_destroy();
+unset($_SESSION);
+Historial::Movimiento($_SESSION['codigo'],'Finalizó sesión');
+header('refresh:0;url=?opcion=iniciarsesion');
+?>

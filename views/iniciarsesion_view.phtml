@@ -1,0 +1,85 @@
+<?php
+if(isset($_SESSION['logueo']))
+	{
+	if(!$_SESSION['codigo'])
+	{
+?>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title></title>
+	<link rel='stylesheet' type='text/css' href='views/css/inicio_sesion.css' />	
+</head>
+<body>
+<?php
+$error=array();
+//Inicio de sesión.
+if((isset($_POST['nombre_usuario'])) && (isset($_POST['clave'])))
+	{
+	$root=($_POST['nombre_usuario']==$usuario_provisional&&$_POST['clave']==$clave_provisional&&$expirar)?1:0;
+	$login=addslashes($_POST['nombre_usuario']); //Función para evitar inyección SQL: addslashes()
+	$pass=addslashes($_POST['clave']);
+	$lista=$sesion->inicioSesion($login,$pass); //Consultar usuario y contraseña
+		if($root)
+			{
+			$_SESSION['codigo']=true;
+			$_SESSION['nombre_']='Usuario';
+			$_SESSION['apellido_']='Provisional';
+			$_SESSION["nivel_usuario"]='provisional';		
+			//Historial::Movimiento($_SESSION['codigo'],'Inició sesión');
+			$_SESSION['logueo']=1;
+			header("location:?opcion=inicio");
+			}			
+		else if((count($lista)>0))
+			{
+			$usuario=$sesion->consultarUsuarioPorDni($lista[0]['dni_vocero']);
+			$_SESSION['dni_voc']=$lista[0]['dni_vocero'];
+			if($usuario[0]['estatus']==1)
+				{
+				//Creando variables de sesión
+				$_SESSION['codigo']=$usuario[1]['id'];
+				$_SESSION['nombre_']=$usuario[1]['nombre'];
+				$_SESSION['apellido_']=$usuario[1]['apellido'];
+				$_SESSION['sex']=$usuario[1]['sexo'];
+				$_SESSION["nivel_usuario"]=$usuario[1]['nivel_usuario'];		
+				Historial::Movimiento($_SESSION['codigo'],'Inició sesión');
+				$_SESSION['logueo']=1;
+				header("location:?opcion=inicio");
+				}
+			else
+				{
+				echo "<script type='text/javascript'>
+						alert('Disculpe, su cuenta se encuentra deshabilitada o eliminada del sistema. Cantacte al administrador del sistema para resolver este inconveniente.');
+						window.location=('');
+					</script>";
+				}
+			}
+		else
+			{
+			session_destroy();
+			echo "<script type='text/javascript'>
+				alert('Los datos suminstrados son incorrectos');
+				window.location=('');	
+				</script>";
+			}
+	}
+//Formulario de inicio de sesión
+?>
+		<form action="" id='form' method='POST'>
+		<div id='general'>
+		<div id='tema'><?php echo $tema; ?></div>
+		<div><label class='campos'>Usuario:</label><br><input id='campo1' name='nombre_usuario' type="text" autocomplete="off" ></div>
+		<div><label class='campos'>Contraseña:</label><br><input id='campo2' name='clave' type="password" autocomplete="off"></div>
+		<div id='caja_boton'><input id='boton' type="submit" value="Entrar"></div>
+		</div>
+		</form>
+		<div id='recuperar_pass'><a href='?opcion=idrecuperarclave' style='color:blue;'>Olvidé mi contraseña</a></div>
+		
+<?php
+//Fin del formulario de inicio de sesión
+	}
+	}
+?>
+</body>
+</html>

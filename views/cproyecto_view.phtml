@@ -1,0 +1,141 @@
+<!doctype html>
+<html>
+	<head>
+	<meta charset="utf-8" />
+		<title>Consulta de usuarios</title>
+		<link rel='stylesheet' type='text/css' href='views/css/consultar.css'/>
+		<script type='text/javascript' language='javascript' src='views/js/funciones.js'></script>
+	</head>
+<body>
+<div class='tema'>
+<label class='titulo'><?php echo $tema; ?></label>
+</div>
+<?php
+
+$en_espera=0;
+$aprobados=0;
+$no_aprobados=0;
+$en_elaboracion=0;
+$finalizados=0;
+for($i=0;$i<count($listaProyecto);$i++)
+	{
+	if($listaProyecto[$i]['estatus']=='En espera')
+		$en_espera++;
+	else if($listaProyecto[$i]['estatus']=='Aprobado')
+		$aprobados++;
+	else if($listaProyecto[$i]['estatus']=='No aprobado')
+		$no_aprobados++;
+	else if($listaProyecto[$i]['estatus']=='En ejecución')
+		$en_elaboracion++;	
+	else if($listaProyecto[$i]['estatus']=='Finalizado')
+		$finalizados++;
+	}
+$total=$en_espera+$en_elaboracion+$finalizados+$aprobados+$no_aprobados;
+//Mostrar todos los proyectos>
+?>
+	<table cellspacing='02'>
+	<tr>
+		<th title='Título del proyecto'><a href='#'>Título del proyecto</a></th>
+		<th title='Estatus del proyecto' class='accion' style='width:100px;'><a href='#'>Estatus</a></th>
+		<th title='Actualizar' style='width:80px;'><a href='#'>Actualizar</a></th>
+		<th class='accion' STYLE='width:60px;'title='Imprimir'>Imprimir</th>
+	</tr>
+
+<?php
+for($i=0;$i<count($lista);$i++)
+	{
+?>
+	<tr id="<?php echo "id_$i"; ?>" onMouseMove="cambiarColor('<?php echo "id_$i"; ?>','#D8D8D8 url(views/imagen/background.png) repeat-x 0 -10px');" onMouseOut="cambiarColor('<?php echo "id_$i"; ?>','#fff');">
+		<td title='<?php echo $lista[$i]['titulo']; ?>'><?php echo $lista[$i]['titulo']; ?></td>
+		<td class='accion'><?php echo "<a href='#'><b>".$lista[$i]['estatus']."</b></a>"; ?></td>
+		<form method="POST" action="?opcion=eproyecto">
+		<input type='hidden' name='id' value='<?php echo $lista[$i]['id_p']; ?>'>
+		<input type='hidden' name='estatus' value='<?php echo $lista[$i]['estatus']; ?>'>
+		<td title='Editar' align='center'>
+		<?php 
+	if($_SESSION['nivel_usuario']=='Administrador')
+		{
+		if($lista[$i]['estatus']!='Finalizado')
+			{
+		?>
+		<a href=""><input type='image' src='views/imagen/modificar.png'>
+		<?php
+			}
+		else
+			echo '-';
+		}
+	else
+		echo '-';	
+		?>
+		</td>
+		<td align="center"><a target='_blank' href='views/cproyectodetpdf_view.php?id=<?php echo $lista[$i]['id_p'];?>'><img src='views/imagen/document-pdf.png'></img></a></td>
+		</form>
+	</tr>
+<?php	
+	}
+?>
+	</table>
+	<table class='resumen_' cellspacing='0'>
+		<tr style='margin:auto; text-align:justify;'>
+			<td class='td_'><a href='#'><?php echo "<b>En espera: </b> $en_espera"; ?></a></td>
+			<td class='td_'><a href='#'><?php echo "<b>Aprobados: </b> $aprobados"; ?></a></td>
+			<td class='td_'><a href='#'><?php echo "<b>No aprobados: </b> $no_aprobados"; ?></a></td>	
+			<td class='td_'><a href='#'><?php echo "<b>En ejecución: </b> $en_elaboracion"; ?></a></td>			
+			<td class='td_'><a href='#'><?php echo "<b>Finalizados: </b> $finalizados"; ?></a></td>
+			<td class='td_'><a href='#'><?php echo " <b>TOTAL: </b> $total"; ?></a></td>
+		<?php
+			{
+			?>
+			<td class='td_' align='right'><a href="?opcion=cgproyecto&en_espera=<?php echo $en_espera; ?>&aprobados=<?php echo $aprobados; ?>&no_aprobados=<?php echo $no_aprobados; ?>&en_elaboracion=<?php echo $en_elaboracion; ?>&finalizados=<?php echo $finalizados; ?>&no_finalizados=<?php echo $no_finalizados; ?>" class='link'><img src='views/imagen/statistics.png' style="position:relative;border:0px solid #000;top:4px;">Datos</a></td>
+		<?php
+			}
+		?>
+			<td class='td_' align='right'><a  target='_blank' href="views/cproyectopdf_view.php" class='link'><img src='views/imagen/document-pdf.png' style="position:relative;border:0px solid #000;top:4px;">Imprimir</a></td>
+		</tr>
+	</table>
+
+<!-- FUENTE: www.CesarCancino.com -->
+<div class='paginador' align='center' >
+<ul>
+	<li style="display:inline; margin-right:6px;">
+	<?php if($params['primero']):	?>
+		<a  class='parametro'  href="?opcion=<?php echo $opcion; ?>&pagina=<?php echo $params['primero']; ?>">
+		Primero
+		</a>
+	<?php	else: ?>
+		Primero
+	<?php	endif; ?>
+	
+	</li>
+	<li style="display:inline; margin-right:6px;">
+	<?php if($params['anterior']):	?>
+		<a  class='parametro'  href="?opcion=<?php echo $opcion; ?>&pagina=<?php echo $params['anterior']; ?>">
+		Anterior
+		</a>
+	<?php	else: ?>
+		Anterior
+	<?php	endif; ?>
+	</li>
+	<li style="display:inline; margin-right:6px;">
+	<?php if($params['siguiente']):	?>
+		<a  class='parametro'  href="?opcion=<?php echo $opcion; ?>&pagina=<?php echo $params['siguiente']; ?>">
+		Siguiente
+		</a>	
+	<?php	else: ?>
+		Siguiente
+	<?php	endif; ?>
+	</li>
+	</li>
+	<li style="display:inline; margin-right:5px;">
+	<?php if($params['ultimo']):	?>
+		<a  class='parametro'  class='parametro' href="?opcion=<?php echo $opcion; ?>&pagina=<?php echo $params['ultimo']; ?>">
+		Último
+		</a>
+	<?php	else: ?>
+		Último
+	<?php	endif; ?>
+	</li>
+</ul>
+</div>
+</body>
+</html>

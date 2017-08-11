@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset='utf-8'/>
+		<title><?php echo $tema; ?></title>
+		<script type='text/javascript' src='views/js/funciones.js'></script>
+		<link rel='stylesheet' type='text/css' href='views/css/estilo_formularios.css' />
+		<link rel='stylesheet' type='text/css' href='views/css/mensajes_validacion.css'/>
+		<link rel='stylesheet' type='text/css' href='views/css/estilo_formularios.css' />
+		<link rel='stylesheet' href='views/css/pickmeup.css' type='text/css' />
+		<script type='text/javascript' src='views/js/jquery.js'></script>
+		<script type='text/javascript' src='views/js/jquery.pickmeup.js'></script>
+		<script type='text/javascript' src='views/js/demo.js'></script>
+	</head>
+<body>
+<?php 
+
+if($_SESSION['nivel_usuario']=='Administrador') //Validación  de restrincciones de privilegios
+{
+$mostrarFormulario=true;
+$grupoFamiliar=$familia->consultarGrupoFamiliar($_GET['id']);
+$datosFam=$datosFamilia->consultarRepFamilia($_GET['dni']);
+$validacion=true;
+//Valindo de lado del servidor
+if(isset($_POST['editar']))
+	{
+	$nuevo_rep=$edad->consultarPersonaDni($_POST['dni_rep']);
+	if($nuevo_rep[0]['edad']<18)
+		echo $mensaje['menor_edad'];
+	else
+		{
+		//Guardar cambios de edición de la familia y dirección familiar
+		$res=$familia->actualizarRepresentanteFamiliar($_GET['id'],$_POST['dni_rep'],$_POST['subsidio_habitacional'],$_POST['solicitud_vivienda'],$_POST['seguro_social']);
+		$direccion->actualizarDireccion($_POST['sector'],$_POST['numero_casa'],$_GET['id']);
+		if($res) //Guardando cambios adicionales
+			{
+			//Se gurdan cambios adicionles y el movimiento que realia el usuario
+			$b="UPDATE persona SET parentesco='' WHERE dni='".$_GET['dni']."';";
+			$a="UPDATE persona SET parentesco='Representante' WHERE dni='".$_POST['dni_rep']."';";
+			Conectar::conexion()->query($b);
+			Conectar::conexion()->query($a);
+			Historial::Movimiento($_SESSION['codigo'],"Actualizó a la familia del respresentante: <b>".$_POST['dni_rep']."</b>");
+			}
+		$mostrarFormulario=false;
+		}
+	}
+//Formulario de edición
+if($mostrarFormulario)
+	{	
+	?>
+	<div class='tema'><p><?php echo $tema; ?></p></div>
+	<form action='' method='POST' name='form' onSubmit="if(confirm('¿Está de acuerdo de la información suministrada?')) return true; else return false;">
+		<table  class='principal' cellspacing='15px' border='0' align='center'>
+			<tr>
+				<td>Representante actual:</td>
+				<td style='font-weight:normal;'>
+				<?php 
+				for($i=0;$i<count($grupoFamiliar);$i++)
+					{
+					$nombre=explode(' ',$grupoFamiliar[$i]['nombre']);
+					$apellido=explode(' ',$grupoFamiliar[$i]['apellido']);
+					if($grupoFamiliar[$i]['parentesco']=='Representante')
+						{
+						echo $grupoFamiliar[$i]['tipo_dni']."-".$grupoFamiliar[$i]['dni']." ".$nombre[0]." ".$apellido[0];
+						$dni_rep=$grupoFamiliar[$i]['dni'];
+						}
+					}
+				 ?>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					Nuevo representante:
+				</td>
+				<td>
+					<select name='dni_rep'>
+					<option value='<?php echo $dni_rep; ?>'>Nuevo representante</option>
+					<?php 
+					for($i=0;$i<count($grupoFamiliar);$i++)
+						{
+						$nombre=explode(' ',$grupoFamiliar[$i]['nombre']);
+						$apellido=explode(' ',$grupoFamiliar[$i]['apellido']);
+						if($grupoFamiliar[$i]['parentesco']!='Representante')
+							{
+
+					?>
+							<option value='<?php echo $grupoFamiliar[$i]['dni']; ?>'><?php echo $grupoFamiliar[$i]['tipo_dni']."-".$grupoFamiliar[$i]['dni']." ".$nombre[0]." ".$apellido[0]; ?>
+							</option>
+
+					<?php 
+							}
+						}
+			?>
+			</select>	
+			</td>	
+			</tr>
+			<tr>
+				<td colspan="2" align='center'><label style='font-size:10px; font-weight:normal;color:red;  position:relative; top:-12px;'>Si no desea cambiar el representante familiar, no seleccione Nuevo representante.</label></td>
+			</tr>
+	<tr>
+		<td>BENEFICIOS:</td>
+	</tr>			
+	<tr>
+		<td colspan='2'>Subsidio habitacional
+			<br>
+			<input size='40' value="<?php echo $datosFam[0]['subsidio_habitacional']; ?>" type="text" maxlength="30" name="subsidio_habitacional" id="subsidio_habitacional" placeholder="¿Cuál o cuales?" class="largo" onKeyPress="return validaLetra(event);">
+		</td>
+	</tr>
+	<tr>
+		<td colspan='2'>Institución donde posee solicitud de vivienda
+			<br>
+			<input size='40' value="<?php echo $datosFam[0]['solicitud_vivienda']; ?>" type="text" maxlength='50' name="solicitud_vivienda" id="solicitud_vivienda" placeholder="¿Cuál o cuales instituciones?" class="largo" onKeyPress="return validaLetra(event);">
+		</td>
+	</tr>
+	<tr>
+		<td colspan='2'>Afilación del seguro social
+			<br>
+			<input value="<?php echo $datosFam[0]['seguro_social']; ?>" type="text" maxlength="50" name="seguro_social" id="seguro_social" placeholder="¿Cuál o cuales?" class="largo" onKeyPress="return validaLetra(event);">
+		</td>
+	</tr>
+	<tr>
+		<td>DIRECCIÓN:</td>
+	</tr>
+	<tr>
+		<td colspan="2">Sector:
+		<br><select name='sector' style='width:120px;'>
+	<?php
+	$sector=explode(',',$config[0]['sector']);
+	for($i=0;$i<count($sector);$i++)
+		{	
+	
+	?>
+			<option <?php if(strtolower($datosFam[0]['sector'])==strtolower(trim($sector[$i])))  {?>selected<?php } ?> value='<?php echo trim($sector[$i]); ?>' ><?php echo trim($sector[$i]); ?></option>			
+	<?php
+		}
+	?>
+		</select>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Número de casa:
+			<input value="<?php echo $datosFam[0]['numero_casa']; ?>" type="text" maxlength="6" name="numero_casa" id="numero_casa" placeholder="Ej. 01" onKeyPress="return validaNumero(event);" style='width:50px;'>
+		</td>
+	</tr>	
+		<tr>
+			<td colspan='2' style="text-align:center;"><BR>
+				<input style='margin-right:10px;' class='accion' type='button' title='Salir' value='Salir' onClick="if(confirm('¿Desea salir sin guardar los cambios?')) window.location='?opcion=inicio';"/>
+				<input style='margin-left:10px;' class='accion' type='submit' value='Guardar' title='Guardar cambios' name='editar'/>
+			</td>
+		</tr>
+
+		</table>
+	</form>
+	<?php
+	}
+//Fin del formulario	
+
+//mensaje que se muestra al ejecutar la acciónM
+if(isset($res))
+	{
+	if($res)
+		{
+		echo $mensaje['updated'];
+		header("refresh:2;url=?opcion=cfamilia");
+		}
+	else
+		{
+		if(!$validacion)
+			{
+			$mensaje['error_updated'];
+			header("refresh:3;url=?opcion=inicio");			
+			}
+		}
+	}
+}
+else
+	echo $mensaje['not_privilege'];	
+?>
+</body>
+</html>

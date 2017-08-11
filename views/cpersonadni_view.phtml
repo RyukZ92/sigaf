@@ -1,0 +1,106 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset='utf-8' />
+		<title><?php echo $tema; ?></title>
+		<link rel='stylesheet' type='text/css' href='views/css/consultar.css'/>
+		<link rel='stylesheet' type='text/css' href='views/css/mensajes_validacion.css'/>
+	</head>
+<body>
+<?php
+$rest=true;
+//Se selecciona la opción de la constancia que se va a emitir
+switch($_GET['opc'])
+	{
+	case 'Residencia':
+		$url='residenciapdf_view.php';
+		$tema='Constancia de residencia';
+	break;
+	case 'Buena conducta':
+		$url='buenaconductapdf_view.php';
+		$tema='Constancia de buena conducta';
+	break;	
+	case 'Bajos recursos':
+		$url='bajosrecursospdf_view.php';
+		$tema='Constancia de bajos recursos';
+	break;
+	}
+$restriccion=$constancia->verificarRestriccionConstancia(date('m'),$_GET['opc'],$_REQUEST['dni']);	
+if($restriccion>0)
+	{
+	echo "<center><div class='validacion'><img style='margin:0px;padding:0px;'src='views/imagen/exclamation.png'>&nbsp;&nbsp;DISCULPE. La persona <u>ha solicitado constancia de ".strtolower($_REQUEST['opc'])."</u> este mes, debe esperar hasta el próximo mes para emitir una nueva constancia</div></center>";
+	$rest=false;
+	header("refresh:15;url=?opcion=bpersonadni");
+	}
+//Se consntal a la persona
+$dni=$_REQUEST['dni'];
+$lista=$persona->consultarPersonaDni($dni);
+if($lista)
+{
+if($rest)
+{
+?>
+
+<div class='tema'>
+<label class='titulo'><?php echo $tema; ?></label>
+</div>
+<?php
+//Mostrar datos>
+?>
+	<table cellspacing='02'>
+	<tr>
+		<th title='Documento de identidad'><a href='#'>Documento de Identidad</a></th>
+		<th title='Nombre y apellido'><a href='#'>Nombre y apellido</a></th>
+		<th title='Dirección' class='accion'><a href='#'>Dirección</a></th>
+		<th title='Edad' class='accion'><a href='#'>Edad</a></th>		
+		<th title='Imprimir' class='ultima'><a href='#'>Imprimir</a></th>
+	</tr>
+
+<?php
+//Mostrando datos
+for($i=0;$i<count($lista);$i++)
+	{
+?>
+	<tr id="<?php echo "id_$i"; ?>" onMouseMove="cambiarColor('<?php echo "id_$i"; ?>','#D8D8D8 url(views/imagen/background.png) repeat-x 0 -10px');" onMouseOut="cambiarColor('<?php echo "id_$i"; ?>','#fff');" >
+		<td title="<?php echo $lista[0]['tipo_dni']."-".$lista[0]['dni']; ?>"><?php echo $lista[0]['tipo_dni']."-".$lista[0]['dni']; ?></td>
+		<td title='<?php echo $lista[0]['nombre']; ?>'><?php echo $lista[0]['nombre']." ".$lista[0]['apellido']; ?></td>
+		<td title='<?php 
+			echo $lista[0]['direccion'].", Sector \"".$lista[0]['sector']."\"";
+			if(empty($lista[0]['numero_casa']))
+				echo ", Casa S/N"; 
+			else
+				echo ", Casa N° ".$lista[0]['numero_casa'];
+			
+			echo  ", Parroquia ".$lista[0]['nombre_parroquia'].", Municipio ".$lista[0]['nombre_municipio'].", Carúpano Estado ".$lista[0]['nombre_estado'];
+			?>'>
+		<?php 
+			echo $lista[0]['direccion'].", Sector \"".$lista[0]['sector']."\"";
+			if(empty($lista[0]['numero_casa']))
+				echo ", Casa S/N"; 
+			else
+				echo ", Casa N° ".$lista[0]['numero_casa'];
+			
+			echo  ", Parroquia ".$lista[0]['nombre_parroquia'].", Municipio ".$lista[0]['nombre_municipio'].", Carúpano Estado ".$lista[0]['nombre_estado'];
+			?>
+
+		</td>
+		<td style='text-align:center;' title='<?php echo $lista[0]['edad']." años"; ?>'><?php echo $lista[0]['edad']." años"; ?></td>
+
+		<td title='PDF. <?php echo $tema; ?>' align='center'>
+		<a target='_blank' href='views/<?php echo $url; ?>?dni=<?php echo $dni; ?>'><img src='views/imagen/document-pdf.png'></a>
+		</td>
+	</tr>
+<?php
+}
+	}		
+}
+//Mensaje si no se encuentra registro
+else
+	{
+	echo $mensaje['not_dni_f'];
+	header("refresh:4;url=?opcion=bpersonadni");	
+	}	
+?>
+	</table>
+</body>
+</html>

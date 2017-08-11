@@ -1,0 +1,133 @@
+<?php 
+//print_r($_POST);
+// if($_SESSION['nivel_usuario']=='Administrador')
+{
+
+?>
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8"/>
+	<title><?php echo $tema; ?></title>
+	<script type='text/javascript' src='views/js/funciones.js'></script>
+	<link rel="stylesheet" type="text/css" href="views/css/estilo_formularios.css" />
+	<link rel='stylesheet' type='text/css' href='views/css/mensajes_validacion.css'/>
+</head>
+<body>
+<?php
+//print_r($_REQUEST);
+$mostrarFormulario=true;
+$validar=true;
+//Validando del lado de PHP
+if(isset($_POST['buscar']))
+	{	
+	if(empty($_POST['opc']))
+		{
+		echo $mensaje['not_select_op'];
+		}
+	else
+		{
+		if($_POST['opc']=='estadistica_f')
+			header("refresh:0;url=?opcion=cstacfamilia");
+		else if($_POST['opc']=='estadistica_p')
+			{
+			if($_POST['edad_i']>$_POST['edad_f'])
+				echo $mensaje['age_wrong'];
+			else
+				{
+				$fecha_inicial=date('Y-m-d', strtotime("-".$_POST['edad_i']." year"));
+				$fecha_final=date('Y-m-d', strtotime("-".$_POST['edad_f']." year"));
+				header("refresh:0;url=?opcion=cstacpersona&f_inicial=".$fecha_inicial."&f_final=".$fecha_final."&edad_i=".$_POST['edad_i']."&edad_f=".$_POST['edad_f']."&opc=".$_POST['opc']);
+				}
+			}
+		else if($_POST['opc']=='votantes')
+			
+			{
+			$fecha_inicial=date('Y-m-d', strtotime("-15 year"));
+			$fecha_final=date('Y-m-d', strtotime("-100 year"));
+			header("refresh:0;url=?opcion=cstacpersona&f_inicial=".$fecha_inicial."&f_final=".$fecha_final."&opc=".$_POST['opc']);			
+			//echo "consultando votantes $fecha_inicial -> $fecha_final";
+			}
+		}
+
+	}
+if($mostrarFormulario)
+{	
+?>
+<div class='tema'><p><?php echo $tema; ?></p></div>
+<form action="" method="POST" name='form'>
+<table class="principal" cellspacing="15px" border="0" align='center'>
+	<tr>
+		<td>
+			<input type='radio' name='opc' value='estadistica_f'> Censo demográfico
+		</td>
+
+	</tr>
+	<tr>
+		<td>
+			<input type='radio' name='opc' value='votantes'> Personas votantes
+		</td>
+		
+	</tr>
+	<tr>
+		<td> <input onClick="document.form.edad_i.disabled=false;document.form.edad_f.disabled=false;" <?php if(!empty($_POST['opc'])) { if($_POST['opc']=='estadistica_p') { ?>checked<?php } } ?> type='radio' name='opc' value='estadistica_p'> Buscar personas por edades<br><BR>
+
+			Edad inicial: 
+			<select name='edad_i' onclick='return autocheck_p();'>
+			<?php
+			for($i=0;$i<100;$i++)
+				{
+				?>
+				<option <?php if(isset($_POST['edad_i'])) if($_POST['edad_i']==$i) { ?>selected<?php } ?> value='<?php echo $i; ?>' ><?php echo $i; ?></option>
+				<?php
+				}
+				?>
+				</select>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				Edad final: <select name='edad_f' onclick='return autocheck_p();'>
+				<?php
+				for($i=1;$i<101;$i++)
+				{
+				?>
+				<option <?php if(isset($_POST['edad_f'])) if($_POST['edad_f']==$i) { ?>selected<?php } ?>  value='<?php echo $i; ?>' ><?php echo $i; ?></option>
+				<?php
+				}
+				?>
+		</td>
+	</tr>
+
+
+	<tr>
+		<td colspan='2' style='text-align:center;';><br>
+			<input style='margin-right:10px;' class='accion' type='button' name='salir' value='Salir'>
+			<input style='margin-left:10px;'class='accion' type='submit' value='Buscar' name='buscar'>
+		</td>
+	</tr>
+	</table>
+</form>
+<?php
+}
+if(isset($res))
+	{
+	if($res)
+		{
+		echo $msj['envio'];
+		header("refresh:3;url=?opcion=inicio");
+		}
+	else
+		{
+		if(!$validacion)
+			{
+			echo $msj['error'];
+			header("refresh:3;url=?opcion=inicio");			
+			}
+		}
+	}
+
+?>
+</body>
+</html>
+<?php
+}
+// else
+	// echo $mensaje['not_privilege']
+?>

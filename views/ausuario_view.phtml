@@ -1,0 +1,141 @@
+<?php 
+if($_SESSION['nivel_usuario']=='Administrador')
+{
+?>
+<!DOCTYPE html>
+<html>
+	<head>
+			<meta charset="utf-8"/>
+			<title><?php echo $tema; ?></title>
+			<script type='text/javascript' src='views/js/funciones.js'></script>
+			<link rel="stylesheet" type="text/css" href="views/css/estilo_formularios.css" />
+			<link rel='stylesheet' type='text/css' href='views/css/mensajes_validacion.css'/>
+	</head>
+<body onLoad='document.form.dni.focus();'>
+<?php
+$mostrarFormulario=true;
+$validacion=false;
+//Validando del lado de PHP
+if(isset($_POST['enviar']))
+	{
+	$dniVocero=$objVocero->verificarDni($_POST['dni']);
+	$dniUsuario=$nuevoUsuario->consultarUsuarioPorDni($_POST['dni']);
+	$validaNombre=$nuevoUsuario->verificarNombreUsuario($_POST['nombre_usuario']);
+	if(empty($_POST['dni']))
+		echo $mensaje['not_dni'];
+	else if(strlen($_POST['dni'])<6)
+		echo $mensaje['dni_wrong'];
+	else if(empty($_POST['nombre_usuario'])||strlen($_POST['nombre_usuario'])<2)		
+		echo $mensaje['name_wrong'];
+	else if(!$dniVocero)
+		echo $mensaje['not_user_valid'];	
+	else if($dniUsuario[0]['dni_vocero']==$_POST['dni'])
+		echo $mensaje['dni_user_repeat'];
+	else if($validaNombre>0)
+		echo $mensaje['name_user_repeat'];
+	else if(empty($_POST['clave1']))
+		echo $mensaje['not_pass'];		
+	else if(strlen($_POST['clave1'])<8)
+		echo $mensaje['pass_wrong'];	
+	else if (!preg_match('`[a-z]`',$_POST['clave1']))
+		echo $mensaje['not_lowercase'];	
+	else if (!preg_match('`[A-Z]`',$_POST['clave1']))
+		echo $mensaje['not_uppercase'];
+	else if (!preg_match('`[0-9]`',$_POST['clave1']))
+		echo $mensaje['not_number'];
+	else if(empty($_POST['clave2']))
+		echo $mensaje['repeat_pass'];
+	else if($_POST['clave2']!=$_POST['clave1'])
+		echo $mensaje['pass_not_match'];
+	else if(empty($_POST['pregunta_secreta']))
+		echo $mensaje['not_question'];	
+	else if(empty($_POST['respuesta_secreta']))
+		echo $mensaje['not_answer'];	
+	else if(empty($_POST['nivel_usuario']))
+		echo $mensaje['not_nivel_user'];	
+//Fin de vaidación	
+	else
+		{
+		//Registrando usuario en la base de datos
+		$res=$nuevoUsuario->agregarUsuario($_POST['nombre_usuario'],$_POST['clave1'],$_POST['pregunta_secreta'],$_POST['respuesta_secreta'],$_POST['nivel_usuario'],$_POST['dni']);
+		if($res) //Registrando acción realizada
+			Historial::Movimiento($_SESSION['codigo'],"Registró al usuario <b>".$_POST['nombre_usuario']."</b>");
+		$mostrarFormulario=false;					
+		}
+	}
+//Mostrando formulario
+if($mostrarFormulario)
+{
+?>
+<div class='tema'><p><?php echo $tema; ?></p></div>
+<form class="principal" action="" method="POST" name='form' >
+<table  class="principal" cellspacing="15px" border="0" align='center'>
+	<tr>
+		<td>Documento de Identidad:		<BR>
+
+		<input class='input' style='width:150px;'id='dni' value="<?php if(!empty($_POST['dni'])) echo $_POST['dni']; ?>" type="text" size='14' maxlength="8" name='dni'  class="input" onKeyPress="return validaSoloNumero(event);" required>&nbsp;<label class='C_obligatorio'>*</label>	
+		</td>
+	
+		<td>Nombre de usuario: <BR><input class='input' style='width:150px;' value="<?php if(!empty($_POST['nombre_usuario'])) echo $_POST['nombre_usuario']; ?>" type="text" maxlength="16" name="nombre_usuario" id='nombre_usuario' onKeyPress="return validaNumeroLetra(event);" required>&nbsp;<label class='C_obligatorio'>*</label><div id='img_usuario'></div></td>
+	</tr>
+	<tr>
+		<td>Contraseña:<BR>
+		<input class='input' style='width:150px;' value="<?php if(!empty($_POST['clave1'])) echo $_POST['clave1']; ?>" type="password" maxlength="20" name="clave1" onKeyUp="validarDni();" required>&nbsp;<label class='C_obligatorio'>*</label> <div id='img_dniw'></div></td>
+
+		<td>Repita la contraseña:<BR>
+		<input class='input' style='width:150px;' value="<?php if(!empty($_POST['clave2'])) echo $_POST['clave2']; ?>" type="password" maxlength="20" name="clave2" placeholder="" class="input" onKeyPress="return solonumeros(event);" required>&nbsp;<label class='C_obligatorio'>*</label>  </td>
+	</tr>
+	<tr>
+		<td colspan="2" style='font-size:10px; font-weight:normal; color:red;'>La contraseña debe de contener mínimo 8 corácteres alfanuméricos;<br>(letras minúsculas, mayúsculas y números), ejemplo: clAve2015</td>
+	</tr>
+	<tr>
+		<td colspan='2'>Pregunta secreta:</BR><input class='input' style='width:325px;' value="<?php if(!empty($_POST['pregunta_secreta'])) echo $_POST['pregunta_secreta']; ?>" type="text" maxlength="50" name="pregunta_secreta" id='pregunta_secreta' onKeyPress="return validaLetra(event);" required>&nbsp;<label class='C_obligatorio'>*</label><div id='img_usuario'></div></td>
+	</tr>
+	<tr>
+		<td colspan='2'>Respuesta secreta:<br> <input class='input' style='width:325px;' value="<?php if(!empty($_POST['respuesta_secreta'])) echo $_POST['respuesta_secreta']; ?>" type="text" maxlength="20" name="respuesta_secreta" id='respuesta_secreta' onKeyPress="return validaLetra(event);" required>&nbsp;<label class='C_obligatorio'>*</label><div id='img_usuario'></div></td>
+	</tr>
+	<tr>
+		<td colspan="2" style='font-size:10px; font-weight:normal; color:red;'>La Pregunta y Respuesta Secreta de Seguridad se deben guardar y <br>recordar para recuperar su contraseña en caso de haberla olvidado</td>
+	</tr>	
+	 <tr>
+		<td colspan='2'>Nivel del usuario: <select name='nivel_usuario' required>
+		<option value='0'>Seleccionar </option>
+		<option <?php if (!empty($_POST['nivel_usuario'])) if($_POST['nivel_usuario']=='Administrador') {?>selected<?php } ?> value='Administrador'>Administrador</option>
+		<option <?php if (!empty($_POST['nivel_usuario'])) if($_POST['nivel_usuario']=='Operador') {?>selected<?php } ?> value='Operador'>Operador</option>
+		</select>&nbsp;<label class='C_obligatorio'>*</label> </td>
+	</tr>
+	<tr style='text-align:center;'>
+		<td colspan='2' ><br>
+			<input style='margin-right:10px;' type='reset' value='Limpiar'>
+			<input style='margin-left:10px;' type='submit' name='enviar' value='Registrar'>
+		</td>
+	</tr>
+	</table>
+</form>
+<?php
+//Fin del formulario	
+}
+if(isset($res))
+	{
+	if($res)
+		{
+		echo $mensaje['registered'];
+		header("refresh:2;url=?opcion=inicio");
+		}
+	else
+		{
+		if(!$validacion)
+			{
+			echo $mensaje['error_registered'];
+			header("refresh:3;url=?opcion=inicio");			
+			}
+		}
+	}
+?>
+</body>
+</html>
+<?php
+}
+else
+	echo $mensaje['not_acces'];
+?>

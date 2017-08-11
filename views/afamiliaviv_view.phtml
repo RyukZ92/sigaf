@@ -1,0 +1,240 @@
+<?php
+if($_SESSION['nivel_usuario']=='Administrador')
+{
+$validacion=true;
+if($_POST['volver'])
+	header('location:?opcion=afamiliamie');
+if(isset($_POST['continuar']))
+	{
+	if($validacion)
+		{
+		$_SESSION['tipo_vivienda']=$_POST['tipo_vivienda'];
+		$_SESSION['ocupacion_vivienda']=$_POST['ocupacion_vivienda'];
+		$_SESSION['uso_vivienda']=$_POST['uso_vivienda'];
+		$_SESSION['tipo_techo']=$_POST['tipo_techo'];
+		$_SESSION['tipo_paredes']=$_POST['tipo_paredes'];
+		$_SESSION['tipo_piso']=$_POST['tipo_piso'];
+		$_SESSION['nivel_vivienda']=$_POST['nivel_vivienda'];
+		$_SESSION['propiedad_vivienda']=$_POST['propiedad_vivienda'];
+		$_SESSION['p_banio']=$_POST['p_banio'];
+		$_SESSION['banio']=$_POST['banio'];
+		$_SESSION['p_dormitorio']=$_POST['p_dormitorio'];
+		$_SESSION['dormitorio']=$_POST['dormitorio'];
+		$_SESSION['p_cocina']=$_POST['p_cocina'];
+		$_SESSION['cocina']=$_POST['cocina'];
+		$_SESSION['p_nevera']=$_POST['p_nevera'];
+		$_SESSION['nevera']=$_POST['nevera'];
+		$_SESSION['aguas_blancas']=$_POST['aguas_blancas'];
+		$_SESSION['gas']=$_POST['gas'];
+		$_SESSION['electricidad']=$_POST['electricidad'];
+		$_SESSION['tv_radio']=$_POST['tv_radio'];
+		$_SESSION['observacion']=$_POST['observacion'];
+		header('location:?opcion=afamiliadir');	
+		}
+	}
+?>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title><?php echo $tema; ?></title>
+			<script type='text/javascript' src='views/js/funciones.js'></script>
+			<link rel="stylesheet" type="text/css" href="views/css/estilo_formularios.css" />
+			<link rel='stylesheet' type='text/css' href='views/css/mensajes_validacion.css'/>
+<link rel="stylesheet" type="text/css" href="views/css/estilo_formularios.css" />
+  </style>
+</head>
+<body>
+<?php
+?>
+
+<div class='tema'><p><?php echo $tema; ?></p></div>
+<form action="?opcion=afamiliaviv" method="POST" name='form' onSubmit=''>
+
+<table  class="principal" cellspacing="15px" border='0' align='center'>
+
+	<tr>
+		<td>Tipo de vivienda:<br>		
+		<select name='tipo_vivienda'>
+			<option value='-' >Seleccionar</option>
+			<option value='Quinta' >Quinta</option>
+			<option value='Casa' >Casa</option>
+			<option value='Apartamento'>Apartamento</option>
+			<option value='Habitacion'>Anexo/Habitación</option>
+			<option value='Rancho'>Rancho</option>
+			<option value='Otra'>Otra</option>
+		</select>
+		</td>
+		<td>Ocupación:
+		<br>		
+		<select name='ocupacion_vivienda'>
+			<option value='-' >Seleccionar</option>
+			<option value='De uso permanente' >De uso permanente</option>
+			<option value='De uso ocacional' >De uso ocacional</option>
+			<option value='Desocupada'>Desocupada</option>
+			<option value='En construcción'>En construcción</option>
+		</select>
+		
+		</td>
+		<td>Uso de la vivienda<br>
+		<select name='uso_vivienda'>
+			<option value='-' >Seleccionar</option>
+			<option value='Residencial' >Residencial</option>
+			<option value='Comercial' >Comercial</option>
+			<option value='Servicio'>Servicio</option>
+			<option value='Recreativo/Deportivo'>Recreativo/Deportivo</option>
+			<option value='Asistencial/Salud'>Asistencial/Salud</option>
+			<option value='Educacional'>Educacional</option>
+			<option value='Social/Cultural/Religioso'>Social/Cultural/Religioso</option>
+			<option value='Gobierno/Institucional'>Gobierno/Institucional</option>
+			<option value='Servicio Comunal'>Servicio Comunal</option>
+			<option value='Sin uso'>Sin uso</option>
+		</select>
+		
+		</td>
+	
+		<td>Vivienda<br>
+		<select name='propiedad_vivienda'>
+			<option value='-' >Seleccionar</option>
+			<option value='Propia' >Propia</option>
+			<option value='Alquilada' >Alquilada</option>
+			<option value='Compartida'>Compartida</option>
+			<option value='Invadida'>Invadida</option>
+			<option value='Adjudicada'>Adjudicada</option>
+			<option value='Traspasada'>Traspasada</option>
+		</select>
+		
+		</td>
+	</tr>	
+	<tr>		
+		<td>Tipo de techo:<br>
+		<select name='tipo_techo'>
+			<option value='-' >Seleccionar</option>
+			<option value='Platabanda' >Platabanda</option>
+			<option value='Asbesto' >Asbesto</option>
+			<option value='Tejas' >Tejas</option>
+			<option value='Madera' >Madera</option>
+			<option value='Zinc' >Zinc</option>
+			<option value='Acerolit' >Acerolit</option>
+			<option value='Otro' >Otro</option>
+		</select>
+		</td>
+		<td>Tipo de paredes:<br>
+		<select name='tipo_paredes'>
+			<option value='-' >Seleccionar</option>
+			<option value='Bloque frisado' >Bloque frisado</option>
+			<option value='Bloque sin frisar' >Bloque sin frisar</option>
+			<option value='Concreto' >Concreto</option>
+			<option value='Bahareque' >Bahareque</option>
+			<option value='Material de desecho' >Material de desecho</option>
+			<option value='Zinc' >Zinc</option>
+			<option value='Otro' >Otro</option>
+		</select>
+		</td>
+		<td>Tipo de piso:<br>
+		<select name='tipo_piso'>
+			<option value='-' >Seleccionar</option>
+			<option value='Cemento' >Cemento</option>
+			<option value='Tierra' >Tierra</option>
+			<option value='Cerámica' >Cerámica</option>
+			<option value='Granito' >Granito</option>
+			<option value='Parquet' >Parquet</option>
+			<option value='Variado' >Variado</option>
+			<option value='Otro' >Otro</option>
+		</select>
+		</td>
+		<td>Nivel de la vivienda:<br>
+		<select name='nivel_vivienda'>
+			<option value='-' >Seleccionar</option>
+			<option value='Un nivel' >Un nivel</option>
+			<option value='Dos niveles' >Dos niveles</option>
+			<option value='Tres niveles' >Tres niveles</option>
+			<option value='Más de tres niveles' >Más</option>
+		</select>
+		</td>		
+	</tr>
+	<tr>
+		<td>Baño:
+			<br>
+			<input onClick="return preguntar_m('banio');" type='radio' name='p_banio' value='1'> Si
+			
+			<input onClick="return preguntar_n('banio');" type='radio' name='p_banio' value='0'> No
+			
+			<input size='15' value="<?php if(!empty($_POST['banio'])) echo $_POST['banio']; ?>" type="text" maxlength="30" name="banio" id="banio" placeholder="¿Cuantos?" class="input" onKeyPress="return validaSoloNumero(event);" style='display:none;'>
+		</td>		
+		<td>Dormitorio:
+			<br>
+			<input onClick="return preguntar_m('dormitorio');" type='radio' name='p_dormitorio' value='1'> Si
+			
+			<input onClick="return preguntar_n('dormitorio');" type='radio' name='p_dormitorio' value='0'> No
+			
+			<input size='15' value="<?php if(!empty($_POST['dormitorio'])) echo $_POST['dormitorio']; ?>" type="text" maxlength="30" name="dormitorio" id="dormitorio" placeholder="¿Cuantos?" class="input" onKeyPress="return validaSoloNumero(event);" style='display:none;'>
+		
+		</td>
+		<td>Cocina:
+			<br>
+			<input onClick="return preguntar_m('cocina');" type='radio' name='p_cocina' value='1'> Si
+			<input onClick="return preguntar_n('cocina');" type='radio' name='p_cocina' value='0'> No
+			
+			<input size='15' value="<?php if(!empty($_POST['cocina'])) echo $_POST['cocina']; ?>" type="text" maxlength="30" name="cocina" id="cocina" placeholder="¿Cuantas?" class="input" onKeyPress="return validaSoloNumero(event);" style='display:none;'>
+		
+		</td>		
+		<td>Nevera:
+			<br>
+			<input onClick="return preguntar_m('nevera');" type='radio' name='p_nevera' value='1'> Si
+			
+			<input onClick="return preguntar_n('nevera');" type='radio' name='p_nevera' value='0'> No
+			
+			<input size='15' value="<?php if(!empty($_POST['nevera'])) echo $_POST['nevera']; ?>" type="text" maxlength="30" name="nevera" id="nevera" placeholder="¿Cuantas?" class="input" onKeyPress="return validaSoloNumero(event);" style='display:none;'>
+		
+		</td>	
+	</tr>
+		<td>Aguas blancas:			
+			<br>
+			<input type='radio' name='aguas_blancas' value='1'> Si
+			
+			<input type='radio' name='aguas_blancas' value='0'> No
+		
+		</td>
+		<td>Gas:
+			<br>
+			<input type='radio' name='gas' value='1'> Si
+			
+			<input type='radio' name='gas' value='0'> No
+		
+		</td>
+		<td>Electricidad:
+			<br>
+			<input type='radio' name='electricidad' value='1'> Si
+			
+			<input type='radio' name='electricidad' value='0'> No
+				
+		</td>		
+		<td>
+			Television/Radio:
+			<br>
+			<input type='radio' name='tv_radio' value='1'> Si
+			
+			<input type='radio' name='tv_radio' value='0'> No
+		
+		</td>		
+	</tr>
+	<tr>
+		<td colspan='4'>Observaciones:<br>
+		<textarea name='observacion' style='resize:none; width:100%; height:70px;' maxlength='300'></textarea>
+		</td>
+	</tr>
+	<td colspan='4' style='text-align:center;'>
+		<input style='margin-left:15px;' class='accion' type='submit' name='volver' value='Atrás'>
+		<input style='margin-left:15px;' class='accion' type='submit' name='continuar' value='Continuar'>
+		
+	</tr>
+	</table>
+</form>
+</body>
+</html>
+<?php
+}
+else
+	echo $mensaje['not_acces'];
+?>

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title><?php echo $tema; ?></title>
+	<meta charset='utf-8'/>
+	<link rel='stylesheet' type='text/css' href='views/css/mensajes_validacion.css'/>
+</head>
+<body>
+<?php
+	//Se realiza al llamdo de la función que cambia el estatus al voceria o a los usuarios.
+	$res=$vocero->eliminarVocero($_REQUEST['id'],$_REQUEST['elimina']);
+	//Se elimina o restaura el registro dependiente de vocero con el siguiente llamdo del método, eje: Usuario
+	$vocero->eliminarRegistroDependienteDeVocero($_REQUEST['dni'],$_REQUEST['elimina']);
+	if($res) //Si el resultado es positivo, se le da un msj al voceria de la previa acción realizada.
+		{
+		if($_REQUEST['elimina']==1)
+			{
+			$msj='restaurado';
+			$msjH='Restauró';
+			}
+		else 
+			{
+			$msj='eliminado';
+			$msjH='Eliminó';
+			}
+
+		//Se registra lacción que realiza el usuario
+		Historial::Movimiento($_SESSION["codigo"],"$msjH al vocero identificado por: <b>".$_REQUEST['dni']."</b>");		
+		echo "<center><div class='mensaje_envio'>El vocero ha sido $msj correctamente</div></center>";
+		header("refresh:2;url=?opcion=bvocero");	
+		}
+?>
+</body>
+</html>

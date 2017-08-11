@@ -1,0 +1,99 @@
+<?php 
+if($_SESSION['nivel_usuario']=='Administrador')
+{
+$patrimonio=$objLibroInventario->consultarPatrimonioPorId($_REQUEST['id']);
+?>
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8"/>
+		<title><?php echo $tema; ?></title>
+			<script type='text/javascript' src='views/js/funciones.js'></script>
+			<link rel='stylesheet' type='text/css' href='views/css/mensajes_validacion.css'/>
+			<link rel="stylesheet" href="views/css/pickmeup.css" type="text/css" />
+			<script type="text/javascript" src="views/js/jquery.js"></script>
+			<script type="text/javascript" src="views/js/jquery.pickmeup.js"></script>
+			<script type="text/javascript" src="views/js/demo.js"></script>
+			<link rel="stylesheet" type="text/css" href="views/css/estilo_formularios.css" />
+			
+	</head>
+<body>
+
+<?php
+$mostrarFormulario=true;
+//Validando del lado del servidor
+if(isset($_POST['enviar']))
+	{
+	$codigo=$objLibroInventario->consultarPatrimonioPorCodigo($_POST['codigo']);
+	if(empty($_POST['descripcion']))
+		echo $mensaje['not_descrition'];
+	else if(empty($_POST['codigo']))
+		echo $mensaje['not_code'];
+	else if($codigo&&$_POST['codigo']!=$patrimonio[0]['codigo'])
+		echo $mensaje['code_repeat'];
+	else if(empty($_POST['cantidad']))
+		echo $mensaje['not_count'];	
+	else if(empty($_POST['precio_unitario']))
+		echo $mensaje['not_price_unit'];							
+	else
+		{
+		$res=$objLibroInventario->actualizarPatrimonio($_POST['descripcion'],$_POST['codigo'],$_POST['cantidad'],$_POST['precio_unitario'],$_REQUEST['id']);
+		if($res)
+			Historial::Movimiento($_SESSION['codigo'],"Actualizó al patrimonio: <b>".$_POST['codigo']."</b>");
+		$mostrarFormulario=false;
+		}
+	}
+if($mostrarFormulario)
+{
+?>
+<div class='tema'><p><?php echo $tema; ?></p></div>
+
+<form id="form" name="form" method="POST" action="">
+<table class='principal' cellspacing='15px' border='0'> 
+			<tr>
+				<td colspan="2">Descripción:<br>	
+					<input class='input' value='<?php echo $patrimonio[0]['descripcion']; ?>' type='text'  maxlength='60' name='descripcion' id='descripcion' placeholder='' class='input' onKeyPress='' style='width:295px;'>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2">Código:<br>	
+					<input class='input' value='<?php echo $patrimonio[0]['codigo']; ?>' type='text'  maxlength='10' name='codigo' id='codigo' placeholder='' class='input' onKeyPress='return validaCaracter(event);'>
+				</td>
+			<tr>
+			</tr>
+				<td>Cantidad:<br>
+					<input class='input'  value='<?php echo $patrimonio[0]['cantidad']; ?>' type='text'  maxlength='50' name='cantidad' id='cantidad' placeholder='' onKeyPress='return validaNumero(event);' >
+				</td>	
+				<td>Precio unitario (Bs.):<br>
+					<input class='input'  value='<?php echo $patrimonio[0]['precio_unitario']; ?>' type='text'  maxlength='50' name='precio_unitario' id='precio_unitario'  onKeyPress='return validaCaracter(event);' >
+				</td>						
+			</tr>	
+			<tr style='text-align:center;'>
+				<td colspan='2' ><br>
+					<input style='margin-right:10px;' class='accion' type='button' title='Salir' value='Salir' onClick="if(confirm('¿Desea salir sin guardar los cambios?')) window.location='?opcion=inicio';"/>
+					<input class='boton_right' type='submit' name='enviar' value='Actualizar'>
+				</td>
+			</tr>
+		</table>
+<input type='hidden' value='<?php echo $_REQUEST['id']; ?>' name='id'>
+</form>	
+<?php
+}if(isset($res))
+	{
+	if($res)
+		{
+		echo $mensaje['updated'];
+		header("refresh:2;url=?opcion=cinventario&pagina=");
+		}
+	else
+		{
+		echo $mensaje['error_updated'];
+		header("refresh:3;url=?opcion=cinventario&pagina=");			
+		}
+	}
+?>
+</body>
+</html>
+<?php
+}
+?>

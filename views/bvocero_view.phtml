@@ -1,0 +1,139 @@
+<?php
+{
+$listaVoceria=$voceria->consultarVoceria();
+?>
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8"/>
+	<title><?php echo $tema; ?></title>
+	<script type='text/javascript' src='views/js/funciones.js'></script>
+	<link rel="stylesheet" type="text/css" href="views/css/estilo_formularios.css" />
+	<link rel='stylesheet' type='text/css' href='views/css/mensajes_validacion.css'/>
+</head>
+<body>
+<?php
+$mostrarFormulario=true;
+$validar=true;
+//Validando del lado de PHP
+if(isset($_POST['buscar']))
+	{	
+	$validaVocero=$bvocero->verificarDni($_POST['dni']);
+	if(empty($_POST['opc']))
+		{
+		echo $mensaje['not_select_op'];
+		}
+	else
+		{
+		if($_POST['opc']=='dni')
+			{
+			if(empty($_POST['dni']))
+				{
+				$validar=false;
+				echo $mensaje['not_dni'];
+				}
+			else if(strlen($_POST['dni'])<6)
+				{
+				$validar=false;	
+				echo $mensaje['dni_wrong'];
+				}
+			else if(!$validaVocero)
+				{
+				$validar=false;	
+				echo $mensaje['no_vocero'];	
+				}
+			}
+		if ($_POST['opc']=='voceria') 
+			{
+			if(empty($_POST['voceria']))
+				{
+				$validar=false;
+				echo $mensaje['not_voceria'];
+				}
+			}
+			
+		if($validar)
+			{
+			if ($_POST['opc']=='libro') 
+				//header("location:views/librovocerospdf_view.php");
+				echo "
+					<script type='text/javascript'>
+						window.open('views/librovocerospdf_view.php');
+					</script> ";
+			else
+				header("refresh:0;url=?opcion=cvocero&opc=".$_POST['opc']."&dni=".$_POST['dni']."&voceria=".$_POST['voceria']."&pagina=");
+			}
+
+		}
+
+	}
+if($mostrarFormulario)
+{	
+?>
+<div class='tema'><p><?php echo $tema; ?></p></div>
+<form action="" method="POST" name='form'>
+<table class="principal" cellspacing="15px" border='0' align='center'>
+	<tr>
+		<td>
+			<input type='radio' name='opc' value='dni'> Documento de Identidad:
+			<input value="<?php if(!empty($_POST['dni'])) echo $_POST['dni']; ?>" type="text" size='15' maxlength="8" name="dni"class="input" onKeyPress="return validaSoloNumero(event);" onKeyUp='return autocheck_dni();'>
+		</td>
+	</tr>
+	<tr>
+		<td> <input type='radio' name='opc' value='voceria' <?php if($_POST['opc']=='voceria') { ?>checked<?php } ?>> Vocería:<br>
+		<select name='voceria' onclick='return autocheck_v();'>
+		<option value='0' >Seleccionar</option>
+		<?php 
+		for($i=0;$i<count($listaVoceria);$i++)
+			{
+			if($listaVoceria[$i]['estatus']==1)
+				{
+		?>
+				<option <?php if (!empty($_POST['voceria'])) if($_POST['voceria']==$listaVoceria[$i]['id']) {?>selected<?php } ?> value='<?php echo $listaVoceria[$i]['id']; ?>'><?php echo $listaVoceria[$i]['nombre']; ?></option>
+		<?php 
+				}
+			}
+		?>
+		</select>
+		</td>
+	</tr>
+	<tr>
+		<td colspan='2'><input type='radio' name='opc' value='todos'> Ver todos los voceros</td>
+	</tr>
+	<!--<tr>
+		<td colspan='2'><input type='radio' name='opc' value='libro'> Libro de voceros <img class='ico' src='views/imagen/document-pdf.png'></img></td>
+	</tr>-->
+	<tr>
+		<td colspan='2' style='text-align:center;'><br>
+			<input style='margin-right:10px;'class='accion' type='button' value='Salir' onClick="if(confirm('¿Está seguro que desea salir?')) window.location='?opcion=inicio';">
+			<input style='margin-left:10px;' class='accion' type='submit' name='buscar' value='Buscar'>
+			
+		</td>
+	</tr>
+	</table>
+</form>
+<?php
+}
+if(isset($res))
+	{
+	if($res)
+		{
+		echo $mensaje['registered'];
+		header("refresh:3;url=?opcion=inicio");
+		}
+	else
+		{
+		if(!$validacion)
+			{
+			echo $msj['error_registered'];
+			header("refresh:3;url=?opcion=inicio");			
+			}
+		}
+	}
+
+?>
+</body>
+</html>
+<?php
+}
+?>

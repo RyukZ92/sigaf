@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title><?php echo $tema; ?></title>
+	<meta charset='utf-8'/>
+	<link rel='stylesheet' type='text/css' href='views/css/mensajes_validacion.css'/>
+</head>
+<body>
+<?php
+$nombre=$usuario->consultarUsuarioPorId($_REQUEST['id']);
+	//Se realiza al llamdo de la función que cambia el estatus al usuario o a los usuarios.
+	$res=$usuario->eliminarUsuario($_REQUEST['id'],$_REQUEST['elimina']);
+	if($res) //Si el resultado es positivo, se le da un msj al usuario de la previa modificación realizada.
+		{
+		$status=$_REQUEST['elimina'];
+		if($status==1)
+			{ 
+			$msj='restaurado';
+			$msjH='Restauró';
+			}
+		else 
+			{
+			$msj='eliminado';
+			$msjH='Eliminó';
+			}
+		//Se registra la acción realizada por el usuario.
+		Historial::Movimiento($_SESSION["codigo"],"$msjH al usuario: <b>".$nombre[0]['nombre_usuario']."</b>. Identifiación: <b>".$nombre[0]['dni_vocero'])."</b>";
+		echo "<center><div class='mensaje_envio'>El usuario ha sido $msj correctamente</div></center>";
+		header("refresh:2;url=?opcion=cusuario");	
+		}
+?>
+</body>
+</html>

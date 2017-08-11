@@ -1,0 +1,102 @@
+
+<?php 
+// if($_SESSION['nivel_usuario']=='Administrador')
+{
+?>
+<!DOCTYPE html>
+<html>
+	<head>
+			<meta charset="utf-8"/>
+			<title><?php echo $tema; ?></title>
+			<script type='text/javascript' src='views/js/funciones.js'></script>
+			<link rel='stylesheet' type='text/css' href='views/css/mensajes_validacion.css'/>
+			<link rel="stylesheet" href="views/css/pickmeup.css" type="text/css" />
+			<script type="text/javascript" src="views/js/jquery.js"></script>
+			<script type="text/javascript" src="views/js/jquery.pickmeup.js"></script>
+			<script type="text/javascript" src="views/js/demo.js"></script>
+			<link rel="stylesheet" type="text/css" href="views/css/estilo_formularios.css" />	
+	</head>
+<body>
+
+<?php
+
+$valida=false;
+$mostrarFormulario=true;
+if(isset($_POST['actualizare']))
+	{
+	if(empty($_POST['fecha_inicial']))
+		echo $mensaje['not_date_i'];
+	else if(empty($_POST['estatus_']))		
+		echo "No se ingresó el estatus";
+	else
+		{
+
+		//Conviertiendo fechas en formato aaaa-dd-mm para comparar fechas
+		$fecha=explode('-',$_POST['fecha_inicial']);
+		$fecha_i=$fecha[2]."-".$fecha[1]."-".$fecha[0];
+		$res=$proyecto->actualizarProyectoAprobado($_REQUEST['id_'],$fecha_i,$_POST['estatus_']);
+		if($res)
+			{
+			$msj['envio']="<center><div class='mensaje_envio'>Proyecto actualizado correctamente</div></center>";
+			$mostrarFormulario=false;	
+			}
+		else
+			{
+			$msj['error']="<center><div class='validacion'><img style='margin:0px;padding:0px;'src='views/imagen/exclamation.png'>&nbsp;&nbsp;ERROR: Problemas con la actualización del proyecto al sistema. Si el problemas persiste, contacte a su administrador de sistema</div></center>";
+			$mostrarFormulario=false;	
+			}				
+		}
+	}
+if($mostrarFormulario)
+{
+?>
+<div class='tema'><p><?php echo $tema; ?></p></div>
+
+<form id="form" name="form" method="POST" action="" >
+<table class='principal' cellspacing='15px' border='0' align='center'  style='margin-bottom:10px;'> 
+			<tr>
+				<td colspan="2">Título o nombre del proyecto:<br>	
+					<input readonly class='input' value='<?php echo $modificaProyecto[0]['titulo']; ?>' type='text'  maxlength='50' name='titulo' id='dni' placeholder='Título del proyecto' class='input' onKeyPress='' style='width:325px;'>
+				</td>
+			<tr>
+			<tr>
+				<td>Fecha incial del proyecto:<br>
+					<input readonly value="<?php if(!empty($_POST['fecha_inicial'])) echo $_POST['fecha_inicial']; ?>" type='text' name='fecha_inicial' class='datepicker' size="20" placeholder='dd-mm-aaaa'/>		
+				</td>	
+				<td>Nuevo estatus:<br>
+					<input type='text' readonly value='En ejecución' name='estatus_' class='input'>
+				</td>	
+				<input type='hidden' name='id_' value='<?php echo $_REQUEST['id']; ?>'>		
+			</tr>	
+
+			<tr style='text-align:center;'>
+				
+				<td style='text-align:right; padding-right:0px;';><br><input class='accion' type='button' value='Salir' onClick="if(confirm('¿Desea salir sin guardar los cambios?')) window.location='?opcion=inicio';"></td>
+				<td style='text-align:left; padding-left:25px;';><br><input class='accion' type='submit' name='actualizare' value='Actualizar'></td>
+			</tr>
+		</table>
+<?php
+}
+if(isset($res))
+	{
+	if($res)
+		{
+		echo $msj['envio'];
+		header("refresh:2;url=?opcion=inicio");
+		}
+	else
+		{
+		echo $msj['error'];
+		header("refresh:3;url=?opcion=inicio");			
+		}
+	}
+?>
+</body>
+</html>
+<?php
+/*
+echo '<pre>';
+  print_r($_REQUEST);
+echo '</pre>';*/
+}
+?>

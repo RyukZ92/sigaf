@@ -1,0 +1,55 @@
+<?php
+//Se consulta las contancias para obtener el año más reciente en el cual se ha emitido constancia alguna.
+$getFecha=$constancia->consultarConstancia();
+$anio_min=explode('-', $getFecha[count($getFecha)-1]['fecha_imp']);
+if(isset($_POST['buscar']))
+	header("location:?opcion=cstacconstancia&opc=".$_POST['opc']."&anio=".$_POST['anio']);
+?>
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8"/>
+		<title><?php echo $tema; ?></title>
+		<script type='text/javascript' src='views/js/funciones.js'></script>
+		<link rel="stylesheet" type="text/css" href="views/css/estilo_formularios.css" />
+		<link rel='stylesheet' type='text/css' href='views/css/mensajes_validacion.css'/>
+	</head>
+<body onLoad='document.form.dni.focus();'>
+
+<!-- Formulario para buscar la estadísticas de las contancias -->
+<div class='tema'><p><?php echo $tema; ?></p></div>
+<form action="" method="POST" name='form' onSubmit=''>
+<table  class="principal" cellspacing="15px" border='0' align='center'>
+	<tr>
+		<td>Tipo de constancia:</td>
+		<td>
+			<select name='opc' class='input' style='width:130px;'>
+				<option value='Todas'>Todas</option>
+				<option value='Residencia'>Residencia</option>
+				<option value='Buena conducta'>Buena conducta</option>
+				<option value='Bajos recursos'>Bajos recursos</option>
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td>Año:</td>
+		<td>			
+			<select name='anio' class='input' style='width:130px;'>
+		<?php
+			//Mostrando los años existente en la BD referido a emisión de contancias.
+			for($anio=$anio_min[0];$anio<=date('Y');$anio++)
+				{
+		?>
+				<option value='<?php echo $anio; ?>'><?php echo $anio; ?></option>
+		<?php
+				}
+		?>
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td colspan='02' style='text-align:center'><br><input title='Limpiar' style='margin-right:10px;' class='accion' type='reset' name='limpiar' value='Limpiar'>
+		<input style='margin-left:10px;' class='accion' title='Buscar' type='submit' name='buscar' value='Buscar'></td>
+	</tr>	
+</table>

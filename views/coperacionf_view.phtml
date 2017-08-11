@@ -1,0 +1,157 @@
+<!doctype html>
+<html>
+	<head>
+	<meta charset="utf-8" />
+		<title><?php echo $tema; ?></title>
+		<link rel='stylesheet' type='text/css' href='views/css/consultar.css'/>
+		<link rel='stylesheet' type='text/css' href='views/css/mensajes_validacion.css'/>
+		<script type='text/javascript' language='javascript' src='views/js/funciones.js'></script>
+	</head>
+<body>
+<?php
+
+$finanza=$saldos->consultarOperacion();
+if(isset($_POST['buscar']))
+	{
+	if($_POST['mes']=='0')
+		echo $mensaje['not_month'];
+	else if(empty($_POST['anio']))
+		echo $mensaje['not_year'];
+	else
+		header("location:?opcion=coperacionfecha&mes=".$_POST['mes']."&anio=".$_POST['anio']);
+	}
+if(isset($_POST['todos']))
+	header("location:?opcion=coperacionf&pagina=");
+?>
+<div class='tema'>
+<label class='titulo'><?php echo $tema; ?></label>
+</div>
+<form method='POST' action=''>
+<div style='margin-left:24px;'>
+Mes: 
+<select name='mes'>
+	<option value='0'>Mes</option>
+	<option <?php if($_POST['mes']=='1') { ?>selected<?php } ?> value='1'>Enero</option>
+	<option <?php if($_POST['mes']=='2') { ?>selected<?php } ?> value='2'>Febrero</option>
+	<option <?php if($_POST['mes']=='3') { ?>selected<?php } ?> value='3'>Marzo</option>
+	<option <?php if($_POST['mes']=='4') { ?>selected<?php } ?> value='4'>Abril</option>
+	<option <?php if($_POST['mes']=='5') { ?>selected<?php } ?> value='5'>Mayo</option>
+	<option <?php if($_POST['mes']=='6') { ?>selected<?php } ?> value='6'>Junio</option>
+	<option <?php if($_POST['mes']=='7') { ?>selected<?php } ?> value='7'>Julio</option>
+	<option <?php if($_POST['mes']=='8') { ?>selected<?php } ?> value='8'>Agosto</option>
+	<option <?php if($_POST['mes']=='9') { ?>selected<?php } ?> value='9'>Septiembre</option>
+	<option <?php if($_POST['mes']=='10') { ?>selected<?php } ?> value='10'>Octubre</option>
+	<option <?php if($_POST['mes']=='11') { ?>selected<?php } ?> value='11'>Noviembre</option>
+	<option <?php if($_POST['mes']=='12') { ?>selected<?php } ?> value='12'>Diciembre</option>
+</select>
+Año: 
+<input type='text' name='anio' size='5' value='<?php echo $_POST['anio']; ?>' maxlength='4' onKeyPress="return validaSoloNumero(event);">
+<input style='height:25px;' type='submit' name='buscar' title='Buscar' value='Buscar'>
+<div style='float:right; margin-right:22px;'><input style='height:25px;' value='Ver todos' name='todos' type='submit'></div>
+</div>
+</form>
+<br>
+<?php
+if(!$lista)
+	echo $mensaje['not_data'];
+else
+{
+//Mostrar todos los registros financieros
+?>
+	<table cellspacing='02'>
+	<tr>
+		<th align="center"><a href='#'>Comprobante</a></th>
+		<th align="center" title='Tipo de operación'><a href='#'>Tipo de operación</a></th>
+		<th align="center" title='Editar'>Descripción</th>
+		<th align="center" title='Monto (Bs.)'><a href='#'>Monto (Bs.)</a></th>
+		<th align="center" title='Fecha de comprobante'><a href='#'>Fecha</a></th>
+		<th align="center" title='Total'>Fecha de registro</th>
+	</tr>
+<?php
+//$finanza=$saldos->consultarOperacion();
+$ingreso=0;
+$egreso=0;
+$total=0;
+$subTotal=0;
+for($i=0;$i<count($finanza);$i++)
+	{
+	if($finanza[$i]['tipo_op']=='Ingreso')
+		$ingreso+=$finanza[$i]['monto'];
+	else
+		$egreso+=$finanza[$i]['monto'];
+	$subTotal+=$finanza[$i]['monto'];
+	$saldo=$ingreso-$egreso;
+	}
+for($i=0;$i<count($lista);$i++)
+	{
+	$color=($lista[$i]['tipo_op']=='Ingreso')?'green':'red';
+	$fecha_comp=explode('-',$lista[$i]['fecha_comp']);
+	$fecha_reg=explode('-',$lista[$i]['fecha_op']);
+?>
+	<tr id="<?php echo "id_$i"; ?>" onMouseMove="cambiarColor('<?php echo "id_$i"; ?>','#D8D8D8 url(views/imagen/background.png) repeat-x 0 -10px');" onMouseOut="cambiarColor('<?php echo "id_$i"; ?>','#fff');">
+		<td align='center' title='<?php echo $lista[$i]['comprobante']; ?>'><?php echo $lista[$i]['comprobante']; ?></td>
+		<td align='center' title='<?php echo $lista[$i]['tipo_op']; ?>'><?php echo "<label style='color:$color' >".$lista[$i]['tipo_op']."</label>"; ?></td>
+		<td align='center' title='<?php echo $subTotal; ?>'><?php echo $lista[$i]['descripcion']; ?></td>
+		<td align='center' title='<?php echo $lista[$i]['monto']; ?>'><?php echo number_format($lista[$i]['monto'], 2, ",", "."); ?></td>
+		<td align='center' title='<?php echo $lista[$i]['precio_unitario']; ?>'><?php echo $fecha_comp[2].'/'.$fecha_comp[1].'/'.$fecha_comp[0]; ?></td>
+		<td align="center"><?php echo $fecha_reg[2].'/'.$fecha_reg[1].'/'.$fecha_reg[0]." ".$lista[$i]['hora_op']; ?></td>
+	</tr>
+<?php	
+	}
+?>
+	<tr>
+		<td colspan="4" align="right"><b>Saldo actual:</b></td>
+		<td colspan="2" align="center"><b><?php echo number_format($saldo, 2, ",", "."); ?></b></td>
+	</tr>
+	<tr>
+		<td colspan='6' class='td_' align='right'><a  target='_blank' href="views/coperacionfpdf_view.php" class='link'><img src='views/imagen/document-pdf.png' style="position:relative;border:0px solid #000;top:4px;">Imprimir</a></td>
+	</tr>
+	</table>
+<!-- FUENTE: www.CesarCancino.com -->
+<div class='paginador' align='center' >
+<ul>
+	<li style="display:inline; margin-right:6px;">
+	<?php if($params['primero']):	?>
+		<a  class='parametro'  href="?opcion=<?php echo $opcion; ?>&pagina=<?php echo $params['primero']; ?>">
+		Primero
+		</a>
+	<?php	else: ?>
+		Primero
+	<?php	endif; ?>
+	
+	</li>
+	<li style="display:inline; margin-right:6px;">
+	<?php if($params['anterior']):	?>
+		<a  class='parametro'  href="?opcion=<?php echo $opcion; ?>&pagina=<?php echo $params['anterior']; ?>">
+		Anterior
+		</a>
+	<?php	else: ?>
+		Anterior
+	<?php	endif; ?>
+	</li>
+	<li style="display:inline; margin-right:6px;">
+	<?php if($params['siguiente']):	?>
+		<a  class='parametro'  href="?opcion=<?php echo $opcion; ?>&pagina=<?php echo $params['siguiente']; ?>">
+		Siguiente
+		</a>	
+	<?php	else: ?>
+		Siguiente
+	<?php	endif; ?>
+	</li>
+	</li>
+	<li style="display:inline; margin-right:5px;">
+	<?php if($params['ultimo']):	?>
+		<a  class='parametro'  class='parametro' href="?opcion=<?php echo $opcion; ?>&pagina=<?php echo $params['ultimo']; ?>">
+		Último
+		</a>
+	<?php	else: ?>
+		Último
+	<?php	endif; ?>
+	</li>
+</ul>
+</div>
+<?php
+}
+?>
+</body>
+</html>

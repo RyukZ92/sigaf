@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title><?php echo $tema; ?></title>
+	<meta charset="utf-8" />
+	<meta charset="utf-8" />
+	<script type='text/javascript' language='javascript' src='views/js/funciones.js'></script>
+	<link rel='stylesheet' type='text/css' href='views/css/estilo_formularios.css'/>
+	<link rel='stylesheet' type='text/css' href='views/css/mensajes_validacion.css'/>
+</head>
+<body>
+<?php
+$mostrarFormulario=true;
+$validacion=false;
+//if(isset($_SESSION['codigo']))
+{
+$id=$_REQUEST['id'];
+
+//Consultar usuario por ID.
+$reg=$modificaUsuario->consultarUsuarioPorId($id);
+
+//Consultar le información del vocero que pertenece al usuario para verificar su estatus
+$estatusVocero=$vocero->consultarVoceroPorDni($reg[0]['dni_vocero']);
+//Se valida que el nombre de usuario no se repita en caso de que modifique
+if(isset($_POST['nombre_usuario']))
+	{
+	$validaUsuario=$modificaUsuario->verificarNombreUsuario($_POST['nombre_usuario']);
+	if($validaUsuario&&strtoupper($_POST['nombre_usuario'])!=strtoupper($reg[0]['nombre_usuario']))
+		{
+		echo "<center><div class='validacion'>El nombre de usuario <b>".$_POST['nombre_usuario']."</b> ya existe<BR>Intente con otro nombre de usuario</div></center>";
+		header("refresh:4;url=?opcion=eusuario&id=$id");
+		$validacion=true;
+		}
+	}
+////Se valida que el correoe electrónico del usuario no se repita en caso de que modifique
+if(isset($_POST['email']))
+	{
+	$email=$_POST['email'];
+	$validaUsuario=$modificaUsuario->verificarEmail($email);
+	if($validaUsuario&&$email!=$reg[0]['email'])
+		{
+		echo "<center><div class='validacion'>El correo electrónico <b>$email</b> está en uso<br>Intente ingresar otro correo electrónico</div></center>";
+		header("refresh:5;url=?opcion=eusuario&id=$id");
+		$validacion=true;
+		}
+	}
+
+//Validando del lado del servidor.
+if(isset($_POST['editar']))
+	{
+	if(empty($_POST['nombre_usuario'])||strlen($_POST['nombre_usuario'])<2)
+		
+		echo "<center><div class='validacion'><img style='margin:0px;padding:0px;'src='views/imagen/exclamation.png'>&nbsp;&nbsp;No ingreso el nombre de usuario.</div></center>";
+		
+	else if(empty($_POST['nivel_usuario']))
+		
+		echo "<center><div class='validacion'><img style='margin:0px;padding:0px;'src='views/imagen/exclamation.png'>&nbsp;&nbsp;No seleccionó el tipo de usuario.</div></center>";	
+	else
+		{
+		$res=$modificaUsuario->modificarUsuario($id,$_POST['nombre_usuario'],$_POST['estatus'],$_POST['nivel_usuario']);
+		if($res)
+			{
+			Historial::Movimiento($_SESSION['codigo'],"Actualizó al usuario <b>".$_POST['nombre_usuario']."</b>");
+			$msj['envio']="<center><div class='mensaje_envio'>El usuario se actualizó correctamente</div></center>";
+			$mostrarFormulario=false;
+			}
+		else
+			{
+			$msj['error']="<center><div class='validacion'><img style='margin:0px;padding:0px;'src='views/imagen/exclamation.png'>&nbsp;&nbsp;Problemas para actualizar los datos del usuario. Contacte a su administrador de sistema si el inconveniente persiste</div></center>";
+			$mostrarFormulario=false;
+			}
+		}
+	}
+if($mostrarFormulario)
+{
+?>
+<!--Mostrar datos regristrados en el formulario para modificar-->
+<div class='tema'><p><?php echo $tema; ?></p></div>
+
+<form action='' method='POST' name='form' onSubmit=""> 
+<input type='hidden' value="<?php echo $id; ?>" name='id'>
+<form action="?" method="POST" name='form' onSubmit='return validarCamposUsuario();'>
+<table  class="principal" cellspacing="15px" border="0" align='center'>
+	<tr>
+		<td>Nombre de usuario:</td>
+		<td><input  type="text" maxlength="16" name="nombre_usuario" value='<?php echo $reg[0]['nombre_usuario']; ?>' class="input" onKeyPress="return validaCaracter(event);" style="height:18px;"></td>
+	</tr>
+<?php
+if($estatusVocero[0]['estatus']==1)
+	{
+?>
+	 <tr>
+		<td>Estatus:</td>
+		<td><select name='estatus'>
+		<option <?php if($reg[0]['estatus']=='1') {?>selected<?php } ?> value='1'>Habilitado</option>
+		<option <?php if ($reg[0]['estatus']=='0') {?>selected<?php } ?> value='0'>Deshabilitado</option>
+		</select></td>
+	</tr>
+<?php
+	}
+else
+	echo "<input type='hidden' name='estatus' value='0'>";
+?>	 <tr>
+		<td>Tipo de usuario:</td>
+		<td><select name='nivel_usuario'>
+		<option value='0'>Seleccione</option>
+		<option <?php if($reg[0]['nivel_usuario']=='Administrador') {?>selected<?php } ?> value='Administrador'>Administrador</option>
+		<option <?php if ($reg[0]['nivel_usuario']=='Operador') {?>selected<?php } ?> value='Operador'>Operador</option>
+		</select></td>
+	</tr>
+	<tr style='text-align:center;' >
+		<input name='id' type='hidden' value='<?php echo $id; ?>'>
+		<td colspan='2'>
+		
+		<input style='margin-right:10px;' class='accion' type='button' title='Salir' value='Salir' onClick="if(confirm('¿Desea salir sin guardar los cambios?')) window.location='?opcion=inicio';"/>
+		<input style='margin-left:10px;' class='accion' type='submit' value='Guardar' title='Guardar cambios' name='editar'/>
+	</tr></td>
+	</table>
+</form>
+<?php 
+}
+}
+if(isset($res))
+	{
+	if($res)
+		{
+		echo $mensaje['updated'];
+		header("refresh:2;url=?opcion=cusuario");
+		}
+	else
+		{
+		if(!$validacion)
+			{
+			echo $mensaje['error_updated'];
+			header("refresh:3;url=?opcion=cusuario");
+			}
+		}
+	}
+?>
+</body>
+</html>

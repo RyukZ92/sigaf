@@ -1,0 +1,88 @@
+<?php
+if($_SESSION['nivel_usuario']=='Administrador')
+{
+?>
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8" />
+	<title><?php echo $tema; ?></title>
+	<link rel="stylesheet" type="text/css" href="views/css/estilo_formularios.css" />
+	<link rel='stylesheet' type='text/css' href='views/css/mensajes_validacion.css'/>
+	<link rel='stylesheet' type='text/css' href='views/js/funciones.js'/>
+</head>
+<body>
+<?php
+$mostrarFormulario=true;
+$validacion=true;
+
+//Validando del lado del servidor
+if(isset($_POST['enviar']))
+	{
+	$nombre=$_POST['nombre'];
+	$nombre=quitar_tildes($nombre);
+	$nombre=strtoupper($nombre);
+	//Consulta para verificar que el nombre de la vocería está registrado ó no.
+	$verificarNombre=$nuevaVoceria->VerificarNombreVoceria($nombre);		
+	if(empty($_POST['nombre']))
+		echo "<center><div class='validacion'><img style='margin:0px;padding:0px;'src='views/imagen/exclamation.png'>&nbsp;&nbsp;Ingrese el nombre de la vocería</div></center>";
+	else if ($verificarNombre>0) 
+		echo "<center><div class='validacion'><img style='margin:0px;padding:0px;'src='views/imagen/exclamation.png'>&nbsp;&nbsp;$nombre ya existe</div></center>";
+	else if(empty($_POST['funcion_voceria'])||strlen($_POST['funcion_voceria'])<15)
+		echo "<center><div class='validacion'><img style='margin:0px;padding:0px;'src='views/imagen/exclamation.png'>&nbsp;&nbsp;Ingrese una breve reseña de función que tiene la vocería</div></center>";
+//Fin de valicación del lado del servidor
+	else
+		{
+		//Agregando vocería a la base de datos
+		$res=$nuevaVoceria->agregarVoceria($nombre,ucfirst(strtolower($_POST['funcion_voceria'])));
+		if($res)
+			Historial::Movimiento($_SESSION["codigo"],"Registró a la vocería: <b>$nombre</b>");
+		$mostrarFormulario=false;
+		}
+	}
+//Mostrando formulario de registro
+if($mostrarFormulario)
+{
+?>	
+<div class='tema'><p><?php echo $tema; ?></p></div>
+<form action="" method="POST" name='form' onSubmit='return validarCamposVoceria();'>
+<table class="principal" cellspacing="15px" border='0' align='center'>
+	<tr>
+		<td>Nombre de la voceria:</td>
+		<td>
+		<input class='input' maxlength="40" value="<?php if(!empty($_POST['nombre'])) echo $_POST['nombre']; ?>" style='width:320px;' type="text" name="nombre" placeholder="Ej. Comité de energía y gas" title='Escriba el nombre de la vocería' onKeyPress="return validaLetra(event);" > 
+		</td>
+	</tr><br>
+   <tr>
+		<td>Funcion de la vocería:<BR><BR><BR><BR><BR><BR></td>
+		<td><textarea name='funcion_voceria' placeholder="Ej. Comité encargado de gestionar la electricidad y el agua de la comunidad." style='resize:none; width:320px; height:80px;' rows='5' title='Escriba una breve reseña de función que tiene la vocería' maxlength="200"><?php if(!empty($_POST['funcion_voceria'])) echo $_POST['funcion_voceria']; ?></textarea></td>
+	</tr>
+	<tr style='text-align:center;'>
+		<td colspan='2' ><br><input title='Limpiar' style='margin-right:10px;' class='accion' type='reset' name='limpiar' value='Limpiar'>
+		<input title='Registrar' style='margin-left:10px;' class='accion' type='submit' name='enviar' value='Registrar'></td>
+	</tr>
+	</table>
+</form>
+<?php
+//Fin de mostrar formulario
+}
+
+if(isset($res))
+	{
+	if($res)
+		{
+		echo $mensaje['registered'];
+		header("refresh:2;url=?opcion=inicio");
+		}
+	else
+		{
+		echo $mensaje['error_registered'];
+		header("refresh:3;url=?opcion=inicio");			
+		}
+	}
+}
+else
+	echo $mensaje['not_acces'];
+?>
+</body>
+</html>

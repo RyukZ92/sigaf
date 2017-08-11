@@ -1,0 +1,174 @@
+/* Estilos de los formulario */
+*	{
+	text-decoration:none;
+	margin:0px;
+	/* font-family:sans-serif,arial,tahoma; */
+	}
+div.tema
+	{
+	border:0px solid #000;
+	padding:5px;
+	margin:auto;
+	margin-bottom:40px;
+	margin-top:0px;
+	font-size:24px;
+	background:none;
+	border-top:0px;
+	color:#fff;
+	text-align:center;
+	width:400px;
+	background:gray url(../imagen/background.png) repeat-x 0 -120px;
+	box-shadow: 0px 2px 3px #000;
+	background: #66665e;
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #66665e), color-stop(100%, #45463d));
+	background: -webkit-linear-gradient(#66665e 0%, #45463d 100%);
+	background: linear-gradient(#66665e 0%, #45463d 100%);
+	border: 1px solid #45463d;	
+	}
+td
+	{
+	font-weight:bold;	
+	height:5px;
+	}
+th
+	{
+	height:0px;
+	padding:0px;
+	background-color:gray;
+	color:black;
+	height:30px;
+	}
+tr
+	{
+	font-size: 12px;
+	text-align:left;
+
+	}
+table.principal
+	{
+	margin:0px auto;
+	background:#fff;
+	height:0px;
+	border: 0px solid black;
+	border-radius:0px;
+	box-shadow: 0px 0px 2px #000;
+	}
+.inicio
+	{
+	text-decoration:none;
+	font-family:sans-serif;
+	padding:05px;
+	margin:30px auto;
+	text-align:center;
+	background:hsl(200,80%,35%);
+	width:05%;
+	height:20px;
+	border-radius:12px ;
+	}
+.C_obligatorio
+	{
+	font-size:14px;
+	margin:auto;
+	color:#9A121B;
+	}
+#leyenda
+	{
+	margin:0px auto;
+	text-align:center;
+	}
+hr
+	{
+	box-shadow: 0px 0px 2px #000;
+	width:100%; 
+	border:solid 1px #f0f0f0;
+	}
+input.accion
+	{
+	width:80px;
+	height:25px;	
+	}
+tr.lista
+	{
+	text-align:center;
+	font-size:10px; 
+	margin:0px;
+	}
+td.lista
+	{
+	padding-left:1px;
+	padding-right:1px;
+	height:0px;	
+	}
+#nota{
+	
+	margin:auto;
+	margin-left:25px;
+	margin-right: 25px;
+	font-size:10px;
+	color:red;
+	text-align: justify;
+	}
+#nota label{
+	font-weight:bold;
+	font-size:11px;
+	color:#000;
+	}
+table.listam
+	{
+
+	border-collapse:collapse; 
+	border: none;
+	margin:auto;
+	width:695px;
+	border-color:gray;
+	background:white;
+	text-align:center;
+	margin-top: 15px;
+	}
+input.largo
+	{
+	width:300px;
+	height:25px;
+	box-shadow: 0px 0px 1px gray;
+	}
+.input,.datepicker{
+	width:140px;
+	height:25px;
+	box-shadow: 0px 0px 1px gray;
+	font-size:16px;
+	}
+select{
+	height:25px;
+	box-shadow: 0px 0px 1px gray;
+	}
+.input:hover,.datepicker:hover,select:hover{
+	box-shadow: 0px 0px 2px #9A121B;
+	}
+#cant_empleo{
+	display:none;	
+	}
+#tipo_dni{
+	position:relative;
+
+}
+.checkbox{
+	position:relative;
+	top:2px;
+}
+.boton_left{
+	margin-right:10px; 
+}
+.boton_right{
+	margin-left:10px; 
+}
+.radio
+	{
+	position:relative;
+	top:3px;
+	margin-left: 10px;
+	}
+.check_config{
+	position:relative;
+	top:2px;
+	
+}	

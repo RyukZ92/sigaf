@@ -1,0 +1,104 @@
+/* Estilos de los formulario */
+*{
+	text-decoration:none;
+	margin:0px;
+	font-family:sans-serif,arial,tahoma;
+}
+div.titulo
+	{
+	border:0px solid #000;
+	padding:5px;
+	margin:25px auto;
+	/* margin-top:25px; */
+	font-size:24px;
+	background:none;
+	border-top:0px;
+	color:#fff;
+	text-align:center;
+	width:380px;
+	/* background:#fff; */
+	background:gray url(../imagen/background.png) repeat-x 0 -120px;
+	box-shadow: 0px 2px 3px #000;
+	}
+u
+	{
+	margin:5px auto;
+	font-size: 14px;
+	font-family: sans-serif;
+	}
+td
+	{
+	height:30px;
+	}
+th
+	{
+	padding:0px;
+	background-color:#A8DBF7;
+	color:#193399;
+	height:30px;
+	}
+tr
+	{
+	font-size: 15px;
+	text-align:left;
+
+	}
+div.equipo
+	{
+	margin:0px auto;
+	background-image:URL('../imagenes/bg.png');
+	text-align:center;
+	width:35%;
+	height:100%;
+	border: 1px solid black;
+	border-radius:7px;
+	box-shadow: 0px 0px 2px  #000 inset,0px 0px 5px  #000;
+	padding-right:10px;
+	}
+table.principal
+	{
+	margin:0px auto;
+	background:#fff;
+	height:0px;
+	border: 0px solid black;
+	border-radius:0px;
+	box-shadow: 0px 0px 2px #000;
+	}
+.inicio
+	{
+	text-decoration:none;
+	font-family:sans-serif;
+	padding:05px;
+	margin:30px auto;
+	text-align:center;
+	background:hsl(200,80%,35%);
+	width:05%;
+	height:20px;
+	border-radius:12px ;
+	}
+.C_obligatorio
+	{
+	margin:auto;
+	color:#9A121B;
+	}
+#leyenda
+	{
+	margin:0px auto;
+	text-align:center;
+	}
+hr
+	{
+	box-shadow: 0px 0px 2px #000;
+	width:100%; 
+	border:solid 1px #f0f0f0;
+	}
+input.accion
+	{
+	width:80px;
+	height:25px;	
+	}
+input.editar
+	{
+	width:80px;
+	height:25px;	
+	}

@@ -1,0 +1,112 @@
+<?php
+{
+?>
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8"/>
+	<title><?php echo $tema; ?></title>
+	<script type='text/javascript' src='views/js/funciones.js'></script>
+	<link rel="stylesheet" type="text/css" href="views/css/estilo_formularios.css" />
+	<link rel='stylesheet' type='text/css' href='views/css/mensajes_validacion.css'/>
+</head>
+<body>
+<?php
+
+$mostrarFormulario=true;
+$validar=true;
+$persona=$familia->consultarPersonaDni($_REQUEST['dni']);
+$telefono=explode('-',$persona[0]['telefono']);
+$fecha_n=explode('-',$persona[0]['fecha_nac']);
+//Validando del lado de PHP
+if(isset($_POST['buscar']))
+	{	
+	if(empty($_POST['opc']))
+		{
+		echo $mensaje['not_select_op'];
+		}
+	else
+		{
+		if ($_POST['opc']=='nuevo') 
+			{
+			$_SESSION['tipo_dni']=$persona[0]['tipo_dni'];
+			$_SESSION['dni']=$_REQUEST['dni'];
+			$_SESSION['nombre']=ucwords(strtolower($persona[0]["nombre"]));
+			$_SESSION['apellido']=ucwords(strtolower($persona[0]["apellido"]));
+			$_SESSION['fecha_nac']=$fecha_n[2].'-'.$fecha_n[1].'-'.$fecha_n[0];
+			$_SESSION['estado_civil']=$persona[0]['estado_civil'];
+			$_SESSION['situacion_conyugal']=$persona[0]['situacion_conyugal'];
+			$_SESSION['sexo']=$persona[0]['sexo'];
+			$_SESSION['nivel_instruccion']=$persona[0]['nivel_instruccion'];
+			$_SESSION['ano_residencia']=$persona[0]['anio_residencia'];
+			$_SESSION['telefono']=$telefono[1];
+			$_SESSION['cod_area']=$persona[0]['cod_area'];
+			$_SESSION['profesion']=ucwords(strtolower($persona[0]["profesion"]));
+			$_SESSION['enfermedad']=ucwords(strtolower($persona[0]["enfermedad"]));
+			$_SESSION['nueva_familia']=true;
+			header("location:?opcion=afamiliajef&dni=".$_REQUEST['dni']);
+			}
+		else
+			{
+			if($_POST['id']=='0')
+				echo $mensaje['not_dni_family'];
+			else
+				header("refresh:0;url=?opcion=moverafamiliaexistente&id=".$_POST['id']."&dni=".$_GET['dni']);
+			}
+		}
+	}
+if($mostrarFormulario)
+{	
+?>
+<div class='tema'><p><?php echo $tema; ?></p></div>
+<form action="" method="POST" name='form' onSubmit="return preguntaAccion();">
+<table class="principal" cellspacing="15px" border='0' align='center' style='width:280px;'>
+	<tr>
+		<td>
+			<input type='radio' name='opc' value='nuevo' onClick="return deshabilitarCampo('id');"> Mover a nueva familia
+		</td>
+	</tr>
+	<tr>
+		<td colspan='2'>
+			<input type='radio' name='opc' value='existente' onClick="return habilitarCampo('id');"> Mover a familia existente
+		</td>
+	</tr>
+	<tr style='text-align:center;'>
+		<td>
+		<select name='id' id='id' disabled>
+		<option value='0'>Seleccionar familia</option>
+	<?php
+	$rep=$familia->consultarFamilia();
+	for($i=1;$i<count($rep);$i++)
+		{
+		$nombre=explode(' ',$rep[$i]['nombre']);
+		$apellido=explode(' ',$rep[$i]['apellido']);	
+		if($_GET['dni']!=$rep[$i]['dni'])
+			{
+	?>
+			<option value='<?php echo $rep[$i]['id_rep']; ?>'><?php echo $rep[$i]['tipo_dni']."-".$rep[$i]['dni']." ".$nombre[0]." ".$apellido[0]; ?></option>
+	<?php
+			}
+		}
+	?>	
+		</select>
+		</td>
+	</tr>
+	<input type='hidden' name='dni' value='<?php echo $_GET['dni']; ?>'>
+	<tr>
+		<td colspan='2' style='text-align:center;'><br>
+			<input style='margin-right:10px;'class='accion' type='button' value='Salir' onClick="if(confirm('¿Desea salir sin terminar la operación?')) window.location='?opcion=inicio';">
+			<input style='margin-left:10px;' class='accion' type='submit' name='buscar' value='Siguiente'>
+			
+		</td>
+	</tr>
+	</table>
+</form>
+<?php
+}
+?>
+</body>
+</html>
+<?php
+}
+?>

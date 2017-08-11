@@ -1,0 +1,54 @@
+<?php
+$validacion=true; //Se refeire a el proceso de validación. MODO DE PRUEBA, solo es un ejemplo de que allí va la validación del formulario
+if(isset($_POST['buscar']))
+	{
+	$buscarconstancia=$constancia->consultarConstancia();
+	if(empty($_POST['dni']))
+		echo $mensaje['not_dni'];
+	else	
+		header("location:?opcion=cpersonadni&dni=".$_POST['dni']."&opc=".$_POST['opc']);
+	}
+?>
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8"/>
+		<title><?php echo $tema; ?></title>
+		<script type='text/javascript' src='views/js/funciones.js'></script>
+		<link rel="stylesheet" type="text/css" href="views/css/estilo_formularios.css" />
+		<link rel='stylesheet' type='text/css' href='views/css/mensajes_validacion.css'/>
+		<link rel="stylesheet" type="text/css" href="views/css/estilo_formularios.css" />
+		<link rel="stylesheet" href="views/css/pickmeup.css" type="text/css" />
+		<script type="text/javascript" src="views/js/jquery.js"></script>
+		<script type="text/javascript" src="views/js/jquery.pickmeup.js"></script>
+		<script type="text/javascript" src="views/js/demo.js"></script>
+	</head>
+<body onLoad='document.form.dni.focus();'>
+<div class='tema'><p><?php echo $tema; ?></p></div>
+<form action="" method="POST" name='form' onSubmit=''>
+<!-- Formularios para buscar a la persona -->
+<table  class="principal" cellspacing="15px" border='0' align='center'>
+	<tr>
+		<td>Documento de identidad:<br>
+		</td>
+		<td>		
+			<input value="<?php if(!empty($_SESSION['dni'])) echo $_SESSION['dni']; ?>" type="text" size='15' maxlength="8" name="dni" placeholder="" class="input" onKeyPress="return validaSoloNumero(event);" >
+		</td>
+	</tr>
+	<tr>
+		<td>Tipo de constancia:</td>
+		<td>
+			<select name='opc' class='input' style='width:130px;'>
+				<option value='Residencia'>Residencia</option>
+				<option value='Buena conducta'>Buena conducta</option>
+				<option value='Bajos recursos'>Bajos recursos</option>
+			</select>	
+		<td>
+	</tr>
+	<tr>
+		<td colspan='2' style='text-align:center;'><br><br>
+		<input style='margin-right:10px;' class='accion' type='RESET' name='limpiar' value='Limpiar'>
+		<input style='margin-left:10px;' class='accion' type='submit' name='buscar' value='Buscar'></td>
+		
+	</tr>	
+</table>

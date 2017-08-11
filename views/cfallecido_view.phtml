@@ -1,0 +1,113 @@
+<?php
+?>
+<!doctype html>
+<html>
+	<head>
+	<meta charset="utf-8" />
+		<title><?php echo $tema; ?></title>
+		<link rel='stylesheet' type='text/css' href='views/css/consultar.css'/>
+		<link rel='stylesheet' type='text/css' href='views/css/mensajes_validacion.css'/>
+		<script type='text/javascript' language='javascript' src='views/js/funciones.js'></script>
+	</head>
+
+<body>
+<?php
+/*if(isset($_POST['enviar']))
+	if(empty($_POST['dni_']))
+		echo $mensaje['not_dni'];
+	else
+	$lista=$familia->consultarRepFamilia($_POST['dni_']);
+	*/
+?>
+<div class='tema'>
+<label class='titulo'><?php echo $tema; ?></label>
+</div>
+<!--
+<form method='POST' action=''>
+<label style='margin-left:24px;'>Documento de Identidad: <input type='text' name='dni_' style='width:160px; height:25px;'> <input type='submit' name='enviar' value='Buscar'></label> <label style='float:right; margin-right:22px;'><input value='Ver todos' type='submit'></label>
+</form>-->
+<?php
+if($lista)
+{
+?><br>
+	<table cellspacing='02'>
+	<tr>
+		<th title='Documento de Identidad'><a href='#'>Identificación</a></th>
+		<th title='Nombre y apellido'><a href='#'>Nombre y apellido</a></th>
+		<th style='text-align:center;' title='Sexo'><a href='#'>Sexo</a></th>
+		<th style='text-align:center;' title='Edad'><a href='#'>Grupo familiar</a></th>
+	</tr>
+<?php
+
+for($i=0;$i<count($lista);$i++)
+	{
+	$nombre=explode(' ',$lista[$i]['nombre']);
+	$apellido=explode(' ',$lista[$i]['apellido']);	
+	//$edad=calculaEdad($lista[$i]['fecha_nac']);
+?>
+	<tr id="<?php echo "id_$i"; ?>" onMouseMove="cambiarColor('<?php echo "id_$i"; ?>','#D8D8D8 url(views/imagen/background.png) repeat-x 0 -10px');" onMouseOut="cambiarColor('<?php echo "id_$i"; ?>','#fff');" >
+		<td class='accion' title='<?php echo $lista[$i]['tipo_dni']."-".$lista[$i]['dni']; ?>'><?php echo $lista[$i]['tipo_dni']."-".$lista[$i]['dni']; ?></td>
+		<td title='<?php echo $lista[$i]['nombre']." ".$lista[$i]['apellido']; ?>'><?php echo $nombre[0]." ".$apellido[0]; ?></td>
+		<td style='text-align:center;' title='<?php echo $lista[$i]['sexo']; ?>'><?php echo $lista[$i]['sexo']; ?></td>
+<td  style='text-align:center;' title='Grupo familiar'><a class='ver' href="?opcion=cgrupofamiliar&id=<?php echo $lista[$i]['id_rep']; ?>&sector=<?php echo $lista[$i]['sector']; ?>"><img class='ico_op' src='views/imagen/group.png'></img> Ver</a></td>
+
+	
+	</tr>
+	
+<?php
+		
+	}
+	
+?>
+	</table>
+<!-- FUENTE: www.CesarCancino.com -->
+<div class='paginador' align='center' >
+<ul>
+	<li style="display:inline; margin-right:6px;">
+	<?php if($params['primero']):	?>
+		<a  class='parametro'  href="?opcion=<?php echo $opcion; ?>&pagina=<?php echo $params['primero']; ?>">
+		Primero
+		</a>
+	<?php	else: ?>
+		Primero
+	<?php	endif; ?>
+	
+	</li>
+	<li style="display:inline; margin-right:6px;">
+	<?php if($params['anterior']):	?>
+		<a  class='parametro'  href="?opcion=<?php echo $opcion; ?>&pagina=<?php echo $params['anterior']; ?>">
+		Anterior
+		</a>
+	<?php	else: ?>
+		Anterior
+	<?php	endif; ?>
+	</li>
+	<li style="display:inline; margin-right:6px;">
+	<?php if($params['siguiente']):	?>
+		<a  class='parametro'  href="?opcion=<?php echo $opcion; ?>&pagina=<?php echo $params['siguiente']; ?>">
+		Siguiente
+		</a>	
+	<?php	else: ?>
+		Siguiente
+	<?php	endif; ?>
+	</li>
+	</li>
+	<li style="display:inline; margin-right:5px;">
+	<?php if($params['ultimo']):	?>
+		<a  class='parametro'  class='parametro' href="?opcion=<?php echo $opcion; ?>&pagina=<?php echo $params['ultimo']; ?>">
+		Último
+		</a>
+	<?php	else: ?>
+		Último
+	<?php	endif; ?>
+	</li>
+</ul>
+</div>
+<?php
+}
+else
+	echo '<BR>'.$mensaje['not_data'];
+?>
+<div class='papelera' title='Atrás'><a href='?opcion=cfamilia&pagina='><img src='views/imagen/go-back.png'><br>Atrás</a></div>
+</body>
+</html>

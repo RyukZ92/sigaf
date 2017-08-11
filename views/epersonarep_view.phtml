@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8"/>
+		<title><?php echo $tema; ?></title>
+		<script type='text/javascript' src='views/js/funciones.js'></script>
+		<link rel='stylesheet' type='text/css' href='views/css/mensajes_validacion.css'/>
+		<link rel="stylesheet" href="views/css/pickmeup.css" type="text/css" />
+		<script type="text/javascript" src="views/js/jquery.js"></script>
+		<script type="text/javascript" src="views/js/jquery.pickmeup.js"></script>
+		<script type="text/javascript" src="views/js/demo.js"></script>
+		<link rel="stylesheet" type="text/css" href="views/css/estilo_formularios.css" />
+	</head>
+<body>
+<?php
+
+if($_SESSION['nivel_usuario']=='Administrador')
+{
+
+$persona=$familia->consultarPersonaDni($_REQUEST['dni']);
+$lista=$cantidad->consultarGrupoFamiliar($persona[0]['id_rep']);
+$fecha=explode('-',$persona[0]['fecha_nac']);
+$telefono=explode('-',$persona[0]['telefono']);
+$mostrarFormulario=true;
+//convirtiendo fecha a formato aaaa-mm-dd
+
+if(isset($_POST['actualizar'])) 
+	{
+	$fecha_=explode('-',$_POST['fecha_nac']);
+	$edad=$fecha_[2].'-'.$fecha_[1].'-'.$fecha_[0];
+	if(empty($_POST['dni_']))
+		echo $mensaje['not_dni'];
+	else if($persona[0]['dni']==$_POST['dni_']&&$_GET['dni']!=$_POST['dni_'])
+		echo $mensaje['dni_repeat'];
+	else if(calculaEdad($edad)<18)
+		echo $mensaje['menor_edad'];
+	else if(empty($_POST["nombre"])||strlen($_POST["nombre"])<2)
+		echo $mensaje['name_real_wrong'];
+	else if(empty($_POST["apellido"])||strlen($_POST["apellido"])<2)
+		echo $mensaje['lastname_real_wrong'];	
+	else if(empty($_POST["fecha_nac"]))
+		echo $mensaje['not_birthday'];	
+	else if(empty($_POST["sexo"]))
+		echo $mensaje['not_sex'];
+	else if(empty($_POST["nivel_instruccion"]))
+		echo $mensaje['niv_inst'];	
+	else if(empty($_POST["anio_residencia"]))
+		echo $mensaje['fecha_resid'];	
+	else
+		{
+		$fallecido=($_POST['fallecido']==1)?1:0;
+		$mudado=($_POST['mudado']==1)?1:0;	
+		$fecha_nac=explode('-',$_POST['fecha_nac']);
+		$fecha_nac=$fecha_nac[2].'-'.$fecha_nac[1].'-'.$fecha_nac[0];	
+		$res=$familia->actualizarPersonaRep($persona[0]['id_p'],$_POST["tipo_dni"],$_POST["dni_"],$_POST["nombre"],$_POST["apellido"],$fecha_nac,$_POST["estado_civil"],$_POST["situacion_conyugal"],$_POST["sexo"],$_POST["nivel_instruccion"],$_POST["anio_residencia"],$_POST["cod_area"]."-".$_POST["telefono"],$_POST["email"],$_POST["empleo"],$_POST["profesion"],$_POST["enfermedad"],$mudado,$fallecido);
+		//Se actuaiza el estatus del vocero y usaurio dependiendo de la edición de la persona en si pertenece a la comunidad o no (atributo mudado)
+		$estatus=($mudado=='1')?'0':'1';
+		$r1=$familia->actualizarEstatusVoceroDependienteDePersona($_POST["dni_"],$estatus);
+		$r2=$familia->actualizarEstatusUsuarioDependienteDePersona($_POST["dni_"],$estatus);
+
+		//Se eliminar al estatus del vocero y usuario dependiendo de la edición de la persona; si ha fallecido o no (atributo fallecido)
+		$elimina=($fallecido=='1')?'1':'0';
+		$r1=$familia->eliminarEstatusVoceroDependienteDePersona($_POST["dni_"],$elimina);
+		$r2=$familia->eliminarEstatusUsuarioDependienteDePersona($_POST["dni_"],$elimina);		
+		if($res) 
+			{
+			//Se gurdan cambios adicionles y el movimiento que realia el usuario
+			Conectar::conexion()->query("UPDATE familia SET dni_rep='".$_POST['dni_']."' WHERE id='".$persona[0]['id_rep']."'");
+			Historial::Movimiento($_SESSION['codigo'],"Actualizó a la persona (respresentante) de identificación: <b>".$_POST['dni_']."</b>");
+			}
+		$mostrarFormulario=false;	
+		}
+	}
+if($mostrarFormulario)
+	{	
+?>
+	<div class='tema'><p><?php echo $tema; ?></p></div>
+	<form id="form" name="form" method="POST" action="" >
+<table  class="principal" cellspacing="15px" border='0' align='center'>
+	<tr>
+		<td>Documento de Identidad:<br>		
+		<select name='tipo_dni'>
+			<option value='V' >V</option>
+			<option value='E' >E</option>
+		</select>
+		<input value="<?php echo $persona[0]['dni']; ?>" type="text" size='15' maxlength="8" name="dni_" class="input" onKeyPress="return validaSoloNumero(event);">&nbsp;<label class='C_obligatorio'>*</label> </td>		
+		<td>Nombres:
+			<br><input  value="<?php echo $persona[0]['nombre']; ?>" type="text" maxlength="50" name="nombre" class="input" onKeyPress="return validaLetra(event);" >&nbsp;<label class='C_obligatorio'>*</label> </td>
+		<td>Apellidos:
+			<br><input  value="<?php echo $persona[0]['apellido']; ?>" type="text" maxlength="50" name="apellido" placeholder='' class="input" onKeyPress="return validaLetra(event);" >&nbsp;<label class='C_obligatorio'>*</label>
+		</td>	
+		<td>Fecha de nacimiento:
+			<BR>
+			<input readonly value="<?php echo $fecha[2].'-'.$fecha[1].'-'.$fecha[0]; ?>" type='text' name='fecha_nac' class='datepicker' size="20" placeholder='dd-mm-aaaa'/>&nbsp;<label class='C_obligatorio'>*</label>
+		</td>
+	</tr>	
+	<tr>	
+		<td>Estado civil:
+		<br><select name='estado_civil'>
+			<option value='0' >Seleccionar</option>
+			<option <?php if($persona[0]['estado_civil']=='Soltero') {?>selected<?php } ?> value='Soltero' >Soltero</option>			
+			<option <?php if($persona[0]['estado_civil']=='Casado') {?>selected<?php } ?> value='Casado' >Casado</option>
+			<option <?php if($persona[0]['estado_civil']=='Divorcioado') {?>selected<?php } ?> value='Divorciado' >Divorciado</option>
+			<option <?php if($persona[0]['estado_civil']=='Viudo') {?>selected<?php } ?> value='Viudo' >Viudo</option>
+			<option <?php if($persona[0]['estado_civil']=='Concubino') {?>selected<?php } ?> value='Concubino' >Concubino</option>
+		</select>&nbsp;<label class='C_obligatorio'>*</label>
+		</td>
+		<td>Situación conyugal:
+		<br><select name='situacion_conyugal'>
+			<option value='0' >Seleccionar</option>
+			<option <?php if($persona[0]['situacion_conyugal']=='Unido') {?>selected<?php } ?> value='Unido' >Unido</option>
+			<option <?php if($persona[0]['situacion_conyugal']=='Separado') {?>selected<?php } ?> value='Separado' >Separado</option>
+			<option <?php if($persona[0]['situacion_conyugal']=='Sin conyugue') {?>selected<?php } ?> value='Sin conyugue' >Sin conyugue</option>
+		</select>&nbsp;<label class='C_obligatorio'>*</label>
+		</td>
+		<td>Sexo:<br>
+		<select name='sexo'>
+			<option value='0' >Seleccionar</option>
+			<option <?php if($persona[0]['sexo']=='F') {?>selected<?php } ?> value='F' >Femenino</option>
+			<option <?php if($persona[0]['sexo']=='M') {?>selected<?php } ?> value='M' >Masculino</option>
+		</select>&nbsp;<label class='C_obligatorio'>*</label>
+		</td>
+		<td>Nivel de instrucción:<br>
+		<select name='nivel_instruccion'>
+			<option value='0' >Seleccionar</option>
+			<option <?php if($persona[0]['nivel_instruccion']=='Ninguno') {?>selected<?php } ?> value='Ninguno' >Ninguno</option>
+			<option <?php if($persona[0]['nivel_instruccion']=='Básica') {?>selected<?php } ?> value='Básica' >Básica</option>
+			<option <?php if($persona[0]['nivel_instruccion']=='Bachiller') {?>selected<?php } ?> value='Bachiller' >Bachiller</option>
+			<option <?php if($persona[0]['nivel_instruccion']=='Técnico Medio') {?>selected<?php } ?> value='Técnico Medio' >Técnico Medio</option>
+			<option <?php if($persona[0]['nivel_instruccion']=='Universitario') {?>selected<?php } ?> value='Universitario' >Universitario</option>
+			<option <?php if($persona[0]['nivel_instruccion']=='Post Grado') {?>selected<?php } ?> value='Post Grado' >Post Grado</option>
+			<option <?php if($persona[0]['nivel_instruccion']=='Doctorado') {?>selected<?php } ?> value='Doctorado' >Doctorado</option>
+			<option <?php if($persona[0]['nivel_instruccion']=='PhD') {?>selected<?php } ?> value='PhD' >PhD</option>
+		</select>&nbsp;<label class='C_obligatorio'>*</label>
+		</td>
+	</tr>
+	<tr>
+		<td>Año desde que<br> reside en la comunidad:<br>
+		<select name='anio_residencia'>
+		<option value='0'>Seleccionar</option>>
+<?php
+	for($i=date('Y');$i>=date('Y')-100;$i--)
+		{
+?>	
+		<option <?php if ($persona[0]['anio_residencia']==$i) {?>selected<?php } ?> value='<?php echo $i; ?>'><?php echo $i; ?></option><label class='C_obligatorio'>*</label>
+			
+<?php
+		}
+?>		</select> <label class='C_obligatorio'>*</label>
+		</td>
+		<td> Teléfono de contacto:<br>
+		<select name='cod_area'>
+			<option <?php if ($persona[0]['cod_area']=='0294') {?>selected<?php } ?> value='0294'>0294</option>
+			<option <?php if ($persona[0]['cod_area']=='0416') {?>selected<?php } ?> value='0416'>0416</option>
+			<option <?php if ($persona[0]['cod_area']=='0426') {?>selected<?php } ?> value='0426'>0426</option>
+			<option <?php if ($persona[0]['cod_area']=='0424') {?>selected<?php } ?> value='0414'>0414</option>
+			<option <?php if ($persona[0]['cod_area']=='0424') {?>selected<?php } ?> value='0424'>0424</option>
+			<option <?php if ($persona[0]['cod_area']=='0412') {?>selected<?php } ?> value='0412'>0412</option>
+		</select>
+		<input value='<?php echo $telefono[1]; ?>' name='telefono' size='12' type='text' placeholder='Ej. 9874536' onKeyPress="return validaCaracter(event);" maxlength='7' class='input'>
+		</td>		
+		<td colspan='2'>Correo electrónico:
+			<br><input size='40' value="<?php echo $persona[0]['email']; ?>" type="email" maxlength="50" name="email" placeholder="Ej. micorreoelectronico@myemail.com" class='largo'>
+		</td>
+	</tr>
+	<tr>
+		<td>Empleo:
+		<br><input id='empleo' value="<?php echo $persona[0]['empleo']; ?>" type="text" maxlength="50" name="empleo" placeholder="Indique el empleo" class='input' onKeyPress="return validaLetra(event);">
+		</td>		
+		<td>Profesión u ocupación:
+		<BR><input value="<?php echo $persona[0]['profesion']; ?>" type="text" maxlength='30' name="profesion" placeholder="Ej. Obrero" class="input" onKeyPress="return validaLetra(event);"> &nbsp;</td>
+		<td>
+			Enfermedades: <BR>
+			<input value="<?php echo $persona[0]['enfermedad']; ?>" name='enfermedad' type='text'  placeholder='Ej. Diábetes, otra' class='input' maxlength='30'> 	
+		</td>	
+	</tr>
+	<?php
+	if(count($lista)==1)
+		{
+	?>
+				<tr>
+					<td colspan='2'><input type='checkbox' name='mudado' value='1' <?php if($persona[0]['mudado']==1) {?> checked <?php } ?> class='checkbox'> No pertenece a la comunidad</td>			
+				</tr>				
+				<tr>
+					<td colspan='2'><input type='checkbox' name='fallecido' value='1' <?php if($persona[0]['fallecido']==1) {?> checked <?php } ?> class='checkbox'> Fallecida</td>			
+				</tr>
+	
+	<?php
+		}
+	?><tr>
+		<td colspan='4' style='text-align:center;'>
+			<input style='margin-right:20px;' class='accion' type='button' name='limpiar' value='Salir' onClick="if(confirm('¿Desea salir sin guardar los cambios?')) window.location='?opcion=inicio';">
+			<input style='margin-left:20px;' class='accion' type='submit' name='actualizar' value='Actualizar'>
+		</td>
+	</tr>
+	</table>
+<input type='hidden' value='<?php echo $_GET['id']; ?>' name='id'>			
+<input type='hidden' value='<?php echo $persona[0]['dni']; ?>' name='dni'>
+<input type='hidden' value='<?php echo $_GET['sector'];?>' name='sector'>
+	</form>
+<?php
+	}
+if(isset($res))
+	{
+	if($res)
+		{
+		echo $mensaje['updated'];
+		header("refresh:2;url=?opcion=cgrupofamiliar&id=".$_GET['id']."&sector=".$_GET['sector']);
+		}
+	else
+		{
+		echo $mensaje['error_updated'];
+		header("refresh:3;url=?opcion=inicio");			
+		}
+	}	
+}
+else
+	echo $mensaje['not_privilege'];	
+?>
+
+</body>
+</html>

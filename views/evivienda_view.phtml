@@ -1,0 +1,198 @@
+<?php
+$formulario=true;
+$lista=$vivienda->consultarViviendaPorIdFamilia($_GET['id']);
+if(isset($_POST['guardar']))
+	{
+	$res=$vivienda->actualizarVivienda($_POST['tipo_vivienda'], $_POST['ocupacion_vivienda'], $_POST['uso_vivienda'], $_POST['tipo_techo'], $_POST['tipo_paredes'], $_POST['tipo_piso'], $_POST['nivel_vivienda'], $_POST['propiedad_vivienda'], $_POST['banio'], $_POST['dormitorio'], $_POST['cocina'], $_POST['nevera'], $_POST['aguas_blancas'], $_POST['gas'], $_POST['electricidad'], $_POST['tv_radio'], $_POST['observacion'], $_REQUEST['id']);
+	echo $registrado=$res?$mensaje['updated']:$mensaje['error_updated'];
+	header("refresh:2;url=?opcion=cfamilia&pagina=");	
+	$formulario=false;
+	}
+?>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title><?php echo $tema; ?></title>
+			<script type='text/javascript' src='views/js/funciones.js'></script>
+			<link rel="stylesheet" type="text/css" href="views/css/estilo_formularios.css" />
+			<link rel='stylesheet' type='text/css' href='views/css/mensajes_validacion.css'/>
+<link rel="stylesheet" type="text/css" href="views/css/estilo_formularios.css" />
+  </style>
+</head>
+<body>
+<?php 
+if($formulario)
+{
+?>
+<div class='tema'><p><?php echo $tema; ?></p></div>
+<form action='' method="POST" name='form'>
+<table  class="principal" cellspacing="15px" border='0' align='center'>
+	<tr>
+		<td>Tipo de vivienda:<br>		
+		<select name='tipo_vivienda'>
+			<option value='-' >Seleccionar</option>
+			<option <?php if($lista[0]['tipo_vivienda']=='Quinta') {?>selected<?php } ?> value='Quinta' >Quinta</option>
+			<option <?php if($lista[0]['tipo_vivienda']=='Casa') {?>selected<?php } ?> value='Casa' >Casa</option>
+			<option <?php if($lista[0]['tipo_vivienda']=='Apartamento') {?>selected<?php } ?> value='Apartamento'>Apartamento</option>
+			<option <?php if($lista[0]['tipo_vivienda']=='Habitacion') {?>selected<?php } ?> value='Habitacion'>Anexo/Habitación</option>
+			<option <?php if($lista[0]['tipo_vivienda']=='Rancho') {?>selected<?php } ?> value='Rancho'>Rancho</option>
+			<option <?php if($lista[0]['tipo_vivienda']=='Otra') {?>selected<?php } ?> value='Otra'>Otra</option>
+		</select>
+		</td>
+		<td>Ocupación:
+		<br>		
+		<select name='ocupacion_vivienda'>
+			<option value='-' >Seleccionar</option>
+			<option <?php if($lista[0]['ocupacion_vivienda']=='De uso permanente') {?>selected<?php } ?> value='De uso permanente' >De uso permanente</option>
+			<option <?php if($lista[0]['ocupacion_vivienda']=='De uso ocacional') {?>selected<?php } ?> value='De uso ocacional' >De uso ocacional</option>
+			<option <?php if($lista[0]['ocupacion_vivienda']=='Desocupada') {?>selected<?php } ?> value='Desocupada'>Desocupada</option>
+			<option <?php if($lista[0]['ocupacion_vivienda']=='En construcción') {?>selected<?php } ?> value='En construcción'>En construcción</option>
+		</select>
+		</td>
+		<td>Uso de la vivienda<br>
+		<select name='uso_vivienda'>
+			<option value='-' >Seleccionar</option>
+			<option <?php if($lista[0]['uso_vivienda']=='Residencial') {?>selected<?php } ?> value='Residencial' >Residencial</option>
+			<option <?php if($lista[0]['uso_vivienda']=='Comercial') {?>selected<?php } ?> value='Comercial' >Comercial</option>
+			<option <?php if($lista[0]['uso_vivienda']=='Servicio') {?>selected<?php } ?> value='Servicio'>Servicio</option>
+			<option <?php if($lista[0]['uso_vivienda']=='Recreativo/Deportivo') {?>selected<?php } ?> value='Recreativo/Deportivo'>Recreativo/Deportivo</option>
+			<option <?php if($lista[0]['uso_vivienda']=='Asistencial/Salud') {?>selected<?php } ?> value='Asistencial/Salud'>Asistencial/Salud</option>
+			<option <?php if($lista[0]['uso_vivienda']=='Educacional') {?>selected<?php } ?> value='Educacional'>Educacional</option>
+			<option <?php if($lista[0]['uso_vivienda']=='Social/Cultural/Religioso') {?>selected<?php } ?> value='Social/Cultural/Religioso'>Social/Cultural/Religioso</option>
+			<option <?php if($lista[0]['uso_vivienda']=='Gobierno/Institucional') {?>selected<?php } ?> value='Gobierno/Institucional'>Gobierno/Institucional</option>
+			<option <?php if($lista[0]['uso_vivienda']=='Servicio comunal') {?>selected<?php } ?> value='Servicio Comunal'>Servicio Comunal</option>
+			<option <?php if($lista[0]['uso_vivienda']=='Sin uso') {?>selected<?php } ?> value='Sin uso'>Sin uso</option>
+		</select>
+		
+		</td>
+	
+		<td>Vivienda<br>
+		<select name='propiedad_vivienda'>
+			<option value='-' >Seleccionar</option>
+			<option <?php if($lista[0]['propiedad_vivienda']=='Propia') {?>selected<?php } ?> value='Propia' >Propia</option>
+			<option <?php if($lista[0]['propiedad_vivienda']=='Alquilada') {?>selected<?php } ?> value='Alquilada' >Alquilada</option>
+			<option <?php if($lista[0]['propiedad_vivienda']=='Compartida') {?>selected<?php } ?> value='Compartida'>Compartida</option>
+			<option <?php if($lista[0]['propiedad_vivienda']=='Invadida') {?>selected<?php } ?> value='Invadida'>Invadida</option>
+			<option <?php if($lista[0]['propiedad_vivienda']=='Adjudicada') {?>selected<?php } ?> value='Adjudicada'>Adjudicada</option>
+			<option <?php if($lista[0]['propiedad_vivienda']=='Traspasada') {?>selected<?php } ?> value='Traspasada'>Traspasada</option>
+		</select>
+		
+		</td>
+	</tr>	
+	<tr>		
+		<td>Tipo de techo:<br>
+		<select name='tipo_techo'>
+			<option value='-' >Seleccionar</option>
+			<option <?php if($lista[0]['tipo_techo']=='Platabanda') {?>selected<?php } ?> value='Platabanda' >Platabanda</option>
+			<option <?php if($lista[0]['tipo_techo']=='Asbesto') {?>selected<?php } ?> value='Asbesto' >Asbesto</option>
+			<option <?php if($lista[0]['tipo_techo']=='Tejas') {?>selected<?php } ?> value='Tejas' >Tejas</option>
+			<option <?php if($lista[0]['tipo_techo']=='Madera') {?>selected<?php } ?> value='Madera' >Madera</option>
+			<option <?php if($lista[0]['tipo_techo']=='Zinc') {?>selected<?php } ?> value='Zinc' >Zinc</option>
+			<option <?php if($lista[0]['tipo_techo']=='Acerolit') {?>selected<?php } ?> value='Acerolit' >Acerolit</option>
+			<option <?php if($lista[0]['tipo_techo']=='Otro') {?>selected<?php } ?> value='Otro' >Otro</option>
+		</select>
+		</td>
+		<td>Tipo de paredes:<br>
+		<select name='tipo_paredes'>
+			<option value='-' >Seleccionar</option>
+			<option <?php if($lista[0]['tipo_paredes']=='Bloque frisado') {?>selected<?php } ?> value='Bloque frisado' >Bloque frisado</option>
+			<option <?php if($lista[0]['tipo_paredes']=='Bloque sin frisar') {?>selected<?php } ?> value='Bloque sin frisar' >Bloque sin frisar</option>
+			<option <?php if($lista[0]['tipo_paredes']=='Concreto') {?>selected<?php } ?> value='Concreto' >Concreto</option>
+			<option <?php if($lista[0]['tipo_paredes']=='Bahareque') {?>selected<?php } ?> value='Bahareque' >Bahareque</option>
+			<option <?php if($lista[0]['tipo_paredes']=='Material de desecho') {?>selected<?php } ?> value='Material de desecho' >Material de desecho</option>
+			<option <?php if($lista[0]['tipo_paredes']=='Zinc') {?>selected<?php } ?> value='Zinc' >Zinc</option>
+			<option <?php if($lista[0]['tipo_paredes']=='Otro') {?>selected<?php } ?> value='Otro' >Otro</option>
+		</select>
+		</td>
+		<td>Tipo de piso:<br>
+		<select name='tipo_piso'>
+			<option value='-' >Seleccionar</option>
+			<option <?php if($lista[0]['tipo_piso']=='Cemento') {?>selected<?php } ?> value='Cemento' >Cemento</option>
+			<option <?php if($lista[0]['tipo_piso']=='Tierra') {?>selected<?php } ?> value='Tierra' >Tierra</option>
+			<option <?php if($lista[0]['tipo_piso']=='Cerámica') {?>selected<?php } ?> value='Cerámica' >Cerámica</option>
+			<option <?php if($lista[0]['tipo_piso']=='Granito') {?>selected<?php } ?> value='Granito' >Granito</option>
+			<option <?php if($lista[0]['tipo_piso']=='Parquet') {?>selected<?php } ?> value='Parquet' >Parquet</option>
+			<option <?php if($lista[0]['tipo_piso']=='Variado') {?>selected<?php } ?> value='Variado' >Variado</option>
+			<option <?php if($lista[0]['tipo_piso']=='Otro') {?>selected<?php } ?> value='Otro' >Otro</option>
+		</select>
+		</td>
+		<td>Nivel de la vivienda:<br>
+		<select name='nivel_vivienda'>
+			<option value='-' >Seleccionar</option>
+			<option <?php if($lista[0]['nivel_vivienda']=='Un nivel') {?>selected<?php } ?> value='Un nivel' >Un nivel</option>
+			<option <?php if($lista[0]['nivel_vivienda']=='Dos niveles') {?>selected<?php } ?> value='Dos niveles' >Dos niveles</option>
+			<option <?php if($lista[0]['nivel_vivienda']=='Tres niveles') {?>selected<?php } ?> value='Tres niveles' >Tres niveles</option>
+			<option <?php if($lista[0]['nivel_vivienda']=='Más de tres niveles') {?>selected<?php } ?> value='Más de tres niveles' >Más</option>
+		</select>
+		</td>		
+	</tr>
+	<tr>
+		<td>Baño:
+			<br>
+			
+			<input size='15' value="<?php echo $lista[0]['banio']; ?>" type="text" maxlength="30" name="banio" id="banio" placeholder="¿Cuantos?" class="input" onKeyPress="return validaSoloNumero(event);">
+		</td>		
+		<td>Dormitorio:
+			<br>			
+			<input size='15' value="<?php echo $lista[0]['dormitorio']; ?>" type="text" maxlength="30" name="dormitorio" id="dormitorio" placeholder="¿Cuantos?" class="input" onKeyPress="return validaSoloNumero(event);" >
+		
+		</td>
+		<td>Cocina:
+			<br>
+			<input size='15' value="<?php echo $lista[0]['cocina']; ?>" type="text" maxlength="30" name="cocina" id="cocina" placeholder="¿Cuantas?" class="input" onKeyPress="return validaSoloNumero(event);" >
+		
+		</td>		
+		<td>Nevera:
+			<br>
+			<input size='15' value="<?php echo $lista[0]['nevera']; ?>" type="text" maxlength="30" name="nevera" id="nevera" placeholder="¿Cuantas?" class="input" onKeyPress="return validaSoloNumero(event);" >
+		
+		</td>	
+	</tr>
+		<td>Aguas blancas:			
+			<br>
+			<input type='radio' name='aguas_blancas' value='1' <?php if($lista[0]['aguas_blancas']=='1') { ?>checked<?php } ?>> Si
+			
+			<input type='radio' name='aguas_blancas' value='0' <?php if($lista[0]['aguas_blancas']=='0') { ?>checked<?php } ?>> No
+		
+		</td>
+		<td>Gas:
+			<br>
+			<input type='radio' name='gas' value='1' <?php if($lista[0]['gas']=='1') { ?>checked<?php } ?>> Si
+			
+			<input type='radio' name='gas' value='0' <?php if($lista[0]['gas']=='0') { ?>checked<?php } ?>> No
+		
+		</td>
+		<td>Electricidad:
+			<br>
+			<input type='radio' name='electricidad' value='1' <?php if($lista[0]['electricidad']=='1') { ?>checked<?php } ?>> Si
+			
+			<input type='radio' name='electricidad' value='0' <?php if($lista[0]['electricidad']=='0') { ?>checked<?php } ?>> No
+				
+		</td>		
+		<td>
+			Television/Radio:
+			<br>
+			<input type='radio' name='tv_radio' value='1' <?php if($lista[0]['tv_radio']=='1') { ?>checked<?php } ?>> Si
+			
+			<input type='radio' name='tv_radio' value='0' <?php if($lista[0]['tv_radio']=='0') { ?>checked<?php } ?>> No
+		
+		</td>		
+	</tr>
+	<tr>
+		<td colspan='4'>Observaciones:<br>
+		<textarea name='observacion' style='resize:none; width:100%; height:70px;' maxlength='300'><?php echo $lista[0]['observacion']; ?></textarea>
+		</td>
+	</tr>
+	<td colspan='4' style='text-align:center;'>
+		<input style='margin-left:15px;' class='accion' type='submit' name='volver' value='Salir' onClick="if(confirm('¿Desea salir sin guardar los cambios?')) window.location='?opcion=inicio';">
+		<input style='margin-left:15px;' class='accion' type='submit' name='guardar' value='Guardar'>
+		
+	</tr>
+	</table>
+</form>
+<?php
+}
+?>
+</body>
+</html>

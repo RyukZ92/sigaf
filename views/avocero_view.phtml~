@@ -1,0 +1,142 @@
+<?php 
+
+if($_SESSION['nivel_usuario']=='Administrador'||$_SESSION['nivel_usuario']=='provisional')
+{
+$listaVoceria=$voceria->consultarVoceria();
+?>
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8"/>
+	<title><?php echo $tema; ?></title>
+	<script type='text/javascript' src='views/js/funciones.js'></script>
+	<link rel="stylesheet" type="text/css" href="views/css/estilo_formularios.css" />
+	<link rel='stylesheet' type='text/css' href='views/css/mensajes_validacion.css'/>
+</head>
+<body>
+<?php
+$mostrarFormulario=true;
+$validacion=false;
+//Validando del lado de PHP
+if(isset($_POST['enviar']))
+	{
+	$validaVocero=$nuevoVocero->verificarDni($_POST['dni']);
+	$validaExistenciaCenso=$persona->consultarPersonaDni($_POST['dni']);
+	if(empty($_POST['dni']))
+		echo $mensaje['not_dni'];
+	else if(strlen($_POST['dni'])<6)
+		echo $mensaje['dni_wrong'];
+	else if($validaVocero)
+		echo $mensaje['vocero_r'];	
+	else if (count($validaExistenciaCenso)<1) 
+		echo $mensaje['no_existe_vocero'];
+	else if(empty($_POST['telefono']))
+		echo $mensaje['not_phone'];
+	else if(empty($_POST['voceria']))
+		echo $mensaje['not_voceria'];
+	else if(empty($_POST['tipo_miembro']))
+		echo $mensaje['type_m'];		
+	else
+		{
+		if(!empty($_POST['telefono'])) 
+			$tel=$_POST['cod_area']."-".$_POST['telefono'];
+		else 
+			$_POST['telefono']=0;
+		$fecha=$config[0]['periodo_actual'];
+		$fecha_m=explode("/",$fecha);
+		$dia_m=$fecha_m[2];
+		$mes_m=$fecha_m[1];
+		$anio_m=$fecha_m[0];
+		$fecha_vigencia=$dia_m.'-'.$mes_m.'-'.$anio_m;
+		$res=$nuevoVocero->agregarVocero($_POST['dni'],$fecha_vigencia,$_POST['voceria'],$_POST['tipo_miembro'],$tel); //Insertando el nuevo vocero al sistema
+		$mostrarFormulario=false;	
+		}
+	}
+//Mostrando formulario
+if($mostrarFormulario)
+{	
+?>
+<div class='tema'><p><?php echo $tema; ?></p></div>
+<form action="?opcion=avocero" method="POST" name='form' onSubmit='return validarCamposVocero();'>
+<table class="principal" cellspacing="15px" border="0" align='center'>
+	<tr>
+		<td>Documento de Identidad:		
+		<br>
+		<select name='tipo_dni'>
+			<option value='V' >V</option>
+			<option value='E' >E</option>
+		</select>
+		<input value="<?php if(!empty($_POST['dni'])) echo $_POST['dni']; ?>" type="text" size='15' maxlength="8" name="dni"class="input" onKeyPress="return validaSoloNumero(event);"> <label class='C_obligatorio'>*</label> </td>
+
+		<td> Teléfono de contacto:<br>
+		<select name='cod_area'>
+			<option <?php if (!empty($_POST['cod_area'])) if($_POST['cod_area']=='0294') {?>selected<?php } ?> value='0294'>0294</option>
+			<option <?php if (!empty($_POST['cod_area'])) if($_POST['cod_area']=='0416') {?>selected<?php } ?> value='0416'>0416</option>
+			<option <?php if (!empty($_POST['cod_area'])) if($_POST['cod_area']=='0426') {?>selected<?php } ?> value='0426'>0426</option>
+			<option <?php if (!empty($_POST['cod_area'])) if($_POST['cod_area']=='0424') {?>selected<?php } ?> value='0414'>0414</option>
+			<option <?php if (!empty($_POST['cod_area'])) if($_POST['cod_area']=='0424') {?>selected<?php } ?> value='0424'>0424</option>
+			<option <?php if (!empty($_POST['cod_area'])) if($_POST['cod_area']=='0412') {?>selected<?php } ?> value='0412'>0412</option>
+		</select>
+		<input value='<?php if(!empty($_POST['telefono'])) echo $_POST['telefono']; ?>' name='telefono' size='12' type='text' placeholder='Ej. 9874536' class="input" onKeyPress="return validaSoloNumero(event);" maxlength='7' > <label class='C_obligatorio'>*</label>
+		</td>
+		
+	</tr>
+	<tr>
+		<td colspan='2'>Vocería:<br>
+		<select name='voceria'>
+		<option value='0'>Seleccionar</option>
+		<?php 
+		for($i=0;$i<count($listaVoceria);$i++)
+			{
+			if($listaVoceria[$i]['estatus']==1)
+				{
+		?>
+				<option <?php if (!empty($_POST['voceria'])) if($_POST['voceria']==$listaVoceria[$i]['id']) {?>selected<?php } ?> value='<?php echo $listaVoceria[$i]['id']; ?>'><?php echo $listaVoceria[$i]['nombre']; ?></option>
+		<?php 
+				}
+			}
+		?>
+		</select> <label class='C_obligatorio'>*</label>
+		</td>
+	</tr>
+	<tr>
+	<td colspan="2">Tipo de miembro:
+		<br><select name='tipo_miembro'>
+			<option <?php if (!empty($_POST['tipo_miembro'])) if($_POST['tipo_miembro']=='Vocero principal') {?>selected<?php } ?> value='Vocero principal'>Vocero principal</option>
+			<option <?php if (!empty($_POST['tipo_miembro'])) if($_POST['tipo_miembro']=='Vocero suplente') {?>selected<?php } ?> value='Vocero suplente'>Vocero suplente</option>
+		</select> <label class='C_obligatorio'>*</label>
+	</td>
+	</tr>
+	<tr>
+		<td style='text-align:right; padding-right:10px;';><br><input class='accion' type='reset' value='Limpiar'></td>
+		<td style='text-align:left; padding-left:10px;';><br><input class='accion' type='submit' name='enviar' value='Registrar'></td>
+	</tr>
+	</table>
+</form>
+<?php
+//Fin de mostrar formulario
+}
+if(isset($res))
+	{
+	if($res)
+		{
+		//Registrando acción realizada
+		Historial::movimiento($_SESSION['codigo'],"Agrego al vocero de identificación: <b>".$_SESSION['tipo_dni']."-".$_SESSION['dni']."</b>");
+		echo $mensaje['registered'];
+		header("refresh:2;url=?opcion=inicio");
+		}
+	else
+		{
+		if(!$validacion)
+			{
+			echo $mensaje['error_registered'];
+			header("refresh:3;url=?opcion=inicio");			
+			}
+		}
+	}
+?>
+</body>
+</html>
+<?php
+}
+?>

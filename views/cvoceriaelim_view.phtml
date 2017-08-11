@@ -1,0 +1,110 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+	<title>Consulta de usuarios</title>
+	<link rel='stylesheet' type='text/css' href='views/css/consultar.css'/>
+	<link rel='stylesheet' type='text/css' href='views/css/mensajes_validacion.css'/>
+	<script type='text/javascript' language='javascript' src='views/js/funciones.js'></script>
+</head>
+<body>
+<?php
+if(count($lista))
+{
+?>
+<div class='tema'>
+<label class='titulo'>Vocerías registrados</label>
+</div>
+<?php
+//Mostrar todos las vocerias eliminadas>
+?>
+	<table cellspacing='02'>
+	<tr>
+		<th title='Nombre del vocería'><a href='#'>Nombre</a></th>
+		<th title='Función de la vocería'><a href='#'>Función</a></th>
+<?php
+if($_SESSION['nivel_usuario']=='Administrador')
+		{
+?>
+		<th title='Restaurar vocería' align="center"><a href='#'>Restaurar</a></th>
+<?php
+		}
+?>
+	</tr>
+
+<?php
+//Mostrando lista de vocerías registradas
+for($i=0;$i<count($lista);$i++)
+	{
+?>
+	<tr id="<?php echo "id_$i"; ?>" onMouseMove="cambiarColor('<?php echo "id_$i"; ?>','#D8D8D8 url(views/imagen/background.png) repeat-x 0 -10px');" onMouseOut="cambiarColor('<?php echo "id_$i"; ?>','#fff');" >
+		<td title='<?php echo $lista[$i]['nombre']; ?>'><?php echo $lista[$i]['nombre']; ?></td>
+		<td title="<?php echo $lista[$i]['funcion']; ?>"><?php echo $lista[$i]['funcion']; ?></td>
+<?php
+if($_SESSION['nivel_usuario']=='Administrador')
+		{
+?>			
+		<td  align="center"><a title='Restaurar' href='?opcion=svoceria&id=<?php echo $lista[$i]['id']; ?>&elimina=<?php echo $lista[$i]['eliminado']; ?>' onClick='return preguntaRestaurar();'><img src='views/imagen/restaurar.png'></img></a></td>	
+<?php
+		}
+?>	
+	</tr>
+	
+<?php
+	}
+?>
+	</table>
+<!-- FUENTE: www.CesarCancino.com -->
+<div class='paginador' align='center' >
+<ul>
+	<li style="display:inline; margin-right:6px;">
+	<?php if($params['primero']):	?>
+		<a  class='parametro'  href="?opcion=<?php echo $opcion; ?>&pagina=<?php echo $params['primero']; ?>">
+		Primero
+		</a>
+	<?php	else: ?>
+		Primero
+	<?php	endif; ?>
+	
+	</li>
+	<li style="display:inline; margin-right:6px;">
+	<?php if($params['anterior']):	?>
+		<a  class='parametro'  href="?opcion=<?php echo $opcion; ?>&pagina=<?php echo $params['anterior']; ?>">
+		Anterior
+		</a>
+	<?php	else: ?>
+		Anterior
+	<?php	endif; ?>
+	</li>
+	<li style="display:inline; margin-right:6px;">
+	<?php if($params['siguiente']):	?>
+		<a  class='parametro'  href="?opcion=<?php echo $opcion; ?>&pagina=<?php echo $params['siguiente']; ?>">
+		Siguiente
+		</a>	
+	<?php	else: ?>
+		Siguiente
+	<?php	endif; ?>
+	</li>
+	</li>
+	<li style="display:inline; margin-right:5px;">
+	<?php if($params['ultimo']):	?>
+		<a  class='parametro'  class='parametro' href="?opcion=<?php echo $opcion; ?>&pagina=<?php echo $params['ultimo']; ?>">
+		Último
+		</a>
+	<?php	else: ?>
+		Último
+	<?php	endif; ?>
+	</li>
+</ul>
+</div>
+<?php
+}
+else
+{
+	echo $mensaje['not_data'];
+	header("refresh:3;url=?opcion=cvoceria");	
+}
+?>
+<div class='papelera'><a href='?opcion=cvoceria'><img style='width:20px; height:20px; right:6PX;' src='views/imagen/go-back.png'><br>Atrás</a></div>
+</body>
+</html>

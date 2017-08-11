@@ -1,0 +1,102 @@
+<?php 
+if($_SESSION['nivel_usuario']=='Administrador')
+{
+?>
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8"/>
+		<title><?php echo $tema; ?></title>
+			<script type='text/javascript' src='views/js/funciones.js'></script>
+			<link rel='stylesheet' type='text/css' href='views/css/mensajes_validacion.css'/>
+			<link rel="stylesheet" href="views/css/pickmeup.css" type="text/css" />
+			<script type="text/javascript" src="views/js/jquery.js"></script>
+			<script type="text/javascript" src="views/js/jquery.pickmeup.js"></script>
+			<script type="text/javascript" src="views/js/demo.js"></script>
+			<link rel="stylesheet" type="text/css" href="views/css/estilo_formularios.css" />
+			
+	</head>
+<body>
+<?php
+$mostrarFormulario=true;
+//Validando del lado del servidor
+if(isset($_POST['enviar']))
+	{
+	$codigo=$objLibroInventario->consultarPatrimonioPorCodigo($_POST['codigo']);
+	if(empty($_POST['descripcion']))
+		echo $mensaje['not_descrition'];
+	else if(empty($_POST['codigo']))
+		echo $mensaje['not_code'];
+	else if($codigo)
+		echo $mensaje['code_repeat'];
+	else if(empty($_POST['cantidad']))
+		echo $mensaje['not_count'];	
+	else if(empty($_POST['precio_unitario']))
+		echo $mensaje['not_price_unit'];							
+	else
+		{//Agregando registro a la base de datos
+		$res=$objLibroInventario->agregarPatrimonio($_POST['descripcion'],$_POST['codigo'],$_POST['cantidad'],$_POST['precio_unitario']);
+		if($res) //Registrando acción realizada
+			Historial::Movimiento($_SESSION['codigo'],"Registró el patrimonio: <b>".$_POST['codigo']."</b>");
+		$mostrarFormulario=false;
+		}
+	}
+//SE muestra el formulario
+if($mostrarFormulario)
+{
+?>
+<div class='tema'><p><?php echo $tema; ?></p></div>
+
+<form id="form" name="form" method="POST" action="">
+<table class='principal' cellspacing='15px' border='0'> 
+			<tr>
+				<td colspan="2">Descripción:<br>	
+					<input class='input' value='<?php if(!empty($_POST['descripcion'])) echo $_POST['descripcion']; ?>' type='text'  maxlength='60' name='descripcion' id='descripcion' placeholder='' class='input' onKeyPress='' style='width:295px;'>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2">Código:<br>	
+					<input class='input' value='<?php if(!empty($_POST['codigo'])) echo $_POST['codigo']; ?>' type='text'  maxlength='10' name='codigo' id='codigo' placeholder='' class='input' onKeyPress='return validaCaracter(event);'>
+				</td>
+			<tr>
+			</tr>
+				<td>Cantidad:<br>
+					<input class='input'  value='<?php if(!empty($_POST['cantidad'])) echo $_POST['cantidad']; ?>' type='text'  maxlength='50' name='cantidad' id='cantidad' placeholder='' onKeyPress='return validaNumero(event);' >
+				</td>	
+				<td>Precio unitario (Bs.):<br>
+					<input class='input'  value='<?php if(!empty($_POST['precio_unitario'])) echo $_POST['precio_unitario']; ?>' type='text'  maxlength='50' name='precio_unitario' id='precio_unitario'  onKeyPress='return validaNumero(event);' placeholder='Ej. 999.9'>
+				</td>						
+			</tr>	
+			<tr style='text-align:center;'>
+				<td colspan='2' ><br>
+					<input class='boton_left' type='reset' value='Limpiar'>
+					<input class='boton_right' type='submit' name='enviar' value='Registrar'>
+				</td>
+			</tr>
+		</table>
+</form>
+<?php
+//Fin del formulario
+
+//Mostrando mensaje al usuario
+}if(isset($res))
+	{
+	if($res)
+		{
+		echo $mensaje['registered'];
+		header("refresh:2;url=?opcion=inicio");
+		}
+	else
+		{
+		echo $mensaje['error_registered'];
+		header("refresh:2;url=?opcion=inicio");			
+		}
+	}
+?>
+</body>
+</html>
+<?php
+}
+else
+	echo $mensaje['not_acces'];
+?>

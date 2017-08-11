@@ -1,0 +1,164 @@
+<?php
+?>
+<!doctype html>
+<html>
+	<head>
+	<meta charset="utf-8" />
+		<title>Consulta de usuarios</title>
+		<link rel='stylesheet' type='text/css' href='views/css/consultar.css'/>
+		<link rel='stylesheet' type='text/css' href='views/css/mensajes_validacion.css'/>
+		<script type='text/javascript' language='javascript' src='views/js/funciones.js'></script>
+	</head>
+<body>
+<?php
+if(count($lista))
+{
+?>
+<div class='tema'>
+<label class='titulo'><?php echo $tema; ?></label>
+</div>
+<?php
+if(count($lista))
+{
+//Mostrar los usuarios>
+?>
+	<table cellspacing='02'>
+	<tr>
+		<th class='accion' title='Nombre del usuario'><a href='#'>Usuario</a></th>
+		<th class='accion' title='Nivel de privilegio del usuario'><a href='#'>Nivel de usuario</a></th>
+		<th class='accion' title='Número de cédula de identidad del usuario'><a href='#'>Identidad del usuario</a></th>
+		<th class='accion' title='Fecha de creación'><a href='#'>Fecha de creación</a></th>
+		<th title='Estatus del usuario' align="center"><a href='#'>Estatus</a></th>
+<?php
+if($_SESSION['nivel_usuario']=='Administrador')
+		{
+?> 		
+		<th title='Editar usuario' class='accion'><a href='#'>Editar</a></th>
+<?php
+		}
+?>
+		<th title='Eliminar usuario' class='ultima'><a href='#'>Eliminar</a></th>
+	</tr>
+
+<?php
+
+for($i=0;$i<count($lista);$i++)
+	{
+	$fecha=explode('-',$lista[$i]['fecha_creacion']);
+	$nombre=explode(' ',$lista[$i]['nombre']);
+	$apellido=explode(' ',$lista[$i]['apellido']);	
+?>
+	<tr id="<?php echo "id_$i"; ?>" onMouseMove="cambiarColor('<?php echo "id_$i"; ?>','#D8D8D8 url(views/imagen/background.png) repeat-x 0 -10px');" onMouseOut="cambiarColor('<?php echo "id_$i"; ?>','#fff');" >
+		<td class='accion' title='<?php echo $lista[$i]['nombre_usuario']; ?>'><?php echo $lista[$i]['nombre_usuario']; ?></td>
+		<td class='accion' title='<?php echo $lista[$i]['nivel_usuario']; ?>'><?php echo $lista[$i]['nivel_usuario']; ?></td>
+		<td class='accion' title='<?php echo $lista[$i]['tipo_dni']."-".$lista[$i]['dni']; ?>'><?php echo $lista[$i]['tipo_dni']."-".$lista[$i]['dni']; ?></td>
+	<td class='accion'><?php echo $fecha[2].'/'.$fecha[1].'/'.$fecha[0]; ?></td>
+		<td class='accion'>
+<?php if($_SESSION['nivel_usuario']=='Administrador') 
+	{ 
+?>			
+			<?php if($lista[$i]['estatus']==1) 
+					{ ?>
+					<img type='image' title='Habilitado' src='views/imagen/habilitado.png'>
+			<?php 	}
+				else
+					{
+			?>
+					<img type='image' title='Deshabilitado' src='views/imagen/deshabilitado.png'>
+			<?php	}
+				
+				?>
+<?php
+	}
+	else
+{
+	if($lista[$i]['estatus']==1) 
+				{ ?>
+				<img title='Habilitada' src='views/imagen/habilitado.png'>
+		<?php 	}
+			else
+				{
+		?>
+				<img title='Deshabilitada' src='views/imagen/deshabilitado.png'>
+		<?php	}
+}	
+?>
+		</td>
+		<?php if($_SESSION['nivel_usuario']=='Administrador') 
+	{ 
+?>
+		<td title='Editar' align="center">
+			<form action='?opcion=eusuario' method='POST'>
+			<input type='hidden' value="<?php echo $lista[$i]['id']; ?>" name='id' />
+			<input type='image' src='views/imagen/modificar.png' title='Editar' value='Editar'>
+			</form>
+		</td>
+<?php } ?>
+		<td align="center"><a title='Eliminar' href='?opcion=susuario&id=<?php echo $lista[$i]['id']; ?>&elimina=<?php echo $lista[$i]['eliminado']; ?>' onClick='return preguntaEliminar();'><img src='views/imagen/eliminar.png'></img></a></td>
+	</tr>
+	
+<?php
+		
+	}
+}
+else
+{
+	echo "No hay registros";
+}
+	
+?>
+	</table>
+<!-- FUENTE: www.CesarCancino.com -->
+<div class='paginador' align='center' >
+<ul>
+	<li style="display:inline; margin-right:6px;">
+	<?php if($params['primero']):	?>
+		<a  class='parametro'  href="?opcion=<?php echo $opcion; ?>&pagina=<?php echo $params['primero']; ?>">
+		Primero
+		</a>
+	<?php	else: ?>
+		Primero
+	<?php	endif; ?>
+	
+	</li>
+	<li style="display:inline; margin-right:6px;">
+	<?php if($params['anterior']):	?>
+		<a  class='parametro'  href="?opcion=<?php echo $opcion; ?>&pagina=<?php echo $params['anterior']; ?>">
+		Anterior
+		</a>
+	<?php	else: ?>
+		Anterior
+	<?php	endif; ?>
+	</li>
+	<li style="display:inline; margin-right:6px;">
+	<?php if($params['siguiente']):	?>
+		<a  class='parametro'  href="?opcion=<?php echo $opcion; ?>&pagina=<?php echo $params['siguiente']; ?>">
+		Siguiente
+		</a>	
+	<?php	else: ?>
+		Siguiente
+	<?php	endif; ?>
+	</li>
+	</li>
+	<li style="display:inline; margin-right:5px;">
+	<?php if($params['ultimo']):	?>
+		<a  class='parametro'  class='parametro' href="?opcion=<?php echo $opcion; ?>&pagina=<?php echo $params['ultimo']; ?>">
+		Último
+		</a>
+	<?php	else: ?>
+		Último
+	<?php	endif; ?>
+	</li>
+</ul>
+</div>
+
+<?php
+}
+else
+{
+	echo $mensaje['not_data'];
+}
+?>
+<div class='papelera'><a href='?opcion=cusuarioelim'><img class='trash' src='views/imagen/trash.png'></img ><br>Papelera</a></div>
+</body>
+</html>

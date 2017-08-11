@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8" />
+	<title><?php echo $tema; ?></title>
+	<link rel="stylesheet" type="text/css" href="views/css/estilo_formularios.css" />
+	<link rel='stylesheet' type='text/css' href='views/css/mensajes_validacion.css'/>
+	<link rel='stylesheet' type='text/css' href='views/js/funciones.js'/>
+</head>
+<body>
+<?php
+//Recibiendo el identificador clave del registro
+if(!empty($_REQUEST['id']))
+	$voceria=$modificaVoceria->consultarVoceriaPorId($_REQUEST['id']);
+$mostrarFormulario=true;
+$validacion=true;
+
+//Validando del lado del servidor
+if(isset($_POST['guardar']))
+	{
+	//Método o función que permite eliminar los tildes (acentos y otros) a una cadena.
+	$nombre=$_POST['nombre'];
+	$nombre=quitar_tildes($nombre);
+	$nombre=strtoupper($nombre);
+	//Consulta para verificar que el nombre de la vocería está registrado ó no.
+	$verificarNombre=$modificaVoceria->VerificarNombreVoceria($nombre);		
+	if(empty($_POST['nombre']))
+		{
+		echo "<center><div class='validacion'><img style='margin:0px;padding:0px;'src='views/imagen/exclamation.png'>&nbsp;&nbsp;Ingrese el nombre de la vocería</div></center>";
+		}
+	else if ($verificarNombre>0&&strtoupper($voceria[0]['nombre'])!=$nombre) 
+		{
+		echo "<center><div class='validacion'><img style='margin:0px;padding:0px;'src='views/imagen/exclamation.png'>&nbsp;&nbsp;$nombre ya existe</div></center>";
+		}
+	else if(empty($_POST['funcion'])||strlen($_POST['funcion'])<15)
+		{
+		echo "<center><div class='validacion'><img style='margin:0px;padding:0px;'src='views/imagen/exclamation.png'>&nbsp;&nbsp;Ingrese una breve reseña de función que tiene la vocería</div></center>";
+		}
+	else
+		{
+		//Se actuliza los campos del registro
+		$res=$modificaVoceria->actualizarVoceria($nombre,ucfirst(strtolower($_REQUEST['funcion'])),$_POST['estatus'],$voceria[0]['id']);
+		
+		//Se cambian los registros (estatus) dependiente de la vocería de acuerdo a su actualización
+		$modificaVoceria->actualizarEstatusVoceroDependienteDeVoceria($_REQUEST['id'],$_REQUEST['estatus']);
+		$modificaVoceria->actualizarEstatusUsuarioDependienteDeVoceria($_REQUEST['id'],$_REQUEST['estatus']);	
+
+		if($res)
+			{
+			//Se registra la acción realizada por el usuario.
+			Historial::Movimiento($_SESSION["codigo"],"Actualizó a la vocería: <b>$nombre</b>");
+			$msjEnvio="<center><div class='mensaje_envio'>La vocería se actualizó correctamente</div></center>";
+			$mostrarFormulario=false;
+			}
+		else
+			{
+			$msjError="<center><div class='validacion'><img style='margin:0px;padding:0px;'src='views/imagen/exclamation.png'>&nbsp;&nbsp;Problemas con la actualiación de la vocería</div></center>";
+			$mostrarFormulario=false;
+			}
+		}
+	}
+//Formulario para editar	
+if($mostrarFormulario)
+{
+?>	
+<div class='tema'><p><?php echo $tema; ?></p></div>
+<form action="" method="POST" name='form' onSubmit='return validarCamposVoceria();'>
+<table class="principal" cellspacing="15px" border="0" align='center'>
+	<tr>
+		<td>Nombre de la voceria:</td>
+		<td>
+		<input class='input' maxlength="40" value="<?php echo $voceria[0]['nombre']; ?>" style='width:320px;' type="text" name="nombre" placeholder="Ej. Comité de energía y gas" title='Escriba el nombre de la vocería' onKeyPress="return validaLetra(event);" > 
+		</td>
+	</tr><br>
+   <tr>
+		<td>Funcion de la vocería:<BR><BR><BR><BR><BR><BR></td>
+		<td><textarea name='funcion' placeholder="Ej. Comité encargado de gestionar la electricidad y el agua de la comunidad." style='resize:none; width:320px; height:80px;' rows='5' title='Escriba una breve reseña de función que tiene la vocería' maxlength="200"><?php echo $voceria[0]['funcion']; ?></textarea></td>
+	</tr>
+	 <tr>
+		<td>Estatus:</td>
+		<td><select name='estatus'>
+		<option <?php if($voceria[0]['estatus']=='1') {?>selected<?php } ?> value='1'>Habilitada</option>
+		<option <?php if ($voceria[0]['estatus']=='0') {?>selected<?php } ?> value='0'>Deshabilitada</option>
+		</select></td>
+	</tr>
+	<input type='hidden' name='id' value="<?php echo $voceria[0]['id']; ?>">
+	<tr style='text-align:center;'>
+		<td colspan='2' ><br>
+		<input title='Salir' style='margin-right:10px;' class='accion' type='button' value='Salir' onClick="if(confirm('¿Desea salir sin guardar los cambios?')) window.location='?opcion=inicio';">
+		<input style='margin-left:10px;' class='accion' title='Guardar cambios'title='Guardar cambios' type='submit' name='guardar' value='Guardar'>
+		</td>
+	</tr>
+	</table>
+</form>
+<?php
+}
+//Se el mensaje al cliente de la operación
+if(isset($res))
+	{
+	if($res)
+		{
+		echo $msjEnvio;
+		header("refresh:2;url=?opcion=cvoceria");	
+		}
+	else
+		{
+		echo $msjError;
+		header("refresh:3;url=?opcion=cvoceria");				
+		}
+	}
+?>
+</body>
+</html>

@@ -1,0 +1,120 @@
+<?php 
+{
+?>
+<!DOCTYPE html>
+<html>
+	<head>
+			<meta charset="utf-8"/>
+			<title><?php echo $tema; ?></title>
+			<script type='text/javascript' src='views/js/funciones2.js'></script>
+			<script type="text/javascript" src="views/js/chekear_usuario.js" ></script>
+			<script type="text/javascript" src="views/js/chekear_dni.js" ></script>
+			<link rel="stylesheet" type="text/css" href="views/css/estilo_formularios.css" />
+			<link rel='stylesheet' type='text/css' href='views/css/mensajes_validacion.css'/>
+	</head>
+<body>
+<?php
+// print_r($_POST);
+$mostrarFormulario=true;
+$validacion=false;
+//Validando del lado de PHP
+if(isset($_POST['enviar']))
+	{
+	if(empty($_POST['clave1']))
+		echo $mensaje['not_pass'];		
+	else if(strlen($_POST['clave1'])<8)
+		echo $mensaje['pass_wrong'];	
+	else if (!preg_match('`[a-z]`',$_POST['clave1']))
+		echo $mensaje['not_lowercase'];	
+	else if (!preg_match('`[A-Z]`',$_POST['clave1']))
+		echo $mensaje['not_uppercase'];
+	else if (!preg_match('`[0-9]`',$_POST['clave1']))
+		echo $mensaje['not_number'];
+	else if(empty($_POST['clave2']))
+		echo $mensaje['repeat_pass'];
+	else if($_POST['clave2']!=$_POST['clave1'])
+		echo $mensaje['pass_not_match'];
+	else
+		{
+		if($_SESSION['nivel_usuario']!='provisional')
+			$res=$usuario->cambiarClave($_SESSION['dni'],$_POST['clave1']);
+		else
+			{
+	// El contenido del archivo
+	$contenido = "<?php\n";
+	$contenido .= "##----------------------------------------------------------------##\n    ## ........::Usuario provisional del sistema::...........##\n##----------------------------------------------------------------##\n";
+	$contenido .= "\$usuario_provisional = 'usuario_provisional';\n";
+	$contenido .= "\$clave_provisional = '".$_POST['clave1']."';\n";
+	$contenido .= "?>";
+
+	// Se abre el archivo (si no existe se crea)
+	$archivo = fopen('config/root.php','w+');
+	$res=1;
+	$error = 1;
+	if (!isset($archivo)) 
+		{
+		$error = 0;
+		print "No se ha podido crear/abrir el archivo.<br/>";
+		}
+	else if (!fwrite($archivo, $contenido)) 
+		{
+		$error = 0;
+		print "No se ha podido escribir en el archivo.<br/>";
+		}
+	fclose();
+			}
+		if($res)
+			{
+			if($_SESSION['nivel_usuario']!='provisional') 
+				Historial::Movimiento($_SESSION['codigo'],"Cambió contraseña");
+			$mjs['envio']="<center><div class='mensaje_envio'>La contraseña ha sido cambiada correctamente</div></center>";
+			$mostrarFormulario=false;				
+			}
+		else
+			{
+			$msj['error']="<center><div class='validacion'><img style='margin:0px;padding:0px;'src='views/imagen/exclamation.png'>&nbsp;&nbsp;Problemas al recuperar la contraseña. Contacte a su administrador de sistema</div></center>";
+			$mostrarFormulario=false;	
+			}
+		}
+	}
+if($mostrarFormulario)
+{
+?>
+<div class='tema'><p><?php echo $tema; ?></p></div>
+<form class="principal" action="" method="POST" name='form' onSubmit='return validarCamposUsuario();'>
+<table class="principal" cellspacing="15px" border="0" align='center'>
+	<tr>
+		<td colspan='2'>Nueva contraseña:</BR><input class='input' style='width:150px;' value="<?php if(!empty($_POST['clave1'])) echo $_POST['clave1']; ?>" type="password" maxlength="16" name="clave1" id='clave1'></td>
+	</tr>
+	<tr>
+		<td colspan='2'>Repita la contraseña:<br> <input class='input' style='width:150px;' value="<?php if(!empty($_POST['clave2'])) echo $_POST['clave2']; ?>" type="password" maxlength="16" name="clave2" id='clave2'></td>
+	</tr>
+	<tr style='text-align:center;'>
+		<td colspan='2' ><input class='accion' type='submit' name='enviar' value='Aceptar'></td>
+	</tr>
+	</table>
+</form>
+<?php
+}
+if(isset($res))
+	{
+	if($res)
+		{
+		echo $mjs['envio'];
+		header("refresh:2;url=?opcion=inicio");
+		}
+	else
+		{
+		if(!$validacion)
+			{
+			echo $msj['error'];
+			header("refresh:3;url=?opcion=inicio");			
+			}
+		}
+	}
+?>
+</body>
+</html>
+<?php
+}
+?>

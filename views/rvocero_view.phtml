@@ -1,0 +1,151 @@
+<?php 
+//print_r($_POST);
+
+// if($_SESSION['nivel_usuario']=='Administrador')
+{
+$listaVoceria=$voceria->consultarVoceria();
+?>
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8"/>
+	<title><?php echo $tema; ?></title>
+	<script type='text/javascript' src='views/js/funciones.js'></script>
+	<link rel="stylesheet" type="text/css" href="views/css/estilo_formularios.css" />
+	<link rel='stylesheet' type='text/css' href='views/css/mensajes_validacion.css'/>
+</head>
+<body>
+<?php
+$mostrarFormulario=true;
+$validacion=false;
+//Validando del lado de PHP
+if(isset($_POST['renovar']))
+	{
+	if(empty($_POST['ren']))
+		echo "Seleccione una opción. Si/No";
+	else
+		{
+
+		if($_POST['ren']=='Si')
+			{
+			if(empty($_POST['voceria']))
+				echo $mensaje['not_voceria'];
+			else if(empty($_POST['tipo_miembro']))
+				echo $mensaje['type_m'];	
+			else
+				{
+				//Cambiar formato de fecha a latinoamericado dd/mm/aaaa	
+				$fecha=$config[0]['periodo_actual'];
+				$fecha_m=explode("/",$fecha);
+				$dia_m=$fecha_m[2];
+				$mes_m=$fecha_m[1];
+				$anio_m=$fecha_m[0];
+				$fecha_vigencia=$dia_m.'-'.$mes_m.'-'.$anio_m;
+				$res=$renovaVocero->renovarVocero($_POST['dni'],$fecha_vigencia,$_POST['voceria']); //renovando al vocero
+
+				$renovaVocero->actualizarEstatusDependienteDeVocero($_POST['dni'],1);
+
+				if($res)
+					{
+					//Registrando acción ejecutada
+					$vocero=$renovaVocero->consultarVoceroPorDni($_REQUEST['dni']);
+					Historial::Movimiento($_SESSION['codigo'],"Ha renovado al vocero de identificación: <b>".$vocero[0]['tipo_dni']."-".$vocero[0]['dni_vocero']."</b>");
+					$msj['envio']="<center><div class='mensaje_envio'>Vocero renovado correctamente</div></center>";
+					$mostrarFormulario=false;	
+					}
+				else
+					{
+					$msj['error']="<center><div class='validacion'><img style='margin:0px;padding:0px;'src='views/imagen/exclamation.png'>&nbsp;&nbsp;ERROR: Problemas al renovar al vocero. Si el problemas persiste, contacte a su administrador de sistema</div></center>";
+					$mostrarFormulario=false;	
+					}		
+				}		
+			}
+		else if($_POST['ren']=='No')
+			{
+			echo "<center><div class='mensaje_envio'>Saliendo...</div></center>";
+			header("refresh:1;url=?opcion=inicio");
+			$mostrarFormulario=false;
+			}	
+		}
+	}
+
+if($mostrarFormulario)
+{	
+?>
+<div class='tema'><p><?php echo $tema; ?></p></div>
+<form action="?opcion=rvocero" method="POST" name='form' onSubmit='return validarCamposVocero();'>
+<table class="principal" cellspacing="15px" border="0" align='center'>
+	<tr>
+		<td>¿Desea renovar al vocero al próximo período?
+		<br>
+			&nbsp;&nbsp;&nbsp;
+			<input onClick="document.form.voceria.disabled=false;document.form.tipo_miembro.disabled=false;" type='radio'  name='ren' value='Si'>Si
+			&nbsp;&nbsp;&nbsp;
+			<input onClick="document.form.voceria.disabled=true;document.form.tipo_miembro.disabled=true;" type='radio'  name='ren' value='No'>No
+			<label class='C_obligatorio'>*</label>
+			
+			<BR></div>
+		</td>
+	</tr>
+	<tr>
+		<td colspan='2'><div id='r1' style='display:block;'>Vocería:<br>
+		<select name='voceria' disabled="disabled">
+		<option value='0' >Seleccionar</option>
+		<?php 
+		for($i=0;$i<count($listaVoceria);$i++)
+			{
+			if($listaVoceria[$i]['estatus']==1)
+				{
+		?>
+				<option <?php if (!empty($_POST['voceria'])) if($_POST['voceria']==$listaVoceria[$i]['id']) {?>selected<?php } ?> value='<?php echo $listaVoceria[$i]['id']; ?>'><?php echo $listaVoceria[$i]['nombre']; ?></option>
+		<?php 
+				}
+			}
+		?>
+		</select> <label class='C_obligatorio'>*</label></div>
+		</td>
+	</tr>
+	<tr>
+	<td ><div id='r2' style='display:block;'>Tipo de miembro:
+		<br><select name='tipo_miembro' disabled="disabled">
+			<option <?php if (!empty($_POST['tipo_miembro'])) if($_POST['tipo_miembro']=='Vocero principal') {?>selected<?php } ?> value='Vocero principal'>Vocero principal</option>
+			<option <?php if (!empty($_POST['tipo_miembro'])) if($_POST['tipo_miembro']=='Vocero suplente') {?>selected<?php } ?> value='Vocero suplente'>Vocero suplente</option>
+		</select> <label class='C_obligatorio'>*</label></div>
+	</td>
+	</tr>
+	<tr>
+		<td colspan='2' style='text-align:center;';><br>
+			<input type='hidden' name='dni' value='<?php echo $_REQUEST['dni']; ?>'>	
+			<input style='margin-right:10px;'class='accion' type='button' value='Salir' onClick="if(confirm('¿Desea salir sin guardar los cambios?')) window.location='?opcion=inicio';">
+			<input style='margin-left:10px;' class='accion' type='submit' name='renovar' value='Renovar'>
+
+		</td>
+	</tr>
+	</table>
+	
+</form>
+<?php
+}
+if(isset($res))
+	{
+	if($res)
+		{
+		echo $msj['envio'];
+		header("refresh:2;url=?opcion=cvocero&opc=todos&pagina=");
+		}
+	else
+		{
+		if(!$validacion)
+			{
+			echo $msj['error'];
+			header("refresh:3;url=?opcion=inicio");			
+			}
+		}
+	}
+
+?>
+</body>
+</html>
+<?php
+}
+?>

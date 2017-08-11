@@ -1,0 +1,28 @@
+<?php
+echo '<PRE>';
+print_r($_REQUEST);
+echo '</PRE>';
+switch($_REQUEST['estatus']) 
+	{
+	case "En espera":
+		echo "Estoy en formulario En espera<BR>";
+		header("location:?opcion=eeproyecto&id=".$_REQUEST['id']);
+	break;
+	case "Aprobado":
+		echo "Estoy en formulario Aprobado<BR>";
+		header("location:?opcion=eaproyecto&id=".$_REQUEST['id']);
+	break;
+	case "En ejecución":
+		echo "Estoy en formulario En elaboración<BR>";
+		header("location:?opcion=ejproyecto&id=".$_REQUEST['id']);
+	break;
+	case "Finalizado":
+		echo "Estoy en formulario Finalizado<BR>";
+		//include("controllers/ausuario_controller.php");	
+	break;
+	case "No aprobado":
+		echo "Estoy en formulario No aprobados<BR>";
+		header("location:?opcion=erproyecto&id=".$_REQUEST['id']);	
+	break;
+	}
+?>

@@ -1,0 +1,168 @@
+<?php
+?>
+<!doctype html>
+<html>
+	<head>
+	<meta charset="utf-8" />
+		<title>Consulta de usuarios</title>
+		<link rel='stylesheet' type='text/css' href='views/css/consultar.css'/>
+		<script type='text/javascript' language='javascript' src='views/js/funciones.js'></script>
+	</head>
+<body>
+<div class='tema'>
+<label class='titulo'><?php echo $tema; ?></label>
+</div>
+
+<?php
+
+
+$listaVoceria=$voceria->consultarVoceria();
+for($i=0;$i<count($listaVoceria);$i++)
+	{
+
+	$getVocero=$vocero->consultarVoceroPorVoceria($listaVoceria[$i]['id']);
+	echo "
+	<table cellspacing='0'>
+	<tr>
+			<th colspan='4'  style='text-align:center;'title='Nombre de la vocería'>".$listaVoceria[$i]['nombre']."<a href='#'></a></th>
+		</tr>
+";
+	for($j=0;$j<count($getVocero);$j++)
+		{
+			echo $getVocero[$i]['tipo_miembro']." = Vocero suplente j = $j<-<BR>";
+		
+			
+			echo "<tr>";
+			echo 	"<td colspan=2>";
+			if($getVocero[$j]['tipo_miembro']=='Vocero suplente')
+				{
+				echo $getVocero[$j]['nombre']." -> ".$getVocero[$j]['tipo_miembro'];
+				echo 	"</td>";
+				}
+
+		}	
+
+	for($j=0;$j<count($getVocero);$j++)
+		{			
+			echo	"<td colspan=2>";
+			if($getVocero[$j]['tipo_miembro']=='Vocero principal') {
+				echo $getVocero[$j]['nombre']." -> ".$getVocero[$j]['tipo_miembro']."</td>";
+			}
+			echo "</tr>";
+			
+		}
+
+	echo "</table><br>
+	";
+	echo $i." = i<BR>";
+	//BREAK;
+	}
+
+//$getVocero=$vocero->consultarVoceroPorVoceria(11);
+//echo "<BR>".count($getVocero);
+?>
+	
+</table>
+<!--<table>
+
+		<tr>
+			<td style='text-align:center; font-weight:bold;' colspan='2' title=''>Vocero principal<a href='#'></a></td>
+			
+			<td  style='text-align:center; font-weight:bold;' colspan='2' title=''>Vocero suplente<a href='#'></a></td>	
+	</tr>
+
+
+
+	<tr>
+		<td rowspan="5">Vocero principal</td>
+		<td>Cédula</td>
+		<td>nombre y apllido</td>
+	</tr>
+	<tr>
+		<td>Cédula</td>
+		<td>nombre y apllido</td>
+	</tr>
+	<tr>
+		<td>Cédula</td>
+		<td>nombre y apllido</td>
+	</tr>
+	<tr>
+		<td>Cédula</td>
+		<td>nombre y apllido</td>
+	</tr>
+	<tr>
+		<td>Cédula</td>
+		<td>nombre y apllido</td>
+	</tr>
+	</table>-->
+<?php
+/*
+for($i=0;$i<count($lista);$i++)
+	{
+?>	
+	<tr>
+		
+		<td rowspan="6"><?php echo $lista[$i]['tipo_miembro']; ?></td>
+		<td><?php echo $lista[$i]['nombre']; ?></td>
+	<tr>
+
+<?php
+	}*/
+?>
+	</table>
+<!-- FUENTE: www.CesarCancino.com -->
+<div class='paginador' align='center' >
+<ul>
+	<li style="display:inline; margin-right:6px;">
+	<?php if($params['primero']):	?>
+		<a  class='parametro'  href="?opcion=<?php echo $opcion; ?>&pagina=<?php echo $params['primero']; ?>">
+		Primero
+		</a>
+	<?php	else: ?>
+		Primero
+	<?php	endif; ?>
+	
+	</li>
+	<li style="display:inline; margin-right:6px;">
+	<?php if($params['anterior']):	?>
+		<a  class='parametro'  href="?opcion=<?php echo $opcion; ?>&pagina=<?php echo $params['anterior']; ?>">
+		Anterior
+		</a>
+	<?php	else: ?>
+		Anterior
+	<?php	endif; ?>
+	</li>
+	<!--<li style="display:inline; margin-right:6px;">
+	<?php for($i=1;$i<=$params['total'];$i++) {?>
+	<?php if($params['actual']!=$i):	?>
+		<a  class='parametro'  href="?pagina=<?php echo $i; ?>">
+		<?php echo $i; ?>
+		</a>
+	<?php	else: ?>
+		<?php echo $i; ?>
+	<?php	endif; ?>
+	<?php } ?>
+	</li>-->
+	<li style="display:inline; margin-right:6px;">
+	<?php if($params['siguiente']):	?>
+		<a  class='parametro'  href="?opcion=<?php echo $opcion; ?>&pagina=<?php echo $params['siguiente']; ?>">
+		Siguiente
+		</a>	
+	<?php	else: ?>
+		Siguiente
+	<?php	endif; ?>
+	</li>
+	</li>
+	<li style="display:inline; margin-right:5px;">
+	<?php if($params['ultimo']):	?>
+		<a  class='parametro'  class='parametro' href="?opcion=<?php echo $opcion; ?>&pagina=<?php echo $params['ultimo']; ?>">
+		Último
+		</a>
+	<?php	else: ?>
+		Último
+	<?php	endif; ?>
+	</li>
+</ul>
+</div>
+</body>
+</html>

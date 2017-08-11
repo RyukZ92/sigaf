@@ -1,0 +1,142 @@
+<?php 
+{
+
+?>
+<!DOCTYPE html>
+<html>
+	<head>
+			<meta charset="utf-8"/>
+			<title><?php echo $tema; ?></title>
+		<script type='text/javascript' src='views/js/funciones.js'></script>
+		<link rel="stylesheet" type="text/css" href="views/css/estilo_formularios.css" />
+		<link rel='stylesheet' type='text/css' href='views/css/mensajes_validacion.css'/>
+		<link rel="stylesheet" type="text/css" href="views/css/estilo_formularios.css" />
+		<link rel="stylesheet" href="views/css/pickmeup.css" type="text/css" />
+		<script type="text/javascript" src="views/js/jquery.js"></script>
+		<script type="text/javascript" src="views/js/jquery.pickmeup.js"></script>
+		<script type="text/javascript" src="views/js/demo.js"></script>
+	</head>
+<body>
+<?php
+$mostrarFormulario=true;
+//Validando del lado de PHP
+if(isset($_POST['enviar']))
+	{	
+	// El contenido del archivo
+	$contenido = "<?php\n";
+	$contenido .= "##----------------------------------------------------------------##\n
+	  ## ........::Configuración de los módulos del sistema::...........##\n
+	  ##----- Activo tiene como valor: 1, e inactivo como valor: 0 -----##\n
+	##----------------------------------------------------------------##\n";
+	$contenido .= "\$config[0]['familia'] = '".$_POST['familia']."';\n";
+	$contenido .= "\$config[0]['voceria'] = '".$_POST['voceria']."';\n";
+	$contenido .= "\$config[0]['vocero'] = '".$_POST['vocero']."';\n";
+	$contenido .= "\$config[0]['usuario'] = '".$_POST['usuario']."';\n";
+	$contenido .= "\$config[0]['constancias'] = '".$_POST['constancias']."';\n";
+	$contenido .= "\$config[0]['proyecto'] = '".$_POST['proyecto']."';\n";
+	$contenido .= "\$config[0]['libro_inventario'] = '".$_POST['libro_inventario']."';\n";
+	$contenido .= "\$config[0]['libro_compra'] = '".$_POST['libro_compra']."';\n";
+	$contenido .= "\$config[0]['libro_mayor'] = '".$_POST['libro_mayor']."';\n";
+	$contenido .= "\$config[0]['constancias'] = '".$_POST['constancias']."';\n";
+	$contenido .= "\$config[0]['historial_usuario'] = '".$_POST['historial_usuario']."';\n";
+	$contenido .= "\$config[0]['ayuda'] = '".$_POST['ayuda']."';\n";
+	$contenido .= "?>";
+
+	// Se abre el archivo (si no existe se crea)
+	$archivo = fopen('config/config.php','w+');
+	$error = 1;
+	if (!isset($archivo)) 
+		{
+		$error = 0;
+		print "No se ha podido crear/abrir el archivo.<br/>";
+		}
+	else if (!fwrite($archivo, $contenido)) 
+		{
+		$error = 0;
+		print "No se ha podido escribir en el archivo.<br/>";
+		}
+	fclose();
+	Historial::Movimiento($_SESSION['codigo'],"Actualizó la configuración de sistema");
+	$mostrarFormulario=false;
+	}
+if($mostrarFormulario)
+{
+?>
+<div class='tema'><p><?php echo $tema; ?></p></div>
+<form class="principal" action="" method="POST" name='form'>
+<table  class="principal" cellspacing="15px" border="0" align='center'>
+	<tr>
+		<td>
+			<input class='check_config' type='checkbox' name='familia' <?php echo $checked=($config[0]['familia'])?'checked':'';?>> Gestión de familias
+		</td>
+		<td>
+			<input class='check_config' type='checkbox' name='voceria' <?php echo $checked=($config[0]['voceria'])?'checked':'';?>> Gestión de vocerías
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<input class='check_config' type='checkbox' name='vocero' <?php echo $checked=($config[0]['vocero'])?'checked':'';?>> Gestión de voceros
+		</td>
+		<td>
+			<input class='check_config' type='checkbox' name='usuario' <?php echo $checked=($config[0]['usuario'])?'checked':'';?>> Gestión de usuarios
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<input class='check_config' type='checkbox' name='proyecto' <?php echo $checked=($config[0]['proyecto'])?'checked':'';?>> Gestión de proyectos
+		</td>
+		<td>
+			<input class='check_config' type='checkbox' name='constancias' <?php echo $checked=($config[0]['constancias'])?'checked':'';?>> Gestión de constancias
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<input class='check_config' type='checkbox' name='libro_inventario' <?php echo $checked=($config[0]['libro_inventario'])?'checked':'';?>> Libro de inventario
+		</td>
+		<td>
+			<input class='check_config' type='checkbox' name='libro_compra' <?php echo $checked=($config[0]['libro_compra'])?'checked':'';?>> Libro de compras
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<input class='check_config' type='checkbox' name='libro_mayor' <?php echo $checked=($config[0]['libro_mayor'])?'checked':'';?>> Libro mayor
+		</td>
+		<td>
+			<input class='check_config' type='checkbox' name='historial_usuario' <?php echo $checked=($config[0]['historial_usuario'])?'checked':'';?>> Historial de usuarios
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<input class='check_config' type='checkbox' name='ayuda' <?php echo $checked=($config[0]['ayuda'])?'checked':'';?>> Ayuda
+		</td>
+	</tr>
+
+	<tr style='text-align:center;'>
+		<td colspan='4' ><br>
+			<input style='margin-right:10px;' type='reset' value='Limpiar'>
+			<input style='margin-left:10px;' type='submit' name='enviar' value='Actualizar'>
+		</td>
+	</tr>
+	</table>
+</form>
+<?php
+}
+if(isset($error))
+	{
+	if($error)
+		{
+		echo $mensaje['updated'];
+		header("refresh:2;url=?opcion=inicio");
+		}
+	else
+		{
+		$mensaje['error_updated'];
+		header("refresh:3;url=?opcion=inicio");			
+		}
+	}
+?>
+</body>
+</html>
+<?php
+}
+?>

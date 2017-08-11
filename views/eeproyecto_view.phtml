@@ -1,0 +1,135 @@
+<?php 
+// if($_SESSION['nivel_usuario']=='Administrador')
+{
+?>
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8"/>
+	<title><?php echo $tema; ?></title>
+			<script type='text/javascript' src='views/js/funciones.js'></script>
+			<link rel='stylesheet' type='text/css' href='views/css/mensajes_validacion.css'/>
+			<link rel="stylesheet" href="views/css/pickmeup.css" type="text/css" />
+			<script type="text/javascript" src="views/js/jquery.js"></script>
+			<script type="text/javascript" src="views/js/jquery.pickmeup.js"></script>
+			<script type="text/javascript" src="views/js/demo.js"></script>
+			<link rel="stylesheet" type="text/css" href="views/css/estilo_formularios.css" />
+			
+</head>
+<body>
+
+<?php
+
+$valida=false;
+$mostrarFormulario=true;
+if(isset($_POST['actualizare']))
+	{
+	if(empty($_POST['presupuesto'])&&$_POST['estatus_']=='Aprobado')
+		echo $mensaje['acept_money'];
+	else if(empty($_POST['fecha_inicial'])&&$_POST['estatus_']=='Aprobado')
+		echo $mensaje['not_date_i'];
+	else if(empty($_POST['fecha_final'])&&$_POST['estatus_']=='Aprobado')		
+		echo $mensaje['not_date_f'];
+	else
+		{
+		if(!(empty($_POST['fecha_final']) && empty($_POST['fecha_inicial'])))
+			{
+			//Conviertiendo fechas en formato aaaa-dd-mm para comparar fechas
+			$fecha=explode('-',$_POST['fecha_inicial']);
+			$fecha_i=$fecha[2]."-".$fecha[1]."-".$fecha[0];
+				
+			$fecha=explode('-',$_POST['fecha_final']);
+			$fecha_f=$fecha[2]."-".$fecha[1]."-".$fecha[0];
+			if((strtotime($fecha_i) > strtotime($fecha_f)))
+				echo $mensaje['date_wrong'];
+			else
+				{
+				$res=$proyecto->actualizarProyectoEnEspera($_REQUEST['id_'],$fecha_i,$fecha_f,$_POST['presupuesto'],$_POST['estatus_']);
+				if($res)
+					{
+					$msj['envio']="<center><div class='mensaje_envio'>Proyecto actualizado correctamente</div></center>";
+					$mostrarFormulario=false;	
+					}
+				else
+					{
+					$msj['error']="<center><div class='validacion'><img style='margin:0px;padding:0px;'src='views/imagen/exclamation.png'>&nbsp;&nbsp;ERROR: Problemas con la actualización del proyecto al sistema. Si el problemas persiste, contacte a su administrador de sistema</div></center>";
+					$mostrarFormulario=false;	
+					}
+				}
+			}
+		else
+			{
+			$res=$proyecto->actualizarProyectoEnEspera($_REQUEST['id_'],$fecha_i,$fecha_f,$_POST['presupuesto'],$_POST['estatus_']);
+			if($res)
+				{
+				$msj['envio']="<center><div class='mensaje_envio'>Proyecto actualizado correctamente</div></center>";
+				$mostrarFormulario=false;	
+				}				
+			}	
+		}
+	}
+
+if($mostrarFormulario)
+{
+?>
+<div class='tema'><p><?php echo $tema; ?></p></div>
+
+<form id="form" name="form" method="POST" action="" >
+<table class='principal' cellspacing='15px' border='0' align='center'  style='margin-bottom:10px;'> 
+			<tr>
+				<td colspan="2"><!--Título o nombre del proyecto:<br>-->	
+					<?php echo $modificaProyecto[0]['titulo']; ?>
+				</td>
+			</tr>
+			<tr>
+				<td>Nuevo estatus:<br>
+				<select name='estatus_' id='estatus_' onClick="return ocultarCamposProyectoEspera('presupuesto','fecha1','fecha2');">
+					<option  value='Aprobado' >Aprobado</option>
+					<option onClick="return desocultarCamposProyectoEspera('presupuesto','fecha1','fecha2');" value='No aprobado' >No aprobado</option>
+				</select>
+				</td>
+				<td>Presupuesto aprobado:<br>
+					<input class='input' value='<?php if(!empty($_POST['presupuesto'])) echo $_POST['presupuesto']; ?>' type='text' maxlength='50' name='presupuesto' id='presupuesto' onKeyPress='return validaNumero(event);' >
+				</td>	
+
+				<input type='hidden' name='id_' value='<?php echo $_REQUEST['id']; ?>'>		
+			</tr>	
+			<tr>
+				<td  >Fecha incial estimada:<br>
+					<input readonly value="<?php if(!empty($_POST['fecha_inicial'])) echo $_POST['fecha_inicial']; ?>" type='text' name='fecha_inicial' class='datepicker' id='fecha1' size="20" placeholder='dd-mm-aaaa'/>		
+				</td>
+
+				<td >Fecha final estimada:<br>
+				<input readonly value="<?php if(!empty($_POST['fecha_final'])) echo $_POST['fecha_final']; ?>" type='text' name='fecha_final' class='datepicker' size="20" id='fecha2' placeholder='dd-mm-aaaa'/>
+				</td>
+			</tr>	
+			<tr style='text-align:center;'>
+				<td style='text-align:right; padding-right:10px;';><br><input class='accion' type='submit' name='actualizare' value='Actualizar'></td>
+				<td style='text-align:left; padding-left:0px;';><br><input class='accion' type='reset' value='Salir'></td>
+			</tr>
+		</table>
+<?php
+}
+if(isset($res))
+	{
+	if($res)
+		{
+		echo $msj['envio'];
+		header("refresh:2;url=?opcion=cproyecto");
+		}
+	else
+		{
+		echo $msj['error'];
+		header("refresh:3;url=?opcion=inicio");			
+		}
+	}
+?>
+</body>
+</html>
+<?php
+/*
+echo '<pre>';
+  print_r($_REQUEST);
+echo '</pre>';*/
+}
+?>

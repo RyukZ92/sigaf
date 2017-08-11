@@ -1,0 +1,204 @@
+<?php 
+if($_SESSION['nivel_usuario']=='Administrador')
+{
+?>
+<!DOCTYPE html>
+<html>
+	<head>
+			<meta charset="utf-8"/>
+			<title><?php echo $tema; ?></title>
+		<script type='text/javascript' src='views/js/funciones.js'></script>
+		<link rel="stylesheet" type="text/css" href="views/css/estilo_formularios.css" />
+		<link rel='stylesheet' type='text/css' href='views/css/mensajes_validacion.css'/>
+		<link rel="stylesheet" type="text/css" href="views/css/estilo_formularios.css" />
+		<link rel="stylesheet" href="views/css/pickmeup.css" type="text/css" />
+		<script type="text/javascript" src="views/js/jquery.js"></script>
+		<script type="text/javascript" src="views/js/jquery.pickmeup.js"></script>
+		<script type="text/javascript" src="views/js/demo.js"></script>
+		<script type="text/javascript" src="views/js/select_dependientes.js"></script>
+	</head>
+<body>
+<?php
+$municipio=$objMunicipio->consultarMunicipio();
+$parroquia=$objParroquia->consultarParroquiaPorMunicipio($config[0]['municipio']);
+
+$rif=explode('-',$config[0]['rif']);
+$taq_unica=explode('-',$config[0]['nro_reg_taq_unica']);
+$fecha_taq=explode('/',$config[0]['fecha_taq_unica']);
+$fecha_reg=explode('/',$config[0]['fecha_reg_seniat']);
+$fecha_vig=explode('/',$config[0]['periodo_actual']);
+$config[0]['fecha_taq_unica']=$fecha_taq[0].'-'.$fecha_taq[1].'-'.$fecha_taq[2];
+$config[0]['fecha_reg_seniat']=$fecha_reg[0].'-'.$fecha_reg[1].'-'.$fecha_reg[2];
+$config[0]['periodo_actual']=$fecha_vig[0].'-'.$fecha_vig[1].'-'.$fecha_vig[2];
+$mostrarFormulario=true;
+//Validando del lado de PHP
+if(isset($_POST['enviar']))
+	{	
+	//Asignando variable locales a la imagen subida (si se sube)
+	$file=explode('.',$_FILES['banner']['name']);
+	$tamanio_img=$_FILES['banner']['size'];
+	$tipo_img=$_FILES['banner']['type'];
+	$nombre_img=$_FILES['banner']['name'];
+	$extension_img=$file[count($file)-1];
+	$guarda_img=$_FILES['banner']['tmp_name'];
+	
+	if((!empty($extension_img))&&(strtolower($extension_img)!='png'))
+		echo $mensaje['not_png_img'];
+	else if ($tamanio_img>=1048576)
+		echo $mensaje['no_size_img'];
+	else
+		{
+		$fecha_taq=explode('-',$_POST['fecha_taq_unica']);
+		$fecha_reg=explode('-',$_POST['fecha_reg_seniat']);
+		$fecha_vig=explode('-',$_POST['periodo_actual']);
+		$_POST['fecha_taq_unica']=$fecha_taq[0].'/'.$fecha_taq[1].'/'.$fecha_taq[2];
+		$_POST['fecha_reg_seniat']=$fecha_reg[0].'/'.$fecha_reg[1].'/'.$fecha_reg[2];
+		$_POST['periodo_actual']=$fecha_vig[0].'/'.$fecha_vig[1].'/'.$fecha_vig[2];	
+		// El contenido del archivo
+		$contenido = "<?php \ndate_default_timezone_set('America/Caracas');\n";
+		$contenido .= "##-----------------------------------##\n## ..::Datos del consejo comunal::.. ##\n##-----------------------------------##\n";
+		$contenido .= "\$config[0]['rif'] = '".$_POST['tipo_rif']."-".$_POST['rif']."-".$_POST['rif_f']."';\n";
+		$contenido .= "\$config[0]['nombre_consejo_comunal'] = '".$_POST['nombre_cc']."';\n";
+		$contenido .= "\$config[0]['direccion'] = '".$_POST['direccion']."';\n";
+		$contenido .= "\$config[0]['sector'] = '".$_POST['sector']."';\n";
+		$contenido .= "\$config[0]['parroquia'] = '".$_POST['parroquia']."';\n";
+		$contenido .= "\$config[0]['municipio'] = '".$_POST['municipio']."';\n";
+		$contenido .= "\$config[0]['ciudad'] = '".$_POST['ciudad']."';\n";
+		$contenido .= "\$config[0]['estado'] = '".$_POST['estado']."';\n";
+		$contenido .= "\$config[0]['nro_reg_taq_unica'] = '".$_POST['nro_reg_taq_unica']."';\n";
+		$contenido .= "\$config[0]['fecha_taq_unica'] = '".$_POST['fecha_taq_unica']."';\n";
+		$contenido .= "\$config[0]['fecha_reg_seniat'] = '".$_POST['fecha_reg_seniat']."';\n";
+		$contenido .= "\$config[0]['periodo_actual'] = '".$_POST['periodo_actual']."';\n";
+		$contenido .= "?>";
+		$error=0;
+		// Se abre el archivo (si no existe se crea)
+		$archivo = fopen('config/config_cc.php','w+');
+		if (!isset($archivo)) 
+			{
+			$error = 1;
+			print "No se ha podido crear/abrir el archivo.<br/>";
+			}
+		else if (!fwrite($archivo, $contenido)) 
+			{
+			$error = 1;
+			print "No se ha podido escribir en el archivo.<br/>";
+			}
+		fclose();
+		Historial::Movimiento($_SESSION['codigo'],"Actualizó la configuración del consejo comunal");
+		$add="layouts/default/imagen/banner.".$extension_img;
+		move_uploaded_file($guarda_img, $add);
+		$mostrarFormulario=false;
+		}
+	}
+
+if($mostrarFormulario)
+{
+?>
+<div class='tema'><p><?php echo $tema; ?></p></div>
+<form enctype="multipart/form-data" class="principal" action="" method="POST" name='form'>
+<table  class="principal" cellspacing="15px" border="0" align='center'>
+	<tr>
+		<td>RIF:
+			<select name='tipo_rif'>
+				<option VALUE='J'>J</option>
+			</select>
+			<input colspan="4" class='input' style='width:80px;'id='dni' value="<?php echo $rif[1]; ?>" type="text" maxlength="8" name='rif' placeholder="" class="input" onKeyPress="return validaSoloNumero(event);" required>
+			<input class='input' style='width:25px; text-align:center'id='dni' value="<?php echo $rif[2]; ?>" type="text" size='14' maxlength="1" name='rif_f' placeholder="" class="input" onKeyPress="return validaSoloNumero(event);" required>
+		</td>
+
+		<td colspan="4">Nombre de consejo comunal: <input class='largo' value="<?php echo $config[0]['nombre_consejo_comunal']; ?>" type="text" maxlength="80" name="nombre_cc" id='nombre_cc' required></td>
+	</tr>
+	<tr>
+		<td colspan="2">Dirección:<BR>
+		<input class='largo' value="<?php echo $config[0]['direccion']; ?>" type="text" maxlength="60" name="direccion" required></td>
+		<td colspan="2">Sector, sectores o subsectores:<BR>
+		<input class='largo' value="<?php echo $config[0]['sector']; ?>" type="text" maxlength="60" name="sector" placeholder='Ej. sector 1, sector 2, sector 3' required></td>
+	</tr>
+		<td>Estado:<BR>
+		<input readonly class='input' value="<?php echo $config[0]['estado']; ?>" type="text" maxlength="20" name="estado" required></td>
+		<td>Ciudad:<BR>
+		<input class='input' value="<?php echo $config[0]['ciudad']; ?>" type="text" maxlength="20" name="ciudad" required></td>
+		<td>Municipio:<BR>
+		<!--<input class='input' value="<?php echo $config[0]['municipio']; ?>" type="text" maxlength="20" name="municipio" required>-->
+		<select name='municipio' id='municipio' onChange='cargaContenido(this.id)'>
+			<option VALUE='0'>Municipio</option>
+		<?php 
+		for($i=0;$i<count($municipio);$i++)
+			{
+		?>
+				<option <?php if($municipio[$i]['id']==$config[0]['municipio']) {?>selected<?php } ?> value='<?php echo $municipio[$i]['id']; ?>'><?php echo $municipio[$i]['nombre']; ?></option>
+		<?php
+			}
+		?>
+</select>		
+		</td>
+		<td>Parroquia:<BR>
+		<?php $disabled=($parroquia)?'':'disabled'; ?>	
+			<select <?php echo $disabled; ?> name='parroquia' id='parroquia'>			
+		<?php
+		for($i=0;$i<count($parroquia);$i++)
+			{
+			?>		
+				<option <?php if($parroquia[$i]['id']==$config[0]['parroquia']) {?>selected<?php }?> value='<?php echo $parroquia[$i]['id'];?>'><?php echo $parroquia[$i]['nombre_parroquia'];?></option>
+			<?php
+			}
+			?>	
+					<div><?php $objMunicipio->consultarMunicipio() ?></div>
+			</select>
+		</td>
+	</tr>
+	</tr>
+		<td>N° de taquilla única:<BR>
+		<input class='input' value="<?php echo $config[0]['nro_reg_taq_unica']; ?>" type="text" maxlength="15" name="nro_reg_taq_unica" onKeyPress="return validaSoloNumero(event);" required></td>
+	
+		<td>Registro taquilla única:<BR>
+		<input class='datepicker' readonly placeholder='dd-mm-aaaa' value="<?php echo $config[0]['fecha_taq_unica']; ?>" type="text" maxlength="20" name="fecha_taq_unica" required></td>
+	
+		<td>Registro del SENIAT:<BR>
+		<input class='datepicker' readonly placeholder='dd-mm-aaaa' value="<?php echo $config[0]['fecha_reg_seniat']; ?>" type="text" maxlength="20" name="fecha_reg_seniat" required></td>
+
+		<td>Fecha actual del CC:<BR>
+		<input class='datepicker' readonly placeholder='dd-mm-aaaa' value="<?php echo $config[0]['periodo_actual']; ?>" type="text" maxlength="20" name="periodo_actual" required></td>
+	</tr>
+	<tr>
+		<td colspan="4">
+			<input type="hidden" name="MAX_FILE_SIZE" value="3000000">
+			Imagen de cintillo del sistema:<br><input name="banner" type="file" ><br>Solo imagen PNG
+		</td>
+	</tr>
+	<!--
+	<tr>
+		<td colspan="4">
+			<input type="hidden" name="MAX_FILE_SIZE" value="3000000">
+			Imagen de cintillo de los documentos PDF:<br><input name="banner_" type="file"><br>Solo imagen PNG
+		</td>
+	</tr>-->
+	<tr style='text-align:center;'>
+		<td colspan='4' ><br>
+			<input style='margin-right:10px;' class='accion' type='button' title='Salir' value='Salir' onClick="if(confirm('¿Desea salir sin guardar los cambios?')) window.location='?opcion=inicio';"/>
+			<input class='accion' style='margin-left:10px;' type='submit' name='enviar' value='Actualizar'>
+		</td>
+	</tr>
+	</table>
+</form>
+<?php
+}
+if(isset($error))
+	{
+	if(!$error)
+		{
+		echo $mensaje['updated'];
+		header("refresh:2;url=?opcion=configcc");
+		}
+	else
+		{
+		echo $mensaje['error_updated'];
+		header("refresh:3;url=?opcion=inicio");			
+		}
+	}
+?>
+</body>
+</html>
+<?php
+}
+?>

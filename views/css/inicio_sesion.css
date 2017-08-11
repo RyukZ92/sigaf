@@ -1,0 +1,70 @@
+*{
+font-size:14px;
+
+}
+#general{
+
+	position:absolute; 
+	box-shadow:0 0px 020px rgba(0,0,0, .7) inset,0 0px 15px rgba(0,0,0, .7); 
+	border-radius:8px; 
+	top:260px; 
+	left:40%; 
+	height:220px; 
+	background:#66665e; 
+	background: linear-gradient(#39351e 0%, #45463d 100%); 
+	color:gray margin:0 auto;
+	border:1px solid #000;
+	width:265px;
+	text-align:center;
+	padding:10px;
+	padding-top:20px;
+}
+#tema{
+	
+	text-shadow: 1px 2px 0px #000000;
+	font-weight:bold;
+	font-size:20px;
+	color:#fff;
+	margin-bottom:20px;
+}
+.campos{
+	text-shadow: 0px 1px 1px #000000;
+	font-weight:bold;
+	color:#fff;
+	font-size:14px;
+}
+#form #campo1,#form #campo2{
+	margin-bottom:10px; 
+	width:150px; 
+	height:23px;
+	margin-top:1px;
+	width:183px;
+	padding-left: 17px;
+	background-image: url('../imagen/user.png');
+	background-position: left center;
+	background-repeat: no-repeat;
+}
+#form #campo2{
+	background-image: url('../imagen/bloqueo-de-contrasena-palabra-clave-segura-icono-5123-16.png');
+}
+#caja_boton{
+	margin-top:30px;
+}
+#boton{
+	font-weight:bold;
+	width:80px; 
+	height:25px; 
+	background:gray;
+}
+#boton:hover{
+	box-shadow:0 0px 10px rgba(0,0,0, .7) inset,0 01px 10px rgba(0,0,0, .7);
+	font-size:16px; 
+	color:#fff;
+
+}
+#recuperar_pass{
+	position: relative;
+	margin-top:335px; 
+	border:0px solid #000; 
+	left:215px;
+}

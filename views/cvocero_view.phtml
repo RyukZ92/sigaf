@@ -1,0 +1,192 @@
+<?php
+//Seleccionando opción a consultar
+switch($_REQUEST['opc']) 
+	{
+	case "dni":
+		$lista=$vocero->consultarVoceroPorDni($_REQUEST['dni']);
+		$tema = $lista[0]['voceria'];
+	break;
+	case "voceria":
+		$lista=$vocero->consultarVoceroPorVoceria($_REQUEST['voceria']);
+		if($lista) $tema = $lista[0]['voceria'];
+	break;
+	case "todos":
+		$pagina=$_GET['pagina'];
+		$lista=$paginador->paginar("SELECT vocero.id,vocero.eliminado,tipo_dni,dni_vocero,fecha_vigencia,nombre,apellido,telefono_vocero, vocero.estatus
+		FROM vocero,persona
+		WHERE vocero.eliminado=0
+		AND dni_vocero=dni
+		ORDER BY estatus DESC",$pagina);
+	$params=$paginador->getPaginacion();
+		$tema = "Voceros registrados";
+	break;
+	}
+$opcion="cvocero&opc=".$_REQUEST['opc']."&dni=".$_REQUEST['dni']."&voceria=".$_REQUEST['voceria'];
+?>
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+	<title><?php echo $tema; ?></title>
+	<link rel='stylesheet' type='text/css' href='views/css/consultar.css'/>
+	<script type='text/javascript' src='views/js/funciones.js'></script>
+	<link rel='stylesheet' type='text/css' href='views/css/mensajes_validacion.css'/>
+</head>
+<body>
+<?php
+if(count($lista)==0)
+	echo $mensaje['not_data'];
+else
+{
+?>
+<div class='tema'>
+<label class='titulo'><?php echo $tema; ?></label>
+</div>
+<!-- Mostrar voceros -->
+	<table cellspacing='02'>
+	<tr>
+		<th title='Nombre y apellido del vocero'><a href='#'>Nombre y apellido</a></th>
+		<th title='Número de cédula de identidad del vocero'><a href='#'>Teléfono</a></th>
+		<th title='Período del vocero' class='accion'><a href='#'>Período</a></th>
+		<th title='Estatus del vocero' class='accion'><a href='#'>Estatus</a></th>
+<?php
+if($_SESSION['nivel_usuario']=='Administrador'||$_SESSION['nivel_usuario']=='provisional')
+ 		{
+?> 		
+		<th title='Renovar vocero' class='accion'><a href='#'>Renovar</a></th>
+		<th title='Editar vocero' class='accion'><a href='#'>Editar</a></th>	
+		<th title='Eliminar vocero' class='accion'><a href='#'>Eliminar</a></th>
+<?php
+		}
+?>			
+		<th title='Detalles del vocero' class='ultima'><a href='#'>Detalles</a></th>
+	</tr>
+<?php
+//Mostrando registros
+for($i=0;$i<count($lista);$i++)
+	{
+	$fecha=$lista[$i]['fecha_vigencia'];
+	$fecha_m=explode("-",$fecha);
+	$dia_m=$fecha_m[2];
+	$mes_m=$fecha_m[1];
+	$anio_m=$fecha_m[0];
+	$p_inicio=$anio_m;
+	$p_final=$anio_m+2;
+
+	$fecha_v=explode('-',$lista[$i]['fecha_vigencia']);
+	$fecha_fin=strtotime ('+2 year',strtotime ($fecha_v[2].'-'.$fecha_v[1].'-'.$fecha_v[0]));
+	$fecha_fin=date ('Y-m-d',$fecha_fin);
+	if(date('Y-m-d')>=$fecha_fin)
+		{
+		//Deshabilitando registros dependientes cuando los voeros expiran por la fecha
+		$renovar="<input type='image' src='views/imagen/renovar.png' title='Renovar' value='Renovar'>";
+		$vocero->deshabilitaVoceroPorPeriodoVencido($lista[$i]['id']);
+		$vocero->actualizarEstatusDependienteDeVocero($lista[$i]['dni_vocero'],0);
+		}
+	else
+		$renovar='N/A';
+?>
+	<tr id="<?php echo "id_$i"; ?>" onMouseMove="cambiarColor('<?php echo "id_$i"; ?>','#D8D8D8 url(views/imagen/background.png) repeat-x 0 -10px');" onMouseOut="cambiarColor('<?php echo "id_$i"; ?>','#fff');" >
+		<td title="<?php echo $lista[$i]['nombre']." ".$lista[$i]['apellido']; ?>"><?php echo $lista[$i]['nombre']." ".$lista[$i]['apellido']; ?></td>
+		<td title='<?php echo $lista[$i]['telefono_vocero']; ?>'><?php echo $lista[$i]['telefono_vocero']; ?></td>
+		<td style='text-align:center;' title='<?php if(date('Y-m-d')>=$fecha_fin) echo "Expirado"; else echo $p_inicio."-".$p_final; ?>'><?php if(date('Y-m-d')>=$fecha_fin) echo "<span style='color:red;'>Expirado</span>"; else echo $p_inicio."-".$p_final; ?></td>
+		<td class='accion'>
+		<?php 
+		if($lista[$i]['eliminado']==1)
+				echo "Eliminado";
+		else
+			{
+			if($lista[$i]['estatus']==1) 
+					{ ?>
+					<img type='image' title='Habilitado' src='views/imagen/habilitado.png'>
+			<?php 	}
+				else
+					{
+			?>
+					<img type='image' title='Deshabilitado' src='views/imagen/deshabilitado.png'>
+			<?php	}
+			}	
+?>
+		</td>
+<?php
+if($_SESSION['nivel_usuario']=='Administrador'||$_SESSION['nivel_usuario']=='provisional')
+    	{
+?> 	
+		<td title='Renovar' align="center"><form action='?opcion=rvocero' method='POST'>
+		<input type='hidden' value="<?php echo $lista[$i]['dni_vocero']; ?>" name='dni' />
+		<?php echo $renovar; ?>
+		</form>
+		</td>
+<?php
+		}
+?>
+<?php if($_SESSION['nivel_usuario']=='Administrador'||$_SESSION['nivel_usuario']=='provisional') 
+	{
+?>
+		<td title='Editar' align="center">
+			<form action='?opcion=evocero' method='POST'>
+			<input type='hidden' value="<?php echo $lista[$i]['dni_vocero']; ?>" name='dni'>
+			<input type='image' src='views/imagen/modificar.png' title='Editar' value='Editar'>
+			</form>
+		</td>
+		<td align='center'> <a title='Eliminar' href="?opcion=svocero&dni=<?php echo $lista[$i]['dni_vocero']; ?>&id=<?php echo $lista[$i]['id']; ?>&elimina=<?php echo $lista[$i]['eliminado']; ?>" onClick='return preguntaEliminar();'><?php if($lista[$i]['eliminado']==1) {echo 'N/A';} else { ?><img src='views/imagen/eliminar.png'></img></a> <?php } ?></td>
+<?php } ?>		
+		<td align="center"><a href="javascript: abrir_nueva_ventana('views/cdvocero_view.php?dni=<?php echo $lista[$i]['dni_vocero']; ?>');"><img style='border:0px;' title='Ver más' src='views/imagen/detail.png'></img></a></td>
+	</tr>
+<?php
+	}
+}
+?>
+</table>
+<?php
+if($_REQUEST['opc']=='todos')
+{
+?>
+<!-- FUENTE: www.CesarCancino.com -->
+<div class='paginador' align='center' >
+<ul>
+	<li style="display:inline; margin-right:6px;">
+	<?php if($params['primero']):	?>
+		<a  class='parametro'  href="?opcion=<?php echo $opcion; ?>&pagina=<?php echo $params['primero']; ?>">
+		Primero
+		</a>
+	<?php	else: ?>
+		Primero
+	<?php	endif; ?>
+	</li>
+	<li style="display:inline; margin-right:6px;">
+	<?php if($params['anterior']):	?>
+		<a  class='parametro'  href="?opcion=<?php echo $opcion; ?>&pagina=<?php echo $params['anterior']; ?>">
+		Anterior
+		</a>
+	<?php	else: ?>
+		Anterior
+	<?php	endif; ?>
+	</li>
+	<li style="display:inline; margin-right:6px;">
+	<?php if($params['siguiente']):	?>
+		<a  class='parametro'  href="?opcion=<?php echo $opcion; ?>&pagina=<?php echo $params['siguiente']; ?>">
+		Siguiente
+		</a>	
+	<?php	else: ?>
+		Siguiente
+	<?php	endif; ?>
+	</li>
+	</li>
+	<li style="display:inline; margin-right:5px;">
+	<?php if($params['ultimo']):	?>
+		<a  class='parametro'  class='parametro' href="?opcion=<?php echo $opcion; ?>&pagina=<?php echo $params['ultimo']; ?>">
+		Último
+		</a>
+	<?php	else: ?>
+		Último
+	<?php	endif; ?>
+	</li>
+</ul>
+</div>
+<?php
+}
+?>
+<div class='papelera'><a href='?opcion=cvoceroelim'><img class='trash' src='views/imagen/trash.png'></img ><br>Papelera</a></div>
+</body>
+</html>

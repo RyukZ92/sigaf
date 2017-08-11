@@ -1,0 +1,13 @@
+Creado por: Miguel Salazar, 2014
+
+Base de datos: MySQL (MariaDB)
+Lenagueje de programación: PHP5
+
+CONFIGURACIÓN:
+Configurar la ruta raiz en "config/config.php"
+Los datos de la conexión base de datos se encuestran en la ruta "db/db.php"
+La base de datos se encuentra ".sql" en la carpera "db" con el nombre "bd_sigaf.sql"
+
+Datos de acceso:
+User: miguel
+Passwd: miguelA1

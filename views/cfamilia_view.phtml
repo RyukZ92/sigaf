@@ -1,0 +1,141 @@
+<?php
+?>
+<!doctype html>
+<html>
+	<head>
+	<meta charset="utf-8" />
+		<title><?php echo $tema; ?></title>
+		<link rel='stylesheet' type='text/css' href='views/css/consultar.css'/>
+		<link rel='stylesheet' type='text/css' href='views/css/mensajes_validacion.css'/>
+		<script type='text/javascript' language='javascript' src='views/js/funciones.js'></script>
+	</head>
+
+<body>
+<?php
+$rep=true;
+if(isset($_POST['enviar']))
+	if(empty($_POST['dni_']))
+		echo $mensaje['not_dni'];
+	else
+		{
+		$lista=$familia->consultarRepFamilia($_POST['dni_']);
+		$rep=false;
+		if(!$lista)
+			$lista=$familia->consultarPersonaDni($_POST['dni_']);
+		else
+			$rep=true;
+		}
+?>
+<div class='tema'>
+<label class='titulo'><?php echo $tema; ?></label>
+</div>
+<form method='POST' action=''>
+<label style='margin-left:24px;'>Documento de Identidad: 
+<input type='text' name='dni_' class='busqueda'> 
+<input class='boton_bus' type='submit' name='enviar' title='Buscar' value='Buscar'></label>
+<label style='float:right; margin-right:22px;'><input class='boton_bus' value='Ver todos' type='submit'></label>
+</form>
+<?php
+if($lista)
+{
+?><BR>
+	<table cellspacing='02'>
+	<tr>
+		<th title='Documento de Identidad'><a href='#'>Identificación</a></th>
+		<th title='Nombre y apellido'><a href='#'>Nombre y apellido</a></th>
+		<th style='text-align:center;' title='Sexo'><a href='#'>Sexo</a></th>
+		<th style='text-align:center;' title='Edad'><a href='#'>Edad</a></th>
+		<th style='text-align:center;' title='Edad'><a href='#'>Grupo familiar</a></th>
+		<th style='text-align:center;' title='Edad'><a href='#'>Vivienda</a></th>
+		<th style='text-align:center;' title='Empleo'><a href='#'>Ver familia</a></th>
+<?php
+if($rep)
+	{
+?>		
+		<th class='ultima' style='text-align:center;' title='Empleo'><a href='#'>Editar</a></th>
+<?php
+	}
+?>		
+
+	</tr>
+
+<?php
+
+for($i=0;$i<count($lista);$i++)
+	{
+	$nombre=explode(' ',$lista[$i]['nombre']);
+	$apellido=explode(' ',$lista[$i]['apellido']);
+?>
+	<tr id="<?php echo "id_$i"; ?>" onMouseMove="cambiarColor('<?php echo "id_$i"; ?>','#D8D8D8 url(views/imagen/background.png) repeat-x 0 -10px');" onMouseOut="cambiarColor('<?php echo "id_$i"; ?>','#fff');" >
+		<td class='accion' title='<?php echo $lista[$i]['tipo_dni']."-".$lista[$i]['dni']; ?>'><?php echo $lista[$i]['tipo_dni']."-".$lista[$i]['dni']; ?></td>
+		<td title='<?php echo $lista[$i]['nombre']." ".$lista[$i]['apellido']; ?>'><?php echo $nombre[0]." ".$apellido[0]; ?></td>
+		<td style='text-align:center;' title='<?php echo $lista[$i]['sexo']; ?>'><?php echo $lista[$i]['sexo']; ?></td>
+		<td style='text-align:center;' title='<?php echo $lista[$i]['edad']." años";  ?>'><?php echo $lista[$i]['edad']." años";  ?></td>
+		<td  style='text-align:center;' title='Grupo familiar'><a class='ver' href="?opcion=cgrupofamiliar&id=<?php echo $lista[$i]['id_rep']; ?>&sector=<?php echo $lista[$i]['sector']; ?>"><img class='ico_op' src='views/imagen/group.png'></img> Ver</a></td>
+		<td class='' style='text-align:center;' title='Vivienda'><a class='ver' href='?opcion=cviviendafamilia&id_rep=<?php echo $lista[$i]['id_rep'] ?>'><img class='ico_op' src='views/imagen/home.png'></img> Ver</a></td>
+		<td style='text-align:center;' title='Generar PDF'><a target='_blank' class='ver' href='views/cfamiliapdf_view.php?id=<?php echo $lista[$i]['id_rep'] ?>'><img class='ico_op' src='views/imagen/document-pdf.png'></img> Ver</a></td>
+<?php
+if($rep)
+	{
+?>	
+		<td class='ultima' style='text-align:center;' title='Editar'><a href='?opcion=efamilia&id=<?php echo $lista[$i]['id_rep']; ?>&dni=<?php echo $lista[$i]['dni']; ?>'><img src='views/imagen/modificar.png'></img></a></td>
+<?php
+	}
+?>	
+	</tr>
+	
+<?php	
+	}
+?>
+	</table>
+<!-- FUENTE: www.CesarCancino.com -->
+<div class='paginador' align='center' >
+<ul>
+	<li style="display:inline; margin-right:6px;">
+	<?php if($params['primero']):	?>
+		<a  class='parametro'  href="?opcion=<?php echo $opcion; ?>&pagina=<?php echo $params['primero']; ?>">
+		Primero
+		</a>
+	<?php	else: ?>
+		Primero
+	<?php	endif; ?>
+	
+	</li>
+	<li style="display:inline; margin-right:6px;">
+	<?php if($params['anterior']):	?>
+		<a  class='parametro'  href="?opcion=<?php echo $opcion; ?>&pagina=<?php echo $params['anterior']; ?>">
+		Anterior
+		</a>
+	<?php	else: ?>
+		Anterior
+	<?php	endif; ?>
+	</li>
+	<li style="display:inline; margin-right:6px;">
+	<?php if($params['siguiente']):	?>
+		<a  class='parametro'  href="?opcion=<?php echo $opcion; ?>&pagina=<?php echo $params['siguiente']; ?>">
+		Siguiente
+		</a>	
+	<?php	else: ?>
+		Siguiente
+	<?php	endif; ?>
+	</li>
+	</li>
+	<li style="display:inline; margin-right:5px;">
+	<?php if($params['ultimo']):	?>
+		<a  class='parametro'  class='parametro' href="?opcion=<?php echo $opcion; ?>&pagina=<?php echo $params['ultimo']; ?>">
+		Último
+		</a>
+	<?php	else: ?>
+		Último
+	<?php	endif; ?>
+	</li>
+</ul>
+</div>
+<div><a href='?opcion=cfallecido' style='color:blue; float:right; margin-right:22px; margin-top:15px;'><img style='position:relative;top:10px;height:32px; width:24px;' src='views/imagen/lazo_luto.jpg'></img> Personas fallecidas</a></div>
+<?php
+}
+else
+	echo '<BR>'.$mensaje['not_data'];
+?>
+</body>
+</html>

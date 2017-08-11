@@ -1,0 +1,110 @@
+<!doctype html>
+<html>
+	<head>
+	<meta charset="utf-8" />
+		<title>Consulta de usuarios</title>
+		<link rel='stylesheet' type='text/css' href='views/css/consultar.css'/>
+		<link rel='stylesheet' type='text/css' href='views/css/mensajes_validacion.css'/>
+		<script type='text/javascript' language='javascript' src='views/js/funciones.js'></script>
+	</head>
+<body>
+<div class='tema'>
+<label class='descripcion'><?php echo $tema; ?></label>
+</div>
+<?php
+if(!$lista)
+	echo $mensaje['not_data'];
+else
+{
+//Mostrar todos los patrimonios
+?>
+	<table cellspacing='02'>
+	<tr>
+		<th title='Descripción'><a href='#'>Descripción</a></th>
+		<th align="center" title='Código'><a href='#'>Código</a></th>
+		<th align="center" title='Cantidad'><a href='#'>Cantidad</a></th>
+		<th align="center" title='Precio unitario Bs.'><a href='#'>Precio unitario Bs.</a></th>
+		<th align="center" title='Total'>Sub-total Bs.</th>
+		<th align="center" title='Editar'>Editar</th>
+	</tr>
+
+<?php
+$total=0;
+for($i=0;$i<count($lista);$i++)
+	{
+	$subTotal=$lista[$i]['precio_unitario']*$lista[$i]['cantidad'];
+	$total+=$subTotal;
+?>
+	<tr id="<?php echo "id_$i"; ?>" onMouseMove="cambiarColor('<?php echo "id_$i"; ?>','#D8D8D8 url(views/imagen/background.png) repeat-x 0 -10px');" onMouseOut="cambiarColor('<?php echo "id_$i"; ?>','#fff');">
+		<td title='<?php echo $lista[$i]['descripcion']; ?>'><?php echo $lista[$i]['descripcion']; ?></td>
+		<td align='center' title='<?php echo $lista[$i]['codigo']; ?>'><?php echo $lista[$i]['codigo']; ?></td>
+		<td align='center' title='<?php echo $lista[$i]['cantidad']; ?>'><?php echo $lista[$i]['cantidad']; ?></td>
+		<td align='center' title='<?php echo $lista[$i]['precio_unitario']; ?>'><?php echo number_format($lista[$i]['precio_unitario'], 2, ",", "."); ?></td>
+		<td align='center' title='<?php echo $subTotal; ?>'><?php echo number_format($subTotal, 2, ",", "."); ?></td>
+		<form method="POST" action="?opcion=einventario">
+		<td align="center">
+		<input type='image' src='views/imagen/modificar.png'></td>
+		<input type='hidden' name='id' value='<?php echo $lista[$i]['id']; ?>'>
+		</form>
+	</tr>
+
+<?php	
+	}
+?>
+	<tr>
+		<td colspan="4" align="right"><b>Total:</b></td>
+		<td colspan="2" align="center"><?php echo number_format($total, 2, ",", "."); ?></td>
+	</tr>
+	<tr>
+		<td colspan='6' class='td_' align='right'><a  target='_blank' href="views/cinventariopdf_view.php" class='link'><img src='views/imagen/document-pdf.png' style="position:relative;border:0px solid #000;top:4px;">Imprimir</a></td>
+	</tr>
+</table>
+
+<!-- FUENTE: www.CesarCancino.com -->
+<div class='paginador' align='center' >
+<ul>
+	<li style="display:inline; margin-right:6px;">
+	<?php if($params['primero']):	?>
+		<a  class='parametro'  href="?opcion=<?php echo $opcion; ?>&pagina=<?php echo $params['primero']; ?>">
+		Primero
+		</a>
+	<?php	else: ?>
+		Primero
+	<?php	endif; ?>
+	
+	</li>
+	<li style="display:inline; margin-right:6px;">
+	<?php if($params['anterior']):	?>
+		<a  class='parametro'  href="?opcion=<?php echo $opcion; ?>&pagina=<?php echo $params['anterior']; ?>">
+		Anterior
+		</a>
+	<?php	else: ?>
+		Anterior
+	<?php	endif; ?>
+	</li>
+	<li style="display:inline; margin-right:6px;">
+	<?php if($params['siguiente']):	?>
+		<a  class='parametro'  href="?opcion=<?php echo $opcion; ?>&pagina=<?php echo $params['siguiente']; ?>">
+		Siguiente
+		</a>	
+	<?php	else: ?>
+		Siguiente
+	<?php	endif; ?>
+	</li>
+	</li>
+	<li style="display:inline; margin-right:5px;">
+	<?php if($params['ultimo']):	?>
+		<a  class='parametro'  class='parametro' href="?opcion=<?php echo $opcion; ?>&pagina=<?php echo $params['ultimo']; ?>">
+		Último
+		</a>
+	<?php	else: ?>
+		Último
+	<?php	endif; ?>
+	</li>
+</ul>
+</div>
+<?php
+}
+?>
+</body>
+</html>

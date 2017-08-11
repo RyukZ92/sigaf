@@ -1,0 +1,87 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+	<title><?php echo $tema; ?></title>
+<link rel='stylesheet' type='text/css' href='views/css/consultar.css'/>
+<script type='text/javascript' src='views/js/funciones.js'></script>
+</head>
+<body>
+<div class='tema'>
+<label class='titulo'><?php echo $tema; ?></label>
+</div>
+<?php
+
+//Mostrar todos las constancias registradas generadas
+?>
+	<table cellspacing='02' class='principal'>
+	<tr style='text-align:center;' >
+		<th><a href='#'>Nombre y apellido</a></th>
+		<th><a href='#'>Tipo de constancia</a></th>
+		<th class='ultima'><a href='#'>Fecha</a></th>
+	</tr>
+<?php
+//Mostrar información de las constancias registradas.
+for($i=0;$i<count($lista);$i++)
+	{
+	$fecha=$lista[$i]['fecha_imp'];
+	$fecha_m=explode("-",$fecha);
+	$dia_m=$fecha_m[2];
+	$mes_m=$fecha_m[1];
+	$anio_m=$fecha_m[0];
+	$fecha=$dia_m.'-'.$mes_m.'-'.$anio_m;
+?>
+	<tr style='text-align:center;'  id="<?php echo "id_$i"; ?>" onMouseMove="cambiarColor('<?php echo "id_$i"; ?>','#FAFAFA url(imagenes/background.png) repeat-x 0 -10px');" onMouseOut="cambiarColor('<?php echo "id_$i"; ?>','#fff');" >
+		<td><?php echo $lista[$i]['nombre']." ".$lista[$i]['apellido']; ?></td>
+		<td style='text-align:center;'><?php echo $lista[$i]['tipo']; ?></td>
+		<td class='ultima'><?php echo $fecha; ?></td>
+	</tr>
+<?php
+	}
+?>
+	</table>
+<!-- FUENTE: www.CesarCancino.com -->
+<div class='paginador' align='center' >
+<ul>
+	<li style="display:inline; margin-right:6px;">
+	<?php if($params['primero']):	?>
+		<a  class='parametro'  href="?opcion=<?php echo $opcion; ?>&pagina=<?php echo $params['primero']; ?>">
+		Primero
+		</a>
+	<?php	else: ?>
+		Primero
+	<?php	endif; ?>
+	
+	</li>
+	<li style="display:inline; margin-right:6px;">
+	<?php if($params['anterior']):	?>
+		<a  class='parametro'  href="?opcion=<?php echo $opcion; ?>&pagina=<?php echo $params['anterior']; ?>">
+		Anterior
+		</a>
+	<?php	else: ?>
+		Anterior
+	<?php	endif; ?>
+	</li>
+	<li style="display:inline; margin-right:6px;">
+	<?php if($params['siguiente']):	?>
+		<a  class='parametro'  href="?opcion=<?php echo $opcion; ?>&pagina=<?php echo $params['siguiente']; ?>">
+		Siguiente
+		</a>	
+	<?php	else: ?>
+		Siguiente
+	<?php	endif; ?>
+	</li>
+	</li>
+	<li style="display:inline; margin-right:5px;">
+	<?php if($params['ultimo']):	?>
+		<a  class='parametro'  class='parametro' href="?opcion=<?php echo $opcion; ?>&pagina=<?php echo $params['ultimo']; ?>">
+		Último
+		</a>
+	<?php	else: ?>
+		Último
+	<?php	endif; ?>
+	</li>
+</ul>
+</div>
+</body>
+</html>

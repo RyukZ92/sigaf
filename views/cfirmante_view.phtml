@@ -1,0 +1,63 @@
+<?php 
+
+// if($_SESSION['nivel_usuario']=='Administrador')
+{
+$vocero=$firmante->consultarFirmanteCuentadantesVocero();
+if(count($vocero)==3)
+{
+?>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset='utf-8'/>
+<title><?php echo $tema; ?></title>
+			<script type='text/javascript' src='views/js/funciones.js'></script>
+			<link rel='stylesheet' type='text/css' href='views/css/consultar.css'/>
+			<link rel='stylesheet' type='text/css' href='views/css/mensajes_validacion.css'/>
+  </style>
+</head>
+
+<body>
+<div class='tema'><p><?php echo $tema; ?></p></div>
+<table cellspacing='02'>
+	<tr>
+		<th title='Documento de Identidad' align='center'><a href='#'>Identificación</a></th>
+		<th title='Nombre y apellido del firmante o vocero'><a href='#'>Nombre y apellido</a></th>
+		<th title='Teléfono' align="center"><a href='#'>Teléfono</a></th>
+		<th title='Período' align="center"><a href='#'>Período</a></th>
+		<th title='Eliminar firmante' align="center"><a href='#'>Eliminar</a></th>
+		<th title='Detalles del firmante' align="center"><a href='#'>Detalles</a></th>
+	</tr>
+
+<?php
+for($i=0;$i<count($vocero);$i++)
+	{
+	$fecha=$vocero[$i]['fecha_vigencia'];
+	$fecha_m=explode("-",$fecha);
+	$dia_m=$fecha_m[2];
+	$mes_m=$fecha_m[1];
+	$anio_m=$fecha_m[0];
+	$p_inicio=$anio_m;
+	$p_final=$anio_m+2;
+?>
+	<tr id="<?php echo "id_$i"; ?>" onMouseMove="cambiarColor('<?php echo "id_$i"; ?>','#D8D8D8 url(views/imagen/background.png) repeat-x 0 -10px');" onMouseOut="cambiarColor('<?php echo "id_$i"; ?>','#fff');" >
+		<td title='<?php echo $vocero[$i]['tipo_dni']."-".$vocero[$i]['dni_vocero']; ?>' align='center'><?php echo $vocero[$i]['tipo_dni']."-".$vocero[$i]['dni_vocero']; ?></td>
+		<td title="<?php echo $vocero[$i]['nombre']." ".$vocero[$i]['apellido']; ?>"><?php echo $vocero[$i]['nombre']." ".$vocero[$i]['apellido']; ?></td>
+		<td title='<?php echo $vocero[$i]['telefono_vocero']; ?>' align='center'><?php echo $vocero[$i]['telefono_vocero']; ?></td>
+		<td title='<?php echo $p_inicio."-".$p_final; ?>' align='center'><?php echo $p_inicio."-".$p_final; ?></td>
+		<td title='Eliminar' class='accion'><a onClick='return preguntaEliminar();' href='?opcion=eliminarf&id=<?php echo $vocero[$i]['id']; ?>'><img src='views/imagen/eliminar.png'></img></a></td>
+		<td title='Detalles' align="center"><a href="javascript: abrir_nueva_ventana('views/cdvocero_view.phtml?dni=<?php echo $vocero[$i]['dni_vocero']; ?>');"><img style='border:0px;' title='Ver más' src='views/imagen/detail.png'></img></a></td>
+	</tr>
+<?php
+	}
+?>
+</table>
+</body>
+</html>
+<?php
+}
+else
+	header("refresh:0;url=?opcion=inicio");
+}
+?>
+

@@ -1,0 +1,100 @@
+<?php 
+if($_SESSION['nivel_usuario']=='Administrador')
+{
+?>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title><?php echo $tema; ?></title>
+			<script type='text/javascript' src='views/js/funciones.js'></script>
+			<link rel="stylesheet" type="text/css" href="views/css/estilo_formularios.css" />
+			<link rel='stylesheet' type='text/css' href='views/css/mensajes_validacion.css'/>
+<link rel="stylesheet" type="text/css" href="views/css/estilo_formularios.css" />
+  </style>
+</head>
+<body>
+<?php
+$validacion=true;
+//Validando del lado del servidor
+if(isset($_POST['enviar']))
+	{
+	if(empty($_POST['sector']))
+		echo $mensaje['not_sector'];
+	else if(empty($_POST['direccion']))	
+		echo $mensaje['not_direccion'];
+//Fin de validación	
+	else
+		{
+		//Assignando variables de sesión
+		$_SESSION['parroquia']=$_POST['parroquia'];
+		$_SESSION['sector']=$_POST['sector'];
+		$_SESSION['direccion']=$_POST['direccion'];
+		$_SESSION['numero_casa']=$_POST['numero_casa'];
+		header('location:?opcion=afamilia');
+		}	
+	}
+$direccion=$objParroquia->consultarParroquiaMunicipioEstado($config[0]['parroquia']);//Consultando la dirección por el ID de la parroquia
+?>
+<!-- Se muestra el formulario -->
+<div class='tema'><p><?php echo $tema; ?></p></div>
+<form action="" method="POST" name='form'>
+<table  class="principal" cellspacing="15px" border="0" align='center'>
+	<tr>
+		<td>Estado:<br>
+			<select disabled>
+				<option><?php echo $direccion[0]['nombre_estado']; ?></option>
+			</select>	
+		</td>
+
+		<td>Municipio:<br>
+			<select disabled>
+				<option><?php echo $direccion[0]['nombre_municipio']; ?></option>
+			</select>
+		</td>
+
+		<td>Parroquia:<br>
+			<select disabled>
+				<option value='<?php echo $direccion[0]['id']; ?>'><?php echo $direccion[0]['nombre_parroquia']; ?></option>
+			</select>
+		<input readonly name='parroquia' type='hidden' class='input' value='<?php echo $direccion[0]['id']; ?>'>	
+		</td>
+	</tr>
+   <tr>		
+		<td>Sector:
+		<br><select name='sector' style='width:120px;'>
+	<?php
+	$sector=explode(',',$config[0]['sector']);
+	for($i=0;$i<count($sector);$i++)
+		{
+	?>
+			<option value='<?php echo trim($sector[$i]); ?>' ><?php echo trim($sector[$i]); ?></option>			
+	<?php
+		}
+	?>
+		</select>
+		</td>
+		<td>N° de casa:<br>
+			<input type='text' value="<?php if(!empty($_POST['numero_casa'])) echo $_POST['numero_casa']; ?>"size='12' placeholder='Ej. 02' name='numero_casa' onKeypress='return validaSoloNumero(event);' class='input' maxlength='7'>
+		</td>
+	</tr>
+   <tr>
+		<td colspan='3'>Dirección:<br>
+			<input readonly class='input'  style="width:400px;" value="<?php if(!empty($_POST['direccion'])) echo $_POST['direccion']; else echo $config[0]['direccion']; ?>" type="text" maxlength="60" name="direccion" placeholder='Urbanización/becindario/barrio, calle' class="input" onkeypress="return solonumeros(event);">
+		</td>
+	</tr>
+	<tr style='text-align:center;'>
+		<td colspan='3' ><br><input style='margin-right:10px;' class='accion' type='reset' value='Limpiar'>
+		<input style='margin-left:10px;' class='accion' type='submit' name='enviar' value='Continuar'>
+	</td>
+	</tr>
+	</table>
+</form>
+<!-- Fin de mostrar formulario -->
+<?php
+}
+else
+	echo $mensaje['not_acces'];
+?>
+</body>
+</html>

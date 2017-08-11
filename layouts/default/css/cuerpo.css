@@ -1,0 +1,30 @@
+body{
+	padding:0px;
+	margin:0px auto;
+	height:0px;
+	margin: auto;
+	background-image:URL('../imagen/bg.png');
+	}
+/* CSS para cargar las páginas */
+div.pagina{
+	height:520px;
+	border:0px solid #000;
+	position: absolute center; 
+	float:left; 
+	width:795px; 
+	margin-left:228px; 
+	margin-right:40px; 
+	padding:0px;
+	
+	}
+div.cuerpo{
+	position:absolute center;
+	margin:0px auto;
+	font-family: Helvetica;
+	width: 1024px; 
+	height:790px;
+	border-radius: 0px;
+	box-shadow:0 0px 010px rgba(0,0,0, .7) inset,0 0px 05px rgba(0,0,0, .7);
+	background: #f7f7f7;
+	background: linear-gradient(#f7f7f7 0%, #ececec 100%);
+	}

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8"/>
+		<title><?php echo $tema; ?></title>
+		<script type='text/javascript' src='views/js/funciones.js'></script>
+		<link rel='stylesheet' type='text/css' href='views/css/mensajes_validacion.css'/>
+		<link rel="stylesheet" href="views/css/pickmeup.css" type="text/css" />
+		<script type="text/javascript" src="views/js/jquery.js"></script>
+		<script type="text/javascript" src="views/js/jquery.pickmeup.js"></script>
+		<script type="text/javascript" src="views/js/demo.js"></script>
+		<link rel="stylesheet" type="text/css" href="views/css/estilo_formularios.css" />
+	</head>
+<body>
+<?php
+if($_SESSION['nivel_usuario']=='Administrador')
+{
+$mostrarFormulario=true;
+$validacion=true;
+//Inicio de validación del lado del servidor
+if(isset($_POST['agregar'])) 
+	{
+	$persona=$familia->consultarPersonaDni($_POST['dni']);
+	if(strlen($_POST['dni']<6)&&!empty($_POST['dni']))
+		 echo $mensaje['dni_wrong'];
+	else if($_POST['dni']==$persona[0]['dni']&&(!empty($_POST['dni'])))
+		echo $mensaje['dni_repeat'];
+	else if(empty($_POST["nombre"])||strlen($_POST["nombre"])<2)
+		echo $mensaje['name_real_wrong'];
+	else if(empty($_POST["apellido"])||strlen($_POST["apellido"])<2)
+		echo $mensaje['lastname_real_wrong'];	
+	else if(empty($_POST["fecha_nac_m"]))
+		echo $mensaje['not_birthday'];	
+	else if(empty($_POST["sexo"]))
+		echo $mensaje['not_sex'];
+	else if(empty($_POST["parentesco"]))
+		echo $mensaje['parent'];
+	else if(empty($_POST["nivel_instruccion"]))
+		echo $mensaje['niv_inst'];	
+	else if(empty($_POST["ano_residencia"]))
+		echo $mensaje['fecha_resid'];	
+//Fin de validación de lado del servidor	
+	else
+		{
+		$_POST["parentesco"]=$_POST['parentesco'];
+		//convirtiendo fecha a formato aaaa-mm-dd
+		$fecha=$_POST['fecha_nac_m'];
+		$fecha_m=explode("-",$fecha);
+		$dia_m=$fecha_m[2];
+		$mes_m=$fecha_m[1];
+		$anio_m=$fecha_m[0];
+		$fecha=$dia_m.'-'.$mes_m.'-'.$anio_m;
+		//Agregando miembro a la base de datos
+		$res=$familia->agregarMiembroFamilia($_POST["tipo_dni"],$_POST["dni"],$_GET['id'],$_POST["nombre"],$_POST["apellido"],$fecha,$_POST["sexo"],$_POST["parentesco"],$_POST["nivel_instruccion"],$_POST["habilidad_trabajo"],$_POST["profesion"],$_POST["enfermedad"],$_POST["discapacidad"],$_POST["ano_residencia"]);
+		if($res) //Registrando acción realizada
+			Historial::Movimiento($_SESSION['codigo'],"Agregó miembro de identificación: <b>".$_POST["dni"]."</b> a una familia");
+		$mostrarFormulario=false;
+		}
+	}
+//Mostrando el formulario
+if($mostrarFormulario)
+	{	
+?>
+	<div class='tema'><p><?php echo $tema; ?></p></div>
+	<form id="form" name="form" method="POST" action="" >
+	<table class='principal' cellspacing='15px' border='0' align='center'> 
+		<tr>
+			<td>Documento de identidad:<br>	
+			<select name='tipo_dni' id='tipo_dni'>
+				<option value='V' >V</option>
+				<option value='E' >E</option>
+			</select>
+			<input class='input' value='<?php if(!empty($_POST['dni'])) echo $_POST['dni']; ?>' type='text' size='15' maxlength='8' name='dni' id='dni' placeholder='' class='input' onKeyPress='return validaSoloNumero(event);'></td>
+			<td>Nombres:
+				<br><input class='input' value='<?php if(!empty($_POST['nombre'])) echo $_POST['nombre']; ?>' size='20' type='text' maxlength='16' name='nombre' id='nombre' placeholder='' class='input' onKeyPress='return validaLetra(event);' > <label class='C_obligatorio'>*</label> 
+			</td>
+			<td>Apellidos:
+				<br><input class='input' value='<?php if(!empty($_POST['apellido'])) echo $_POST['apellido']; ?>'  size='20' type='text' maxlength='16' name='apellido' id='apellido' placeholder='' class='input' onKeyPress='return validaLetra(event);' > <label class='C_obligatorio'>*</label></td>
+			<td>Fecha de nacimiento:
+			<br>
+				<input value='<?php if(!empty($_POST['fecha_nac_m'])) echo $_POST['fecha_nac_m']; ?>'  type='text' class='datepicker' name='fecha_nac_m' readonly id='fecha_nac_m' size='20' placeholder='dd-mm-aaaa'/> <label class='C_obligatorio'>*</label>
+			</td>
+		</tr>
+		<tr>
+			<td>Sexo:<br>
+			<select name='sexo' id='sexo'>
+				<option value='0' >Seleccionar</option>
+				<option value='F' <?php if(!empty($_POST['sexo'])) { if($_POST['sexo']=='F') {?>selected <?php } }?>>Femenino</option>
+				<option value='M' <?php if(!empty($_POST['sexo'])) { if($_POST['sexo']=='M') {?>selected <?php } }?>>Masculino</option>
+			</select> <label class='C_obligatorio'>*</label> 
+			</td>
+			<td>Parentesco:<br>
+			<select name='parentesco' id='parentesco'>
+				<option value='0'>Seleccionar</option>
+				<option value='Abuel' <?php if(!empty($_POST['parentesco'])) { if($_POST['parentesco']=='Abuel') {?>selected <?php } }?> >Abuelo(a)</option>
+				<option value='Padre' <?php if(!empty($_POST['parentesco'])) { if($_POST['parentesco']=='Padre') {?>selected <?php } }?>>Padre</option>
+				<option value='Madre' <?php if(!empty($_POST['parentesco'])) { if($_POST['parentesco']=='Madre') {?>selected <?php } }?>>Madre</option>
+				<option value='Espos' <?php if(!empty($_POST['parentesco'])) { if($_POST['parentesco']=='Espos') {?>selected <?php } }?>>Esposo(a)</option>
+				<option value='Concubin' <?php if(!empty($_POST['parentesco'])) { if($_POST['parentesco']=='Concubin') {?>selected <?php } }?>>Concubino(a)</option>				
+				<option value='Novi' <?php if(!empty($_POST['parentesco'])) { if($_POST['parentesco']=='Novi') {?>selected <?php } }?>>Novio(a)</option>				
+				<option value='Herman' <?php if(!empty($_POST['parentesco'])) { if($_POST['parentesco']=='Herman') {?>selected <?php } }?>>Hermano(a)</option>
+				<option value='Hij' <?php if(!empty($_POST['parentesco'])) { if($_POST['parentesco']=='Hij') {?>selected <?php } }?>>Hijo(a)</option>
+				<option value='Tí' <?php if(!empty($_POST['parentesco'])) { if($_POST['parentesco']=='Tí') {?>selected <?php } }?>>Tío(a)</option>
+				<option value='Sobrin' <?php if(!empty($_POST['parentesco'])) { if($_POST['parentesco']=='Sobrin') {?>selected <?php } }?>>Sobrino(a)</option>
+				<option value='Prim' <?php if(!empty($_POST['parentesco'])) { if($_POST['parentesco']=='Prim') {?>selected <?php } }?>>Primo(a)</option>
+				<option value='Niet' <?php if(!empty($_POST['parentesco'])) { if($_POST['parentesco']=='Niet') {?>selected <?php } }?>>Nieto(a)</option>
+				<option value='Amig' <?php if(!empty($_POST['parentesco'])) { if($_POST['parentesco']=='Amig') {?>selected <?php } }?>>Amigo(a)</option>
+				</select> <label class='C_obligatorio'>*</label> 
+				</td>
+				<td>Nivel de instrucción:<br>
+				<select name='nivel_instruccion' id='nivel_instruccion'>
+					<option value='0' >Seleccionar</option>
+					<option value='Ninguno' <?php if(!empty($_POST['nivel_instruccion'])) { if($_POST['nivel_instruccion']=='Ninguno') {?>selected <?php } }?>>Ninguno</option>
+					<option value='Básica' <?php if(!empty($_POST['nivel_instruccion'])) { if($_POST['nivel_instruccion']=='Básica') {?>selected <?php } }?>>Básica</option>
+					<option value='Bachiller' <?php if(!empty($_POST['nivel_instruccion'])) { if($_POST['nivel_instruccion']=='Bachiller') {?>selected <?php } }?>>Bachiller</option>
+					<option value='Técnico Medio' <?php if(!empty($_POST['nivel_instruccion'])) { if($_POST['nivel_instruccion']=='Técnico Medio') {?>selected <?php } }?>>Técnico Medio</option>
+					<option value='Universitario' <?php if(!empty($_POST['nivel_instruccion'])) { if($_POST['nivel_instruccion']=='Universitario') {?>selected <?php } }?>>Universitario</option>
+					<option value='Post Grado' <?php if(!empty($_POST['nivel_instruccion'])) { if($_POST['nivel_instruccion']=='Post Grado') {?>selected <?php } }?>>Post Grado</option>
+					<option value='Doctorado' <?php if(!empty($_POST['nivel_instruccion'])) { if($_POST['nivel_instruccion']=='Doctorado') {?>selected <?php } }?>>Doctorado</option>
+					<option value='PhD' <?php if(!empty($_POST['nivel_instruccion'])) { if($_POST['nivel_instruccion']=='PhD') {?>selected <?php } }?>>PhD</option>
+				</select> <label class='C_obligatorio'>*</label> 
+				</td>
+				<td>Año de residencia:<br>
+				<select name='ano_residencia'>
+				<option value='0'>Seleccionar</option>
+	<?php
+			for($i=date('Y');$i>=date('Y')-100;$i--)
+				{
+	?>
+				<option <?php if (!empty($_POST['ano_residencia'])) if($_POST['ano_residencia']==$i) {?>selected<?php } ?> value='<?php echo $i; ?>'><?php echo $i; ?></option>	
+	<?php
+				}
+	?>		</select> <label class='C_obligatorio'>*</label>
+				</td>
+				</tr>
+				<tr>
+				<td>Profesión u ocupación:
+					<BR><input class='input' value='<?php if(!empty($_POST['profesion'])) echo $_POST['profesion']; ?>' size='20' type='text' maxlength='50' name='profesion' id='profesion' placeholder='Ej. Estudiante' onKeyPress='return validaLetra(event);' >
+				</td>
+				<td>Habilidad para el trabajo:
+					<BR><input class='input' value='<?php if(!empty($_POST['habilidad_trabajo'])) echo $_POST['habilidad_trabajo']; ?>' size='20' type='text' maxlength='30' name='habilidad_trabajo' id='habilidad_trabajo' placeholder='Ej. Albañilería'  onKeyPress='return validaLetra(event);' >
+				</td>
+				<td colspan=''>Enfermedades:
+					<BR><input class='input' value='<?php if(!empty($_POST['enfermedad'])) echo $_POST['enfermedad']; ?>' size='20' type='text' maxlength='50' name='enfermedad' id='enfermedad' placeholder='Ej. Obécidad, otra' onKeyPress='return validaLetra(event);' >
+				</td>		
+				<td colspan=''>Discapacidades:<br>
+				&nbsp;&nbsp;&nbsp;
+				<input <?php if(!empty($_POST['discapacid'])) if($_POST['discapacid']=='Si') { ?> checked <?php } ?>
+				onClick="return preguntar_m('discapacidad');" type='radio' name='discapacid' value='Si'>Si
+				&nbsp;&nbsp;&nbsp;
+				<input <?php if(!empty($_POST['discapacid'])) if($_POST['discapacid']=='No') { ?> checked <?php } ?>
+				onClick="return preguntar_n('discapacidad');" type='radio' name='discapacid' value='No' checked>No
+				<label class='C_obligatorio'>*</label>			
+				<BR><input id='discapacidad' value="<?php if(!empty($_POST['discapacidad'])) echo $_POST['discapacidad']; ?>" type="text" maxlength="50" name="discapacidad" placeholder="Ej. Obécidad, otra" class='input' onKeyPress="return validaLetra(event);" style='display:none;'>
+			</td>	
+				</tr>			
+				<tr>
+					<td colspan='4' style='text-align:center;'>
+					<input style='margin-right:20px;' class='accion' type='reset' name='limpiar' value='Limpiar'>
+					<input class='accion' type='submit' name='agregar' value='Agregar'>
+					</td>
+				</tr>
+
+			</table>
+	</form>
+<?php
+//Fin del formulario
+	}
+if(isset($res))
+	{
+	if($res)
+		{
+		echo $mensaje['added'];
+		header("refresh:2;url=?opcion=cgrupofamiliar&id=".$_GET['id']."&sector=".$_GET['sector']);
+		}
+	else
+		{
+		if(!$validacion)
+			{
+			$mensaje['error_added'];
+			header("refresh:3;url=?opcion=inicio");			
+			}
+		}
+	}	
+}
+else
+	echo $mensaje['not_acces'];
+?>
+</body>
+</html>

@@ -1,0 +1,104 @@
+<?php 
+if($_SESSION['nivel_usuario']=='Administrador')
+{
+?>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset='utf-8'/>
+<title><?php echo $tema; ?></title>
+			<script type='text/javascript' src='views/js/funciones.js'></script>
+			<link rel='stylesheet' type='text/css' href='views/css/estilo_formularios.css' />
+			<link rel='stylesheet' type='text/css' href='views/css/mensajes_validacion.css'/>
+  </style>
+</head>
+<body>
+<?php
+//Verifica si ya están los firmantes asignados
+$vocero=$firmante->consultarOtroFirmanteVocero();
+if(count($vocero)==3)
+	header("refresh:0;url=?opcion=cotrofirmante"); //Redirecciona a mostrar los firmantes en caso de que existan los tres firmantes
+else
+{
+$mostrarFormulario=true;
+
+//Validando del lado de PHP
+if(isset($_POST['asignar']))
+	{
+	$validar=$firmante->verificarOtroFirmanteVocero($_POST['dni']);//Consultanndo si el vocero firmante existe
+	$validarVocero=$firmante->verificarDni($_POST['dni']);//Consultando si el vocero existe
+
+	if(empty($_POST['dni']))
+		echo $mensaje['not_dni'];
+	else if(strlen($_POST['dni'])<6)
+		echo $mensaje['dni_wrong'];
+	else if($validar)
+		echo $mensaje['repeat_vocero'];
+	else if(!$validarVocero)
+		echo $mensaje['repeat_dni_vocero'];
+//Fin validación
+	else
+		{		
+		$res=$firmante->asignarVoceroOtroFirmante($_POST['dni']); //Guardando registro en la base de datos
+		if($res)
+			{
+			Historial::Movimiento($_SESSION['codigo'],"El firmante de identificación: <b>".$_POST['dni']."</b> fue asignado correctamente");
+			$mjs['envio']="<center><div class='mensaje_envio'>Se ha asignado al firmante correctamente</div></center>";
+			$mostrarFormulario=false;				
+			}
+		else
+			{
+			$msj['error']="<center><div class='validacion'><img style='margin:0px;padding:0px;'src='views/imagen/exclamation.png'>&nbsp;&nbsp;Problemas para asignar al vocero firmante. Contacte a su administrador de sistema</div></center>";
+			$mostrarFormulario=false;	
+			}
+		}
+	}
+//Mostrando formulario
+if($mostrarFormulario)
+{
+?>
+<div class='tema'><p><?php echo $tema; ?></p></div>
+<form class="principal" action="" method="POST" name='form' onSubmit='return preguntaAccion();'>
+<table  class="principal" cellspacing="15px" border="0" align='center'>
+	<tr>
+		<td colspan="" style='text-align:center;'>NÚMERO DEL DOCUMENTO DE IDENTIDAD <BR>DEL FIRMANTE</td>
+	<tr style='text-align:center;'>
+		<td>Firmante:		
+		&nbsp;&nbsp;&nbsp;
+		<input class='input' id='dni' value="<?php if(!empty($_POST['dni'])) echo $_POST['dni']; ?>" type="text" size='14' maxlength="8" name='dni' onKeyPress="return validaSoloNumero(event);"  >
+	</td>
+	<tr style='text-align:center;'>
+		<td colspan='2' ><br><input style='width:130px;' class='accion' type='submit' name='asignar' value='Asignar firmante'>
+		</td>
+	</tr>
+</table>
+</form>
+<?php
+//Fin de mostrar formulario
+}
+
+if(isset($res))
+	{
+	if($res)
+		{
+		echo $mjs['envio'];
+		header("refresh:3;url=?opcion=inicio");
+		}
+	else
+		{
+		if(!$validacion)
+			{
+			echo $msj['error'];
+			header("refresh:3;url=?opcion=inicio");			
+			}
+		}
+	}
+?>
+</body>
+</html>
+<?php
+}
+}
+else
+	echo $mensaje['not_acces'];
+?>

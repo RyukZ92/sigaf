@@ -1,0 +1,253 @@
+<?php 
+if($_SESSION['nivel_usuario']=='Administrador')
+{
+?>
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8"/>
+		<title><?php echo $tema; ?></title>
+		<script type='text/javascript' src='views/js/funciones.js'></script>
+		<link rel="stylesheet" type="text/css" href="views/css/estilo_formularios.css" />
+		<link rel='stylesheet' type='text/css' href='views/css/mensajes_validacion.css'/>
+		<link rel="stylesheet" type="text/css" href="views/css/estilo_formularios.css" />
+		<link rel="stylesheet" href="views/css/pickmeup.css" type="text/css" />
+		<script type="text/javascript" src="views/js/jquery.js"></script>
+		<script type="text/javascript" src="views/js/jquery.pickmeup.js"></script>
+		<script type="text/javascript" src="views/js/demo.js"></script>
+	</head>
+<body>
+<?php
+$validacion=true;
+//Valindo de lado del servidor
+if(isset($_POST['enviar']))
+	{
+	$verificaPersona=$nuevaFamilia->consultarPersonaDni($_POST['dni']);	
+	$fecha_n=explode('-',$_POST['fecha_nac']);
+		$_SESSION['tipo_dni']=$_POST['tipo_dni'];
+		$_SESSION['dni']=$_POST['dni'];
+		$_SESSION['nombre']=ucwords(strtolower($_POST["nombre"]));
+		$_SESSION['apellido']=ucwords(strtolower($_POST["apellido"]));
+		$_SESSION['fecha_nac']=$_POST['fecha_nac'];
+		$_SESSION['estado_civil']=$_POST['estado_civil'];
+		$_SESSION['situacion_conyugal']=$_POST['situacion_conyugal'];
+		$_SESSION['sexo']=$_POST['sexo'];
+		$_SESSION['nivel_instruccion']=$_POST['nivel_instruccion'];
+		$_SESSION['ano_residencia']=$_POST['ano_residencia'];
+		$_SESSION['telefono']=$_POST['telefono'];
+		$_SESSION['cod_area']=$_POST['cod_area'];
+		$_SESSION['email']=strtolower($_POST['email']);
+		$_SESSION['empleo']=$_POST['empleo'];
+		$_SESSION['empleo_nombre']=ucfirst(strtolower($_POST['empleo_nombre']));
+		$_SESSION['profesion']=ucwords(strtolower($_POST["profesion"]));
+		$_SESSION['enfermedad']=ucwords(strtolower($_POST["enfermedad"]));
+		$_SESSION['sub_habitacional']=$_POST['sub_habitacional'];
+		$_SESSION['inst_sub_hab']=ucwords(strtolower($_POST['inst_sub_hab']));
+		$_SESSION['solicitud_v']=$_POST['solicitud_v'];
+		$_SESSION['inst_solicitud_v']=ucwords(strtolower($_POST['inst_solicitud_v']));
+		$_SESSION['seguro_social']=$_POST['seguro_social'];
+		$_SESSION['a_seguro_social']=ucwords(strtolower($_POST['a_seguro_social']));		
+	if(empty($_POST['dni']))
+		echo $mensaje['not_dni'];
+	else if(strlen($_POST['dni'])<6)
+		echo $mensaje['dni_wrong'];
+	else if(count($verificaPersona)>0&&$_GET['dni']!=$_POST['dni'])
+		echo $mensaje['dni_repeat'];
+	else if(empty($_POST['nombre']))
+		echo $mensaje['not_name_real'];
+	else if(empty($_POST['apellido']))
+		echo $mensaje['lastname_real_wrong'];
+	else if(empty($_POST['fecha_nac']))
+		echo $mensaje['not_birthday'];
+	else if(calculaEdad(($fecha_n[2]."-".$fecha_n[1]."-".$fecha_n[0]))<18)
+		echo $mensaje['menor_edad'];
+	else if(empty($_POST['estado_civil']))
+		echo $mensaje['not_civil'];
+	else if(empty($_POST['situacion_conyugal']))
+		echo $mensaje['not_conyugal'];
+	else if(empty($_POST['sexo']))
+		echo $mensaje['not_sex'];
+	else if(empty($_POST['nivel_instruccion']))
+		echo $mensaje['niv_inst'];
+	else if(empty($_POST['ano_residencia']))
+		echo $mensaje['fecha_resid'];
+	else if(empty($_POST['empleo']))
+		echo $mensaje['employ'];
+	else if(empty($_POST['empleo_nombre'])&&$_POST['empleo']=='Si')
+		echo $mensaje['not_employ'];
+	else if(empty($_POST['sub_habitacional']))
+		echo $mensaje['sub_hab'];	
+	else if(empty($_POST['inst_sub_hab'])&&$_POST['sub_habitacional']=='Si')
+		echo $mensaje['not_inst_sub_hab'];
+	else if(empty($_POST['solicitud_v']))
+		echo $mensaje['solicitud_v'];		
+	else if(empty($_POST['inst_solicitud_v'])&&$_POST['solicitud_v']=='Si')
+		echo $mensaje['inst_solicitud_v'];
+	else if(empty($_POST['seguro_social']))
+		echo $mensaje['seguro_social'];		
+	else if(empty($_POST['a_seguro_social'])&&$_POST['seguro_social']=='Si')
+		echo $mensaje['a_seguro_social'];
+	//Fin de validaciòn del servidor
+	else	
+		header('location:?opcion=afamiliamie');
+	}
+//Mostrando formulario de registro	
+?>
+<div class='tema'><p><?php echo $tema; ?></p></div>
+<form action="" method="POST" name='form' onSubmit=''>
+<table  class="principal" cellspacing="15px" border='0' align='center'>
+	<tr>
+		<td>Documento de Identidad:<br>		
+		<select name='tipo_dni'>
+			<option value='V' >V</option>
+			<option value='E' >E</option>
+		</select>
+		<input value="<?php if(!empty($_SESSION['dni'])) echo $_SESSION['dni']; ?>" type="text" size='15' maxlength="8" name="dni" class="input" onKeyPress="return validaSoloNumero(event);" required>&nbsp;<label class='C_obligatorio'>*</label> </td>		
+		<td>Nombres:
+			<br><input  value="<?php if(!empty($_SESSION['nombre'])) echo $_SESSION['nombre']; ?>" type="text" maxlength="50" name="nombre" class="input" onKeyPress="return validaLetra(event);" required>&nbsp;<label class='C_obligatorio'>*</label> </td>
+		<td>Apellidos:
+			<br><input  value="<?php if(!empty($_SESSION['apellido'])) echo $_SESSION['apellido']; ?>" type="text" maxlength="50" name="apellido" placeholder='' class="input" onKeyPress="return validaLetra(event);" required>&nbsp;<label class='C_obligatorio'>*</label>
+		</td>		
+		<td>Fecha de nacimiento:
+			<BR>
+			<input readonly value="<?php if(!empty($_SESSION['fecha_nac'])) echo $_SESSION['fecha_nac']; ?>" type='text' name='fecha_nac' class='datepicker' size="20" placeholder='dd-mm-aaaa' required>&nbsp;<label class='C_obligatorio'>*</label>
+		</td>
+	</tr>	
+	<tr>	
+		<td>Estado civil:
+		<br><select name='estado_civil' required>
+			<option value='0' >Seleccionar</option>
+			<option <?php if (!empty($_SESSION['estado_civil'])) if($_SESSION['estado_civil']=='Soltero') {?>selected<?php } ?> value='Soltero' >Soltero</option>			
+			<option <?php if (!empty($_SESSION['estado_civil'])) if($_SESSION['estado_civil']=='Casado') {?>selected<?php } ?> value='Casado' >Casado</option>
+			<option <?php if (!empty($_SESSION['estado_civil'])) if($_SESSION['estado_civil']=='Divorcioado') {?>selected<?php } ?> value='Divorciado' >Divorciado</option>
+			<option <?php if (!empty($_SESSION['estado_civil'])) if($_SESSION['estado_civil']=='Viudo') {?>selected<?php } ?> value='Viudo' >Viudo</option>
+			<option <?php if (!empty($_SESSION['estado_civil'])) if($_SESSION['estado_civil']=='Concubino') {?>selected<?php } ?> value='Concubino' >Concubino</option>
+		</select>&nbsp;<label class='C_obligatorio'>*</label>
+		</td>
+		<td>Situación conyugal:
+		<br><select name='situacion_conyugal' required>
+			<option value='0' >Seleccionar</option>
+			<option <?php if (!empty($_SESSION['situacion_conyugal'])) if($_SESSION['situacion_conyugal']=='Unido') {?>selected<?php } ?> value='Unido' >Unido</option>
+			<option <?php if (!empty($_SESSION['situacion_conyugal'])) if($_SESSION['situacion_conyugal']=='Separado') {?>selected<?php } ?> value='Separado' >Separado</option>
+			<option <?php if (!empty($_SESSION['situacion_conyugal'])) if($_SESSION['situacion_conyugal']=='Sin conyugue') {?>selected<?php } ?> value='Sin conyugue' >Sin conyugue</option>
+		</select>&nbsp;<label class='C_obligatorio'>*</label>
+		</td>
+		<td>Sexo:<br>
+		<select name='sexo' required>
+			<option value='0' >Seleccionar</option>
+			<option <?php if (!empty($_SESSION['sexo'])) if($_SESSION['sexo']=='F') {?>selected<?php } ?> value='F' >Femenino</option>
+			<option <?php if (!empty($_SESSION['sexo'])) if($_SESSION['sexo']=='M') {?>selected<?php } ?> value='M' >Masculino</option>
+		</select>&nbsp;<label class='C_obligatorio'>*</label>
+		</td>
+		<td>Nivel de instrucción:<br>
+		<select name='nivel_instruccion' required>
+			<option value='0' >Seleccionar</option>
+			<option <?php if (!empty($_SESSION['nivel_instruccion'])) if($_SESSION['nivel_instruccion']=='Ninguno') {?>selected<?php } ?> value='Ninguno' >Ninguno</option>
+			<option <?php if (!empty($_SESSION['nivel_instruccion'])) if($_SESSION['nivel_instruccion']=='Básica') {?>selected<?php } ?> value='Básica' >Básica</option>
+			<option <?php if (!empty($_SESSION['nivel_instruccion'])) if($_SESSION['nivel_instruccion']=='Bachiller') {?>selected<?php } ?> value='Bachiller' >Bachiller</option>
+			<option <?php if (!empty($_SESSION['nivel_instruccion'])) if($_SESSION['nivel_instruccion']=='Técnico Medio') {?>selected<?php } ?> value='Técnico Medio' >Técnico Medio</option>
+			<option <?php if (!empty($_SESSION['nivel_instruccion'])) if($_SESSION['nivel_instruccion']=='Universitario') {?>selected<?php } ?> value='Universitario' >Universitario</option>
+			<option <?php if (!empty($_SESSION['nivel_instruccion'])) if($_SESSION['nivel_instruccion']=='Post Grado') {?>selected<?php } ?> value='Post Grado' >Post Grado</option>
+			<option <?php if (!empty($_SESSION['nivel_instruccion'])) if($_SESSION['nivel_instruccion']=='Doctorado') {?>selected<?php } ?> value='Doctorado' >Doctorado</option>
+			<option <?php if (!empty($_SESSION['nivel_instruccion'])) if($_SESSION['nivel_instruccion']=='PhD') {?>selected<?php } ?> value='PhD' >PhD</option>
+		</select>&nbsp;<label class='C_obligatorio'>*</label>
+		</td>
+	</tr>
+	<tr>
+		<td>Año desde que<br> reside en la comunidad:<br>
+		<select name='ano_residencia' required>
+			<option value='0'>Seleccionar</option>>
+<?php
+	for($i=date('Y');$i>=date('Y')-100;$i--)
+		{
+?>	
+			<option <?php if (!empty($_SESSION['ano_residencia'])) if($_SESSION['ano_residencia']==$i) {?>selected<?php } ?> value='<?php echo $i; ?>'><?php echo $i; ?></option><label class='C_obligatorio'>*</label>
+			
+<?php
+		}
+?>		</select> <label class='C_obligatorio'>*</label>
+		</td>
+		<td> Teléfono de contacto:<br>
+		<select name='cod_area' required>
+			<option <?php if (!empty($_SESSION['cod_area'])) if($_SESSION['cod_area']=='0294') {?>selected<?php } ?> value='0294'>0294</option>
+			<option <?php if (!empty($_SESSION['cod_area'])) if($_SESSION['cod_area']=='0416') {?>selected<?php } ?> value='0416'>0416</option>
+			<option <?php if (!empty($_SESSION['cod_area'])) if($_SESSION['cod_area']=='0426') {?>selected<?php } ?> value='0426'>0426</option>
+			<option <?php if (!empty($_SESSION['cod_area'])) if($_SESSION['cod_area']=='0424') {?>selected<?php } ?> value='0414'>0414</option>
+			<option <?php if (!empty($_SESSION['cod_area'])) if($_SESSION['cod_area']=='0424') {?>selected<?php } ?> value='0424'>0424</option>
+			<option <?php if (!empty($_SESSION['cod_area'])) if($_SESSION['cod_area']=='0412') {?>selected<?php } ?> value='0412'>0412</option>
+		</select>
+		<input value='<?php if(!empty($_SESSION['telefono'])) echo $_SESSION['telefono']; ?>' name='telefono' size='12' type='text' placeholder='Ej. 9874536' onKeyPress="return validaNumero(event);" maxlength='7' class='input'>
+		</td>		
+		<td colspan='2'>Correo electrónico:
+			<br><input size='40' value="<?php if(!empty($_SESSION['email'])) echo $_SESSION['email']; ?>" type="email" maxlength="50" name="email" placeholder="Ej. micorreoelectronico@myemail.com" class='largo'>
+		</td>
+	</tr>
+	<tr>
+		<td>Empleo:
+			&nbsp;&nbsp;&nbsp;
+			<input <?php if(!empty($_SESSION['empleo'])) if($_SESSION['empleo']=='Si') { ?> checked <?php } ?>
+			onClick="return preguntar_m('empleo_nombre');" type='radio' name='empleo' value='Si' required>Si
+			&nbsp;&nbsp;&nbsp;
+			<input <?php if(!empty($_SESSION['empleo'])) if($_SESSION['empleo']=='No') { ?> checked <?php } ?>
+			onClick="return preguntar_n('empleo_nombre');" type='radio' name='empleo' value='No' required>No
+			<label class='C_obligatorio'>*</label>
+			
+			<BR><input id='empleo_nombre' value="<?php if(!empty($_SESSION['empleo_nombre'])) echo $_SESSION['empleo_nombre']; ?>" type="text" maxlength="50" name="empleo_nombre" placeholder="Indique el empleo" class='input' onKeyPress="return validaLetra(event);" style='display:none;'>
+		</td>		
+		<td>Profesión u ocupación:
+		<BR><input value="<?php if(!empty($_SESSION['profesion'])) echo $_SESSION['profesion']; ?>" type="text" maxlength='30' name="profesion" placeholder="Ej. Obrero" class="input" onKeyPress="return validaLetra(event);"> &nbsp;</td>
+		<td>
+			Enfermedades: <BR>
+			<input value="<?php if(!empty($_SESSION['enfermedad'])) echo $_SESSION['enfermedad']; ?>" name='enfermedad' type='text'  placeholder='Ej. Diábetes, otra' class='input' maxlength='30'> 	
+		</td>	
+	</tr>
+	<tr>
+		<td colspan='2'>¿Beneficiado por algún subsidio habitacional? <label class='C_obligatorio'>*</label>
+			<br>&nbsp;
+			<input <?php if(!empty($_SESSION['sub_habitacional'])) if($_SESSION['sub_habitacional']=='Si') { ?> checked <?php } ?>
+			onClick="return preguntar_m('inst_sub_hab');" type='radio' name='sub_habitacional' value='Si' required>Si
+			&nbsp;&nbsp;&nbsp;
+			<input <?php if(!empty($_SESSION['sub_habitacional'])) if($_SESSION['sub_habitacional']=='No') { ?> checked <?php } ?>
+			onClick="return preguntar_n('inst_sub_hab');" type='radio' name='sub_habitacional' value='No' required>No
+			
+			<input size='40' value="<?php if(!empty($_SESSION['inst_sub_hab'])) echo $_SESSION['inst_sub_hab']; ?>" type="text" maxlength="30" name="inst_sub_hab" id="inst_sub_hab" placeholder="¿Cuál o cuales?" class="largo" onKeyPress="return validaLetra(event);" style='display:none'>
+		</td>
+		<td colspan='2'>¿Solicitud de vivienda  en alguna institución? <label class='C_obligatorio'>*</label>
+			<br>&nbsp;
+			<input <?php if(!empty($_SESSION['solicitud_v'])) if($_SESSION['solicitud_v']=='Si') { ?> checked <?php } ?>
+			onClick="return preguntar_m('inst_solicitud_v');" type='radio' name='solicitud_v' value='Si' required>Si
+			&nbsp;&nbsp;&nbsp;
+			<input <?php if(!empty($_SESSION['solicitud_v'])) if($_SESSION['solicitud_v']=='No') { ?> checked <?php } ?>
+			onClick="return preguntar_n('inst_solicitud_v');" type='radio' name='solicitud_v' value='No' required>No
+			<input size='40' value="<?php if(!empty($_SESSION['inst_solicitud_v'])) echo $_SESSION['inst_solicitud_v']; ?>" type="text" maxlength='50' name="inst_solicitud_v" id="inst_solicitud_v" placeholder="¿Cuál o cuales instituciones?" class="largo" onKeyPress="return validaLetra(event);" style='display:none'>
+		</td>
+	</tr>
+	<tr>
+		<td colspan='2'>¿Afiliado a algún sistema de seguridad social? <label class='C_obligatorio'>*</label>
+			<br>&nbsp;
+			<input <?php if(!empty($_SESSION['seguro_social'])) if($_SESSION['seguro_social']=='Si') { ?> checked <?php } ?>
+			onClick="return preguntar_m('a_seguro_social');" type='radio' name='seguro_social' value='Si' required>Si
+			&nbsp;&nbsp;&nbsp;
+			<input <?php if(!empty($_SESSION['seguro_social'])) if($_SESSION['seguro_social']=='No') { ?> checked <?php } ?>
+			onClick="return preguntar_n('a_seguro_social');" type='radio' name='seguro_social' value='No' required>No
+			
+			<input value="<?php if(!empty($_SESSION['a_seguro_social'])) echo $_SESSION['a_seguro_social']; ?>" type="text" maxlength="50" name="a_seguro_social" id="a_seguro_social" placeholder="¿Cuál o cuales?" class="largo" onKeyPress="return validaLetra(event);"
+			style='display:none'>
+		</td>
+	</tr>
+	<tr>
+		<td colspan='4' style='text-align:center;'>
+			<input style='margin-right:20px;' class='accion' type='reset' name='limpiar' value='Limpiar'>
+			<input style='margin-left:20px;' class='accion' type='submit' name='enviar' value='Continuar'>
+		</td>
+	</tr>
+	</table>
+</form>
+<?php
+//Fin de mostrar formulario
+}
+else
+	echo $mensaje['not_acces'];
+?>
+</body>
+</html>

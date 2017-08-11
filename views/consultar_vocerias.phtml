@@ -1,0 +1,123 @@
+<?php
+
+?>
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+	<title>Consulta de usuarios</title>
+<link rel='stylesheet' type='text/css' href='views/css/consultar.css'/>
+<script type='text/javascript' language='javascript' src='views/js/funciones.js'></script>
+</head>
+<body>
+<div class='titulo'>
+<label class='titulo'>Vocerías registrados</label>
+</div>
+<?php
+//Mostrar todos los usuario>
+?>
+	<table cellspacing='0'>
+	<tr>
+		<th title='Código del usuario'><a href='#'>Nombre</a></th>
+		<th title='Código del usuario'><a href='#'>Función</a></th>
+		<th align='center' title='Código del usuario'><a href='#'>Editar</a></th>
+		<th title='Estatus del usuario' class='ultima'><a href='#'>Estatus</a></th>
+		<!--<th title='Detalles del usuario' class='ultima'><a href='#'>Detalles</a></th>-->
+	</tr>
+
+<?php
+for($i=0;$i<count($lista);$i++)
+	{
+?>
+	<tr id="<?php echo "id_$i"; ?>" onMouseMove="cambiarColor('<?php echo "id_$i"; ?>','#D8D8D8 url(views/imagen/background.png) repeat-x 0 -10px');" onMouseOut="cambiarColor('<?php echo "id_$i"; ?>','#fff');" >
+		<td title='<?php echo $lista[$i]['nombre']; ?>'><?php echo $lista[$i]['nombre']; ?></td>
+		<td title="<?php echo $lista[$i]['funcion']; ?>"><?php echo $lista[$i]['funcion']; ?></td>
+		<form action='editar_voceria.php'>
+		<input type='hidden' value="<?php echo $lista[$i]['id']; ?>" name='id' />
+		<td align='center'><input type='image' src='views/imagen/modificar.png' title='Editar' value='Editar'>
+		</form></td>
+		<!--Verifica si el registro se encuenta habilitado o desabilitado y así muestra la imágen correspondiente -->
+		<td class='ultima'>
+		<form action='cambiar_status_usuario.php' method='POST' onSubmit='return preguntaCambiarStatus();'>
+		<input type='hidden' value="<?php echo $lista[$i]['id']; ?>" name='id'>
+		<input type='hidden' value="<?php echo $lista[$i]['estatus']; ?>" name='status'>
+		<?php if($lista[$i]['estatus']==1) 
+				{ ?>
+				<input type='image' title='Habilitado' src='views/imagen/habilitado.png'>
+		<?php 	}
+			else
+				{
+		?>
+				<input type='image' title='Deshabilitado' src='views/imagen/deshabilitado.png'>
+		<?php	}
+			
+			?>
+		</form>
+		</td>
+	</tr>
+		<!--<td title='Detalles'  class='ultima'><a href="javascript: abrir_nueva_ventana('consultar_detalle_usuario.php?cedula=<?php echo $lista[$i]['id']; ?>');"><img style='border:0px;' title='Ver más' src='views/imagen/consultar.png'></img></a></td>
+	</tr>-->
+	
+<?php
+		
+	}
+	
+?>
+
+	</table>
+<!-- FUENTE: www.CesarCancino.com -->
+<div class='paginador' align='center' >
+<ul>
+	<li style="display:inline; margin-right:6px;">
+	<?php if($params['primero']):	?>
+		<a  class='parametro'  href="?opcion=<?php echo $opcion; ?>&pagina=<?php echo $params['primero']; ?>">
+		Primero
+		</a>
+	<?php	else: ?>
+		Primero
+	<?php	endif; ?>
+	
+	</li>
+	<li style="display:inline; margin-right:6px;">
+	<?php if($params['anterior']):	?>
+		<a  class='parametro'  href="?opcion=<?php echo $opcion; ?>&pagina=<?php echo $params['anterior']; ?>">
+		Anterior
+		</a>
+	<?php	else: ?>
+		Anterior
+	<?php	endif; ?>
+	</li>
+	<!--<li style="display:inline; margin-right:6px;">
+	<?php for($i=1;$i<=$params['total'];$i++) {?>
+	<?php if($params['actual']!=$i):	?>
+		<a  class='parametro'  href="?pagina=<?php echo $i; ?>">
+		<?php echo $i; ?>
+		</a>
+	<?php	else: ?>
+		<?php echo $i; ?>
+	<?php	endif; ?>
+	<?php } ?>
+	</li>-->
+	<li style="display:inline; margin-right:6px;">
+	<?php if($params['siguiente']):	?>
+		<a  class='parametro'  href="?opcion=<?php echo $opcion; ?>&pagina=<?php echo $params['siguiente']; ?>">
+		Siguiente
+		</a>	
+	<?php	else: ?>
+		Siguiente
+	<?php	endif; ?>
+	</li>
+	</li>
+	<li style="display:inline; margin-right:5px;">
+	<?php if($params['ultimo']):	?>
+		<a  class='parametro'  class='parametro' href="?opcion=<?php echo $opcion; ?>&pagina=<?php echo $params['ultimo']; ?>">
+		Último
+		</a>
+	<?php	else: ?>
+		Último
+	<?php	endif; ?>
+	</li>
+</ul>
+</div>
+</body>
+</html>

@@ -1,0 +1,170 @@
+<?php
+$familias=$familia->consultarFamilia();
+$persona=$persona->consultarPersona();
+$niños=0;
+$adolecente=0;
+$adulto=0;
+$adultoMayor=0;
+$femenino=0;
+$masculino=0;
+for($i=0;$i<count($persona);$i++)
+	{
+	if(calculaEdad($persona[$i]['fecha_nac'])<12)
+		$ninios++;
+	if(calculaEdad($persona[$i]['fecha_nac'])>11&&calculaEdad($persona[$i]['fecha_nac'])<19)
+		$adolecente++;
+	if(calculaEdad($persona[$i]['fecha_nac'])>18&&calculaEdad($persona[$i]['fecha_nac'])<60)
+		$adulto++;
+	if(calculaEdad($persona[$i]['fecha_nac'])>59)
+		$adultoMayor++;
+	if($persona[$i]['sexo']=="F")
+		$femenino++;
+	if($persona[$i]['sexo']=="M")
+		$masculino++;
+	}	
+
+?>
+<input type='hidden' id='total_f' value='<?php echo count($familias); ?>'>
+<input type='hidden' id='total_p' value='<?php echo count($persona); ?>'>
+<input type='hidden' id='ninios' value='<?php echo $ninios; ?>'>
+<input type='hidden' id='adolecente' value='<?php echo $adolecente; ?>'>
+<input type='hidden' id='adulto' value='<?php echo $adulto; ?>'>
+<input type='hidden' id='adultoMayor' value='<?php echo $adultoMayor; ?>'>
+<input type='hidden' id='femenino' value='<?php echo $femenino; ?>'>
+<input type='hidden' id='masculino' value='<?php echo $masculino; ?>'>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <title>amCharts examples</title>
+        <link rel="stylesheet" href="style.css" type="text/css">
+        <script src="libs/amcharts/amcharts/amcharts.js" type="text/javascript"></script>
+        <script src="libs/amcharts/amcharts/serial.js" type="text/javascript"></script>
+        <link rel='stylesheet' type='text/css' href='views/css/consultar.css'/>
+
+        <script type="text/javascript">
+            var total_f=document.getElementById('total_f').value;
+            var total_p=document.getElementById('total_p').value;
+            var ninios=document.getElementById('ninios').value;
+            var adolecente=document.getElementById('adolecente').value;
+            var adulto=document.getElementById('adulto').value;
+            var adultoMayor=document.getElementById('adultoMayor').value;
+            var masculino=document.getElementById('masculino').value;
+            var femenino=document.getElementById('femenino').value;
+            var chart;
+
+            var chartData = [
+                {
+                    "country": "Familias",
+                    "visits": total_f,
+                    "color": "#FF0F00"
+                },
+                {
+                    "country": "Habitantes",
+                    "visits": total_p,
+                    "color": "#FF6600"
+                },
+                {
+                    "country": "Niños",
+                    "visits": ninios,
+                    "color": "#FCD202"
+                },
+                {
+                    "country": "Adolecentes",
+                    "visits": adolecente,
+                    "color": "#F8FF01"
+                },
+                {
+                    "country": "Adultos",
+                    "visits": adulto,
+                    "color": "#B0DE09"
+                },
+                {
+                    "country": "Adultos mayores",
+                    "visits": adultoMayor,
+                    "color": "#04D215"
+                },          
+                {
+                    "country": "Fenemina",
+                    "visits": femenino,
+                    "color": "#CD0D74"
+                },/*
+                {
+                    "country": "Agosto",
+                    "visits": 67,
+                    "color": "#0D8ECF"
+                },
+                {
+                    "country": "Septiebre",
+                    "visits": 6,
+                    "color": "#0D52D1"
+                },*/
+                {
+                    "country": "Masculina",
+                    "visits": masculino,
+                    "color": "#2A0CD0"
+                }/*
+                {
+                    "country": "Fenemina",
+                    "visits": 443,
+                    "color": "#8A0CCF"
+                },*/
+      
+            ];
+
+
+            AmCharts.ready(function () {
+                // SERIAL CHART
+                chart = new AmCharts.AmSerialChart();
+                chart.dataProvider = chartData;
+                chart.categoryField = "country";
+                chart.startDuration = 1;
+
+                // AXES
+                // category
+                var categoryAxis = chart.categoryAxis;
+                categoryAxis.labelRotation = 45; // this line makes category values to be rotated
+                categoryAxis.gridAlpha = 0;
+                categoryAxis.fillAlpha = 1;
+                categoryAxis.fillColor = "#FAFAFA";
+                categoryAxis.gridPosition = "start";
+
+                // value
+                var valueAxis = new AmCharts.ValueAxis();
+                valueAxis.dashLength = 5;
+                valueAxis.title = "Censo demosgráfico";
+                valueAxis.axisAlpha = 0;
+                chart.addValueAxis(valueAxis);
+
+                // GRAPH
+                var graph = new AmCharts.AmGraph();
+                graph.valueField = "visits";
+                graph.colorField = "color";
+                graph.balloonText = "<b>[[category]]: [[value]]</b>";
+                graph.type = "column";
+                graph.lineAlpha = 0;
+                graph.fillAlphas = 1;
+                chart.addGraph(graph);
+
+                // CURSOR
+                var chartCursor = new AmCharts.ChartCursor();
+                chartCursor.cursorAlpha = 0;
+                chartCursor.zoomable = false;
+                chartCursor.categoryBalloonEnabled = false;
+                chart.addChartCursor(chartCursor);
+
+                chart.creditsPosition = "top-right";
+
+                // WRITE
+                chart.write("chartdiv");
+            });
+        </script>
+    </head>
+
+    <body>
+    	<div class='tema'><p><?php echo $tema; ?></p></div>
+        <div id="chartdiv" style="width: 70%; height: 400px; margin:auto; background:#fff; box-shadow:0 0px 1px rgba(0,0,0, .7) inset,0 0px 2px rgba(0,0,0, .7); "></div>
+ <div class='papelera' title='Atrás'><a href='?opcion=bstacfamilia'><img src='views/imagen/go-back.png'><br>Atrás</a></div>
+    </body>
+
+</html>

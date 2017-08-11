@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title><?php echo $tema; ?></title>
+	<meta charset='utf-8'/>
+	<link rel='stylesheet' type='text/css' href='views/css/mensajes_validacion.css'/>
+</head>
+<body>
+<?php
+$nombre=$voceria->consultarVoceriaPorId($_REQUEST['id']);
+	//Método que elimina o restaura la vocería
+	$res=$voceria->eliminarVoceria($_REQUEST['id'],$_REQUEST['elimina']);
+	//Se imita la misma acción que se realiza en la función de arriba pero con los registros dependietnes de vocerías, ej: de usuarios y voceros.
+	$voceria->eliminarVoceroDependienteDeVoceria($_REQUEST['id'],$_REQUEST['elimina']);
+	$voceria->eliminarUsuarioDependienteDeVoceria($_REQUEST['id'],$_REQUEST['elimina']);
+	if($res) //Si el resultado es positivo, se le da un msj al voceria de la previa modificación realizada.
+		{
+		$estatus=$_REQUEST['elimina'];
+		if($estatus==1)
+			{ 
+			$msj='restaurada';
+			}
+		else 
+			{
+			$msj='eliminada';
+			}
+		//$msj=$estatus==1?'restaurada':'eliminada';
+
+		//Se registra lacción que realiza el usuario
+		Historial::Movimiento($_SESSION["codigo"],"$msjH a la voceria: <b>".$nombre[0]['nombre']."</b>");
+		echo "<center><div class='mensaje_envio'>La vocería ha sido $msj correctamente</div></center>";
+		header("refresh:2;url=?opcion=cvoceria");	
+		}
+?>
+</body>
+</html>

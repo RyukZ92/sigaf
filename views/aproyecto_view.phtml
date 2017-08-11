@@ -1,0 +1,124 @@
+<?php 
+if($_SESSION['nivel_usuario']=='Administrador')
+{
+$listaVoceria=$voceria->consultarVoceria(); //Consultando vocerias
+?>
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8"/>
+		<title><?php echo $tema; ?></title>
+			<script type='text/javascript' src='views/js/funciones.js'></script>
+			<link rel='stylesheet' type='text/css' href='views/css/mensajes_validacion.css'/>
+			<link rel="stylesheet" href="views/css/pickmeup.css" type="text/css" />
+			<script type="text/javascript" src="views/js/jquery.js"></script>
+			<script type="text/javascript" src="views/js/jquery.pickmeup.js"></script>
+			<script type="text/javascript" src="views/js/demo.js"></script>
+			<link rel="stylesheet" type="text/css" href="views/css/estilo_formularios.css" />
+	</head>
+<body>
+
+<?php
+$mostrarFormulario=true;
+//Validando del lado del servidor
+if(isset($_POST['enviar']))
+	{
+	$verificarNombre=$nuevoProyecto->verificarTituloProyecto($_POST['titulo']);
+	if(empty($_POST['titulo']))
+		echo $mensaje['not_title'];
+	else if($verificarNombre>0)
+		echo $mensaje['repeat_projet'];
+	else if(empty($_POST['tipo']))
+		echo $mensaje['not_type_projet'];
+	else if(empty($_POST['presupuesto']))
+		echo $mensaje['not_money_p'];	
+	else if(empty($_POST['voceria']))
+		echo $mensaje['not_voceria_projet'];
+	else if(empty($_POST['resumen'])||strlen($_POST['resumen'])<15)
+		echo $mensaje['not_resume_projet'];								
+	else
+		{
+		$_POST['titulo']=quitar_tildes($_POST['titulo']);
+		$_POST['titulo']=strtoupper($_POST['titulo']);
+		//Agreando acción a la base de datos
+		$res=$nuevoProyecto->agregarProyecto($_POST['titulo'],$_POST['tipo'],$_POST['presupuesto'],$_POST['resumen'],$_POST['voceria']);
+		if($res)
+			Historial::Movimiento($_SESSION['codigo'],"Registró al proyecto: <b>".$_POST['titulo']."</b>");
+		$mostrarFormulario=false;	
+		}
+	}
+//Mostrando formulario
+if($mostrarFormulario)
+{
+?>
+<div class='tema'><p><?php echo $tema; ?></p></div>
+
+<form id="form" name="form" method="POST" action="" onSubmit="if(confirm('¿Está de acuerdo con la infomación suministrada?')) return true; else return false;">
+<table class='principal' cellspacing='15px' border='0' align='center'  style='margin-bottom:10px;'> 
+			<tr>
+				<td colspan="2">Título o nombre del proyecto:<br>	
+					<input class='input' value='<?php if(!empty($_POST['titulo'])) echo $_POST['titulo']; ?>' type='text'  maxlength='100' name='titulo' id='dni' placeholder='Título del proyecto' class='input' onKeyPress='' style='width:325px;'>
+				</td>
+			<tr>
+			</tr>
+				<td>Categoría del proyecto:<br>
+					<input class='input' style='width:150px;' value='<?php if(!empty($_POST['tipo'])) echo $_POST['tipo']; ?>' type='text'  maxlength='50' name='tipo' id='tipo' placeholder='Ej. Socioeconómico' onKeyPress='return validaLetra(event);' >
+				</td>	
+				<td>Presupuesto estimado:<br>
+					<input class='input' style='width:150px;' value='<?php if(!empty($_POST['presupuesto'])) echo $_POST['presupuesto']; ?>' type='text'  maxlength='50' name='presupuesto' id='presupuesto'  onKeyPress='return validaNumero(event);' >
+				</td>						
+			</tr>
+			<tr>
+				<td colspan="2">Vocería autora:<br>
+					<select name='voceria'>
+					<option value='0'>Seleccionar</option>
+					<?php 
+					for($i=0;$i<count($listaVoceria);$i++)
+						{
+						if($listaVoceria[$i]['estatus']==1) //Mostrando las vocerías
+							{
+					?>
+							<option <?php if (!empty($_POST['voceria'])) if($_POST['voceria']==$listaVoceria[$i]['id']) {?>selected<?php } ?> value='<?php echo $listaVoceria[$i]['id']; ?>'><?php echo $listaVoceria[$i]['nombre']; ?></option>
+					<?php 
+							}
+						}
+					?>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2" align="center">Resumen del proyecto:<BR>
+				<textarea name='resumen' rows='8' style='width:350px; resize:none;' maxlength='300' style='resize:none;'><?php if(!empty($_POST['resumen'])) echo $_POST['resumen']; ?></textarea>		
+				</td>
+			</tr>	
+			<tr style='text-align:center;'>
+				<td colspan='2' ><br>
+					<input class='boton_left' type='reset' value='Limpiar'>
+					<input class='boton_right' type='submit' name='enviar' value='Registrar'>
+				</td>
+			</tr>
+		</table>
+</form>
+<?php
+//Fin del formulario
+}if(isset($res))
+	{
+	if($res)
+		{
+		echo $mensaje['registered'];
+		header("refresh:2;url=?opcion=inicio");
+		}
+	else
+		{
+		echo $mensaje['error_registered'];
+		header("refresh:2;url=?opcion=inicio");			
+		}
+	}
+?>
+</body>
+</html>
+<?php
+}
+else
+	echo $mensaje['not_acces'];
+?>

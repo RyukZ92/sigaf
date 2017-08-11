@@ -1,0 +1,120 @@
+<!doctype html>
+<html>
+	<head>
+	<meta charset="utf-8" />
+		<title>Consulta de usuarios</title>
+		<link rel='stylesheet' type='text/css' href='views/css/consultar.css'/>
+		<link rel='stylesheet' type='text/css' href='views/css/mensajes_validacion.css'/>
+		<script type='text/javascript' language='javascript' src='views/js/funciones.js'></script>
+	</head>
+<body>
+<?php
+if(count($lista))
+{
+?>
+<div class='tema'>
+<label class='titulo'><?php echo $tema; ?></label>
+</div>
+<?php
+
+//Mostrar los usuarios>
+?>
+	<table cellspacing='02'>
+	<tr>
+		<th title='Código del usuario'><a href='#'>Usuario</a></th>
+		<th title='Número de cédula de identidad del usuario'><a href='#'>Nivel de usuario</a></th>
+		<th title='Código del usuario'><a href='#'>Nombre y apellido</a></th>
+		<th title='Restaurar usuario' align="center"><a href='#'>Restaurar</a></th>
+	</tr>
+
+<?php
+
+for($i=0;$i<count($lista);$i++)
+	{
+
+	$estatusVocero=$vocero->consultarVoceroPorDni($lista[$i]['dni_vocero']);
+	//obteniendo el primero nombre y apellido de la persona
+	$nombre=explode(' ',$lista[$i]['nombre']);
+	$apellido=explode(' ',$lista[$i]['apellido']);	
+?>
+	<tr id="<?php echo "id_$i"; ?>" onMouseMove="cambiarColor('<?php echo "id_$i"; ?>','#D8D8D8 url(views/imagen/background.png) repeat-x 0 -10px');" onMouseOut="cambiarColor('<?php echo "id_$i"; ?>','#fff');" >
+		<td title='<?php echo $lista[$i]['nombre_usuario']; ?>'><?php echo $lista[$i]['nombre_usuario']; ?></td>
+		<td title='<?php echo $lista[$i]['nivel_usuario']; ?>'><?php echo $lista[$i]['nivel_usuario']; ?></td>
+		<td title='<?php echo $lista[$i]['nombre_usuario']; ?>'><?php echo $nombre[0]." ".$apellido[0]; ?></td>
+
+		<td align="center">
+<?php
+if($estatusVocero[$i]['estatus']=='1'&&$estatusVocero[$i]['eliminado']!='1')
+	{
+?>	
+		<a title='Restaurar' href='?opcion=susuario&id=<?php echo $lista[$i]['id']; ?>&elimina=<?php echo $lista[$i]['eliminado']; ?>' onClick='return preguntaRestaurar();'>
+
+		<img src='views/imagen/restaurar.png'></img></a>
+<?php
+	}
+else
+	echo "N/A";
+?>
+		</td>
+	
+	</tr>
+	
+<?php
+		
+	}
+?>
+	</table>
+<!-- FUENTE: www.CesarCancino.com -->
+<div class='paginador' align='center' >
+<ul>
+	<li style="display:inline; margin-right:6px;">
+	<?php if($params['primero']):	?>
+		<a  class='parametro'  href="?opcion=<?php echo $opcion; ?>&pagina=<?php echo $params['primero']; ?>">
+		Primero
+		</a>
+	<?php	else: ?>
+		Primero
+	<?php	endif; ?>
+	
+	</li>
+	<li style="display:inline; margin-right:6px;">
+	<?php if($params['anterior']):	?>
+		<a  class='parametro'  href="?opcion=<?php echo $opcion; ?>&pagina=<?php echo $params['anterior']; ?>">
+		Anterior
+		</a>
+	<?php	else: ?>
+		Anterior
+	<?php	endif; ?>
+	</li>
+	<li style="display:inline; margin-right:6px;">
+	<?php if($params['siguiente']):	?>
+		<a  class='parametro'  href="?opcion=<?php echo $opcion; ?>&pagina=<?php echo $params['siguiente']; ?>">
+		Siguiente
+		</a>	
+	<?php	else: ?>
+		Siguiente
+	<?php	endif; ?>
+	</li>
+	</li>
+	<li style="display:inline; margin-right:5px;">
+	<?php if($params['ultimo']):	?>
+		<a  class='parametro' class='parametro' href="?opcion=<?php echo $opcion; ?>&pagina=<?php echo $params['ultimo']; ?>">
+		Último
+		</a>
+	<?php	else: ?>
+		Último
+	<?php	endif; ?>
+	</li>
+</ul>
+</div>
+<?php
+}
+else
+	{
+	echo $mensaje['not_data'];
+	header("refresh:3;url=?opcion=cusuario");	
+	}
+?>
+<div class='papelera'><a href='?opcion=cusuario'><img style='width:20px; height:20px; right:6px;' src='views/imagen/go-back.png'><br>Atrás</a></div>
+</body>
+</html>

@@ -1,0 +1,138 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+	<title>Consulta de usuarios</title>
+<link rel='stylesheet' type='text/css' href='views/css/consultar.css'/>
+<script type='text/javascript' language='javascript' src='views/js/funciones.js'></script>
+</head>
+<body>
+<div class='tema'>
+<label class='titulo'><?php echo $tema; ?></label>
+</div>
+<?php
+//Mostrar todos los usuario>
+?>
+	<table cellspacing='02'>
+	<tr>
+		<th title='Nombre del vocería'><a href='#'>Nombre</a></th>
+		<th title='Función de la vocería'><a href='#'>Función</a></th>
+		<th class='accion' title='Estatus de la vocería' class='accion'><a href='#'>Estatus</a></th>
+<?php
+if($_SESSION['nivel_usuario']=='Administrador')
+		{
+?>		
+		<th class='accion' title='Editar vocería'><a href='#'>Editar</a></th>
+
+		<th title='Eliminar vocería' class='ultima'><a href='#'>Eliminar</a></th>
+	</tr>
+<?php
+	}
+//Mostrando lista de vocerías
+for($i=0;$i<count($lista);$i++)
+	{
+?>
+	<tr id="<?php echo "id_$i"; ?>" onMouseMove="cambiarColor('<?php echo "id_$i"; ?>','#D8D8D8 url(views/imagen/background.png) repeat-x 0 -10px');" onMouseOut="cambiarColor('<?php echo "id_$i"; ?>','#fff');" >
+		<td title='<?php echo $lista[$i]['nombre']; ?>'><?php echo $lista[$i]['nombre']; ?></td>
+		<td title="<?php echo $lista[$i]['funcion']; ?>"><?php echo $lista[$i]['funcion']; ?></td>
+		<!--Verifica si el registro se encuenta habilitado o desabilitado y así muestra la imágen correspondiente -->
+		<td class='accion'>
+<?php
+if($_SESSION['nivel_usuario']=='Administrador')
+	{
+?>
+		<?php if($lista[$i]['estatus']==1) 
+				{ ?>
+				<img title='Habilitada' src='views/imagen/habilitado.png'>
+		<?php 	}
+			else
+				{
+		?>
+				<img title='Deshabilitada' src='views/imagen/deshabilitado.png'>
+		<?php	}
+			
+			?>
+<?php
+	}
+else
+{
+	if($lista[$i]['estatus']==1) 
+				{ ?>
+				<img title='Habilitada' src='views/imagen/habilitado.png'>
+		<?php 	}
+			else
+				{
+		?>
+				<img title='Deshabilitada' src='views/imagen/deshabilitado.png'>
+		<?php	}
+}
+			
+			
+?>
+		</td>
+<?php
+if($_SESSION['nivel_usuario']=='Administrador')
+		{
+?>
+		<form action='?opcion=evoceria' method="POST">
+		<input type='hidden' value="<?php echo $lista[$i]['id']; ?>" name='id' />
+		<td align='center'><input type='image' src='views/imagen/modificar.png' title='Editar' value='Editar'>
+		</form>
+		</td>
+		<td align="center"><a title='Eliminar' href='?opcion=svoceria&id=<?php echo $lista[$i]['id']; ?>&elimina=<?php echo $lista[$i]['eliminado']; ?>' onClick='return preguntaEliminar();'><img src='views/imagen/eliminar.png'></img></a></td>	
+<?php
+		}
+?>
+	</tr>	
+<?php	
+	}
+	
+?>
+
+	</table>
+<!-- FUENTE: www.CesarCancino.com -->
+<div class='paginador' align='center' >
+<ul>
+	<li style="display:inline; margin-right:6px;">
+	<?php if($params['primero']):	?>
+		<a  class='parametro'  href="?opcion=<?php echo $opcion; ?>&pagina=<?php echo $params['primero']; ?>">
+		Primero
+		</a>
+	<?php	else: ?>
+		Primero
+	<?php	endif; ?>
+	
+	</li>
+	<li style="display:inline; margin-right:6px;">
+	<?php if($params['anterior']):	?>
+		<a  class='parametro'  href="?opcion=<?php echo $opcion; ?>&pagina=<?php echo $params['anterior']; ?>">
+		Anterior
+		</a>
+	<?php	else: ?>
+		Anterior
+	<?php	endif; ?>
+	</li>
+	<li style="display:inline; margin-right:6px;">
+	<?php if($params['siguiente']):	?>
+		<a  class='parametro'  href="?opcion=<?php echo $opcion; ?>&pagina=<?php echo $params['siguiente']; ?>">
+		Siguiente
+		</a>	
+	<?php	else: ?>
+		Siguiente
+	<?php	endif; ?>
+	</li>
+	</li>
+	<li style="display:inline; margin-right:5px;">
+	<?php if($params['ultimo']):	?>
+		<a  class='parametro'  class='parametro' href="?opcion=<?php echo $opcion; ?>&pagina=<?php echo $params['ultimo']; ?>">
+		Último
+		</a>
+	<?php	else: ?>
+		Último
+	<?php	endif; ?>
+	</li>
+</ul>
+</div>
+<div class='papelera'><a href='?opcion=cvoceriaelim'><img class='trash' src='views/imagen/trash.png'></img ><br>Papelera</a></div>
+</body>
+</html>

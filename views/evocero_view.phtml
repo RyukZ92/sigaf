@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8"/>
+	<title><?php echo $tema; ?></title>
+	<script type='text/javascript' src='js/funciones.js'></script>
+	<link rel="stylesheet" type="text/css" href="views/css/estilo_formularios.css" />
+	<link rel='stylesheet' type='text/css' href='views/css/mensajes_validacion.css'/>
+</head>
+<body>
+<?php
+//Consultar los datos del vocero que se editar (por Dcumento de Identidad)
+$vocero=$modificaVocero->consultarVoceroPorDni($_REQUEST['dni']);
+$mostrarFormulario=true;
+$validacion=false;
+//Se consulta la vocería donde pertenece el vocero para verificar su estatus 
+$estatusVoceria=$voceria->consultarVoceriaPorId($vocero[0]['id_voceria']);
+//Se consulta la persona donde pertenece el vocero para verificar su estatus 
+$estatusPersona=$familia->consultarPersonaDni($_REQUEST['dni']);
+//Validando del lado de PHP
+if(isset($_POST['editar']))
+	{
+	if(empty($_POST['telefono']))
+		echo $mensaje['not_phone'];
+	else
+		{
+		//Actualizando vocero
+		$res=$modificaVocero->actualizarVocero($_POST['dni'],$_POST['estatus'],$_POST['cod_area']."-".$_POST['telefono'],$_POST['tipo_miembro']); 
+		//Cambiar el esataus del usuario dependiendo del que cambie vocero
+		$modificaVocero->actualizarEstatusDependienteDeVocero($_POST['dni'],$_POST['estatus']);
+		if($res)
+			Historial::Movimiento($_SESSION['codigo'],"Atualizó al vocero de identificación: <b>".$vocero[0]['tipo_dni']."-".$vocero[0]['dni_vocero']."</b>");
+		$mostrarFormulario=false;	
+		}
+	}
+//Mostrar formulario de edición
+if($mostrarFormulario)
+{
+$nomb=explode(' ', $vocero[0]['nombre']);
+$apell=explode(' ', $vocero[0]['apellido']);
+$telef=explode('-',$vocero[0]['telefono_vocero']);
+
+$fecha_v=explode('-',$vocero[0]['fecha_vigencia']);
+$fecha_fin=strtotime ('+2 year',strtotime ($fecha_v[2].'-'.$fecha_v[1].'-'.$fecha_v[0]));
+$fecha_fin=date ('Y-m-d',$fecha_fin);
+?>
+<div class='tema'><p><?php echo $tema; ?></p></div>
+<form action="" method="POST" name='form' onSubmit='return validarCamposVocero();'>
+<table class="principal" cellspacing="15px" border="0" align='center'>
+	<tr style='text-align:center;'>
+		<td>DATOS DEL VOCERO:<BR><br><?php echo $vocero[0]['tipo_dni']."-".$vocero[0]['dni_vocero']; ?><BR><?php echo $nomb[0]." ".$apell[0]; ?>
+		<br><?php echo ucwords(strtolower($vocero[0]['voceria'])); ?>
+		</td>
+	</tr>
+	<tr>
+		<td> Teléfono de contacto:<br>
+		<select name='cod_area'>
+			<option <?php if ($telef[0]=='0294') {?>selected<?php } ?> value='0294'>0294</option>
+			<option <?php if ($telef[0]=='0416') {?>selected<?php } ?> value='0416'>0416</option>
+			<option <?php if ($telef[0]=='0426') {?>selected<?php } ?> value='0426'>0426</option>
+			<option <?php if ($telef[0]=='0414') {?>selected<?php } ?> value='0414'>0414</option>
+			<option <?php if ($telef[0]=='0424') {?>selected<?php } ?> value='0424'>0424</option>
+			<option <?php if ($telef[0]=='0412') {?>selected<?php } ?> value='0412'>0412</option>
+		</select>
+		<input value='<?php echo $telef[1]; ?>' name='telefono' size='12' type='text' placeholder='Ej. 9874536' class="input" onKeyPress="return validaSoloNumero(event);" maxlength='7' >
+		</td>
+	</tr>
+	<tr>
+		<td colspan="2">Tipo de miembro:
+			<br><select name='tipo_miembro'>
+				<option <?php if($vocero[0]['tipo_miembro']=='Vocero principal') {?>selected<?php } ?> value='Vocero principal'>Vocero principal</option>
+				<option <?php if ($vocero[0]['tipo_miembro']=='Vocero suplente') {?>selected<?php } ?> value='Vocero suplente'>Vocero suplente</option>
+			</select>
+		</td>
+	</tr>
+<?php
+//SE MUESTRA LAS OPCIONES SI LAS VOCERIA Y LA PERSONAS ESTAŃA ACTIVOS
+if($estatusVoceria[0]['estatus']=='1'&&$estatusPersona[0]['fallecido']!='1'&&$estatusPersona[0]['mudado']!='1')
+	{
+	if(date('Y-m-d')<$fecha_fin)
+		{
+?>	
+		 <tr>
+			<td>Estatus:
+			<select name='estatus'>
+			<option <?php if($vocero[0]['estatus']=='1') {?>selected<?php } ?> value='1'>Habilitado</option>
+			<option <?php if ($vocero[0]['estatus']=='0') {?>selected<?php } ?> value='0'>Deshabilitado</option>
+			</select>
+			</td>
+		</tr>
+<?php
+		}
+	}
+
+else
+	echo "<input name='estatus' value='0' type='hidden'>";
+?>	
+	<input name='dni' value='<?php echo $vocero[0]['dni_vocero']; ?>' type='hidden'>	
+	<tr>
+		<td colspan='2' align="center">
+		<input style='margin-right:10px;' class='accion' type='button' title='Salir' value='Salir' onClick="if(confirm('¿Desea salir sin guardar los cambios?')) window.location='?opcion=inicio';"/>
+		<input style='margin-left:10px;' class='accion' type='submit' value='Guardar' title='Guardar cambios' name='editar'/>
+		</td>
+	</tr>
+	</table>
+</form>
+<?php
+}
+//Se da mensaje después de ejecutar la acción.
+if(isset($res))
+	{
+	if($res)
+		{
+		echo $mensaje['updated'];
+		header("refresh:2;url=?opcion=cvocero&opc=todos&pagina=");
+		}
+	else
+		{
+		if(!$validacion)
+			{
+			echo $mensaje['error_updated'];
+			header("refresh:3;url=?opcion=bvocero");			
+			}
+		}
+	}
+
+?>
+</body>
+</html>

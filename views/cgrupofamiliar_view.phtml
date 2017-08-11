@@ -1,0 +1,110 @@
+<?php
+$lista=$familia->consultarGrupoFamiliar($_GET['id']);	
+?>
+<!doctype html>
+<html>
+	<head>
+	<meta charset="utf-8" />
+		<title><?php echo $tema; ?></title>
+		<link rel='stylesheet' type='text/css' href='views/css/consultar.css'/>
+		<script type='text/javascript' language='javascript' src='views/js/funciones.js'></script>
+	</head>
+<body>
+<div class='tema'>
+<label class='titulo'><?php echo $tema; ?></label>
+</div>
+	<table  cellspacing='02'>
+	<tr>
+		<td colspan='7' class='ultima' style='background:gray; border-top:0px;'><b>SECTOR: <?php echo strtoupper($lista[0]['sector']); ?></b></td>
+	</tr>
+	<tr>
+		<th title='Documento de Identidad'><a href='#'>Identificación</a></th>
+		<th title='Nombre y apellido'><a href='#'>Nombres y apellidos</a></th>
+		<th class='accion' title='Sexo'><a href='#'>Sexo</a></th>
+		<th class='accion' title='Edad'><a href='#'>Edad</a></th>
+		<th class='accion' title='Parentesco'><a href='#'>Parentesco</a></th>
+		<th class='accion' title='Editar'><a href='#'>Editar</a></th>
+		<th class='accion' title='Mover'><a href='#'>Mover</a></th>
+	</tr>
+<?php
+//Mostrando consulta
+for($i=0;$i<count($lista);$i++)
+	{
+	if($lista[$i]['sexo']=='F')
+		$sex='a';
+	else
+		$sex='o';
+	if($lista[$i]['parentesco']!='Madre'&&$lista[$i]['parentesco']!='Padre'&&$lista[$i]['parentesco']!='Representante'&&$lista[$i]['parentesco']!='')
+		$lista[$i]['parentesco']=$lista[$i]['parentesco'].$sex;
+	if($lista[$i]['parentesco']=='')
+		$lista[$i]['parentesco']="No asignado";
+	$nombre=explode(' ',$lista[$i]['nombre']);
+	$apellido=explode(' ',$lista[$i]['apellido']);	
+
+	if($lista[$i]['parentesco']=='Representante')
+		{
+?>
+		<tr id="<?php echo "id_$i"; ?>" onMouseMove="cambiarColor('<?php echo "id_$i"; ?>','#D8D8D8 url(views/imagen/background.png) repeat-x 0 -10px');" onMouseOut="cambiarColor('<?php echo "id_$i"; ?>','#fff');" >
+			<td title='<?php echo $lista[$i]['tipo_dni']."-".$lista[$i]['dni']; ?>'><?php echo $lista[$i]['tipo_dni']."-".$lista[$i]['dni']; ?></td>
+			<td title='<?php echo $lista[$i]['nombre']." ".$lista[$i]['apellido']; ?>'><?php echo $lista[$i]['nombre']." ".$lista[$i]['apellido']; ?></td>
+			<td class='accion' title='<?php echo $lista[$i]['sexo']; ?>'><?php echo $lista[$i]['sexo']; ?></td>
+			<td class='accion' title='<?php echo $lista[$i]['edad']." años";  ?>'><?php echo $lista[$i]['edad']." años";  ?></td>
+				<td class='accion' title='<?php echo $lista[$i]['parentesco']; ?>'><?php echo $lista[$i]['parentesco']; ?></td>
+			<td style="<?php echo $estilo; ?>"; class='accion' title='Editar'><a  href='?opcion=epersonarep&dni=<?php echo $lista[$i]['dni']; ?>&id=<?php echo $_GET['id']; ?>&sector=<?php echo $_GET['sector']; ?>'><img src='views/imagen/modificar.png'></img></a></td>
+			<td style="<?php echo $estilo; ?>"; class='accion'>
+			<?php
+			if(count($lista)>1)
+				echo 'N/A';
+			else
+				{
+			?>
+				<a href='?opcion=moverfamilia&dni=<?php echo $lista[$i]['dni'] ?>' style='color:blue;'>Mover</a></td>
+			<?php
+				}
+			?>
+		</tr>
+<?php
+		}	
+	}
+?>
+<?php
+$total=0;
+$l=count($ista);
+
+if(count($lista)>1)
+	$text='miembros';
+else
+	$text='miembro';
+for($i=0;$i<count($lista);$i++)
+	{
+	if($lista[$i]['mudado']||$lista[$i]['fallecido'])
+		$total++;
+	$estilo=($lista[$i]['mudado']==1||$lista[$i]['fallecido']==1)?'background:#D8D8D8;color:#848484;':'';
+	$nombre=explode(' ',$lista[$i]['nombre']);
+	$apellido=explode(' ',$lista[$i]['apellido']);	
+	if($lista[$i]['parentesco']!='Representante')
+		{
+		
+?>
+		<tr id="<?php echo "id_$i"; ?>" onMouseMove="cambiarColor('<?php echo "id_$i"; ?>','#D8D8D8 url(views/imagen/background.png) repeat-x 0 -10px');" onMouseOut="cambiarColor('<?php echo "id_$i"; ?>','#fff');" >
+			<td style="<?php echo $estilo; ?>"; title="<?php echo $mostrarDni=(!$lista[$i]['dni'])?"No posee":$lista[$i]['tipo_dni']."-".$lista[$i]['dni']; ?>"><?php echo $mostrarDni=(!$lista[$i]['dni'])?"<font color='red'>No posee</font>":$lista[$i]['tipo_dni']."-".$lista[$i]['dni']; ?></td>
+			<td style="<?php echo $estilo; ?>"; title='<?php echo $lista[$i]['nombre']." ".$lista[$i]['apellido']; ?>'><?php echo $lista[$i]['nombre']." ".$lista[$i]['apellido']; ?></td>
+			<td style="<?php echo $estilo; ?>"; class='accion' title='<?php echo $lista[$i]['sexo']; ?>'><?php echo $lista[$i]['sexo']; ?></td>
+			<td style="<?php echo $estilo; ?>"; class='accion' title='<?php echo $lista[$i]['edad']." años";  ?>'><?php echo $lista[$i]['edad']." años";  ?></td>
+			<td style="<?php echo $estilo; ?>"; style="<?php echo $estilo; ?>"; class='accion' title="<?php echo $lista[$i]['parentesco']; ?>"><?php echo $lista[$i]['parentesco']; ?></td>
+			<td style="<?php echo $estilo; ?>"; class='accion' title='Editar'><a  href='?opcion=epersona&dni=<?php echo $lista[$i]['dni']; ?>&id=<?php echo $_GET['id']; ?>'><img src='views/imagen/modificar.png'></img></a></td>
+			<td style="<?php echo $estilo; ?>"; class='accion'><a href='?opcion=moverfamilia&dni=<?php echo $lista[$i]['dni'] ?>' style='color:blue;'>Mover</a></td>		
+</tr>
+<?php	
+
+		}
+	}
+?>
+		<tr>
+			<td colspan='7'><?php echo "<div style='text-align:left;'><b>Miembros actuales: </b>".(count($lista)-$total)." $text</div>"; ?></td>
+		</tr>
+	</table>
+<div class='papelera' title='Atrás'><a href='?opcion=cfamilia&pagina='><img src='views/imagen/go-back.png'><br>Atrás</a></div>
+<div class='icono_left' title='Nuevo miembro'><a href='?opcion=anuevomiembro&id=<?php echo $lista[0]['id_rep']; ?>&sector=<?php echo $_GET['sector']; ?>'><img src='views/imagen/agregar_miembro.png'><BR>Nuevo miembro</a></div>
+</body>
+</html>

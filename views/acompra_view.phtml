@@ -1,0 +1,100 @@
+<?php
+if($_SESSION['nivel_usuario']=='Administrador')
+{
+?>
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<meta charset="utf-8"/>
+<title><?php echo $tema; ?></title>
+<script type='text/javascript' src='views/js/funciones.js'></script>
+<link rel="stylesheet" type="text/css" href="views/css/estilo_formularios.css" />
+<link rel='stylesheet' type='text/css' href='views/css/mensajes_validacion.css'/>
+<link rel="stylesheet" href="views/css/pickmeup.css" type="text/css" />
+<script type="text/javascript" src="views/js/jquery.js"></script>
+<script type="text/javascript" src="views/js/jquery.pickmeup.js"></script>
+<script type="text/javascript" src="views/js/demo.js"></script>
+</head>
+<body>
+<?php
+$mostrarFormulario=true;
+//Validando del lado de PHP
+if(isset($_POST['enviar']))
+	{
+	if(empty($_POST['fecha']))
+		echo $mensaje['not_date'];
+	else if(empty($_POST['referencia']))
+		echo $mensaje['not_factura'];
+	else if(empty($_POST['proveedor']))
+		echo $mensaje['not_proveedor'];
+	else if(empty($_POST['precio']))
+		echo $mensaje['not_precio'];
+	//Fin de validación		
+	else
+		{
+		$fecha=$_POST['fecha'];
+		$fecha_m=explode("-",$fecha);
+		$dia_m=$fecha_m[2];
+		$mes_m=$fecha_m[1];
+		$anio_m=$fecha_m[0];
+		$fecha_reg=$dia_m.'-'.$mes_m.'-'.$anio_m;
+		$res=$nuevaCompra->agregarCompra($fecha_reg,$_POST['referencia'],$_POST['proveedor'],$_POST['precio']);
+		if($res)
+			Historial::Movimiento($_SESSION["codigo"],"Registró una compra con número de factura: <b>".$_POST['referencia']."</b>");
+		$mostrarFormulario=false;	
+		}
+	}
+//Mostrar formulario
+if($mostrarFormulario)
+{
+?>
+<div class='tema'><p><?php echo $tema; ?></p></div>
+<form action="?opcion=acompra" method="POST" name='form' onSubmit='return validarCamposUsuario();'>
+
+<table class="principal" cellspacing="15px" border="0" align='center'>
+   <tr>
+		<td>Fecha: </td>
+		<td><input readonly value="<?php if(!empty($_POST['fecha'])) echo $_POST['fecha']; ?>" type="text" name="fecha" class='datepicker' placeholder='dd-mm-aa'  /><label class='C_obligatorio'>*</label> </td>
+	</tr>
+   <tr>
+		<td>N° de factura: </td>
+		<td><input value="<?php if(!empty($_POST['referencia'])) echo $_POST['referencia']; ?>" type="text" maxlength="16" name="referencia" placeholder="" onKeyPress="return validaSoloNumero(event);" class="input" ><label class='C_obligatorio'>*</label>  </td>
+	</tr>
+   <tr>
+		<td>Proveedor: </td>
+		<td><input value="<?php if(!empty($_POST['proveedor'])) echo $_POST['proveedor']; ?>" type="text" maxlength="50" name="proveedor" placeholder="" class="input" > <label class='C_obligatorio'>*</label> </td>
+	</tr>
+   <tr>
+		<td>Precio neto: </td>
+		<td><input value="<?php if(!empty($_POST['precio'])) echo $_POST['precio']; ?>" type="text" maxlength="50" name="precio" class="input" onKeyPress="return validaNumero(event);" placeholder='Ej. 999.9'><label class='C_obligatorio'>*</label></td>
+	</tr>  
+	<tr>
+		<td colspan='2' style='text-align:center;';><br>
+		<input style='margin-right:12px;' class='accion' type='reset' name='limpiar' value='Limpiar'>
+		<input style='margin-left:12px;' class='accion' type='submit' name='enviar' value='Reigistrar'></td>
+	</tr>
+	</table>
+</form>
+<?php
+}
+//Fin del formulario
+if(isset($res))
+	{
+	if($res)
+		{
+		echo $mensaje['registered'];
+		header("refresh:2;url=?opcion=inicio");
+		}
+	else
+		{
+		echo $mensaje['error_registered'];
+		header("refresh:3;url=?opcion=inicio");			
+		}
+	}
+}
+else
+	echo $mensaje['not_acces'];
+?>
+</body>
+</html>

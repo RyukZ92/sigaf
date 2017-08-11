@@ -1,0 +1,135 @@
+<?php 
+// if($_SESSION['nivel_usuario']=='Administrador')
+{
+$modificaProyecto=$proyecto->consultarProyectoPorId($_REQUEST['id']);
+$listaVoceria=$voceria->consultarVoceria();
+?>
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8"/>
+		<title><?php echo $tema; ?></title>
+			<script type='text/javascript' src='views/js/funciones.js'></script>
+			<link rel='stylesheet' type='text/css' href='views/css/mensajes_validacion.css'/>
+			<link rel="stylesheet" href="views/css/pickmeup.css" type="text/css" />
+			<script type="text/javascript" src="views/js/jquery.js"></script>
+			<script type="text/javascript" src="views/js/jquery.pickmeup.js"></script>
+			<script type="text/javascript" src="views/js/demo.js"></script>
+			<link rel="stylesheet" type="text/css" href="views/css/estilo_formularios.css" />	
+	</head>
+<body>
+<?php
+$mostrarFormulario=true;
+//Validando del lado del servidor
+if(isset($_POST['registrar']))
+	{
+	$_POST['titulo']=quitar_tildes($_POST['titulo']);
+	$_POST['titulo']=strtoupper(($_POST['titulo']));	
+	$verificarNombre=$proyecto->verificarTituloProyecto($_POST['titulo']);
+	if(empty($_POST['titulo']))
+		echo $mensaje['not_title'];
+	else if($verificarNombre>0&&strtoupper($modificaProyecto[0]['titulo'])!=$_POST['titulo'])
+		echo $mensaje['repeat_projet'];
+	else if(empty($_POST['tipo']))
+		echo $mensaje['not_type_projet'];
+	//else if(empty($_POST['voceria']))
+	//	echo $mensaje['not_voceria_projet'];
+	else if(empty($_POST['resumen'])||strlen($_POST['resumen'])<15)
+		echo $mensaje['not_resume_projet'];								
+	else
+		{
+		//Se actualiza el proyecto a estatus En espera	
+		$res=$proyecto->actualizarProyectoNoFinalizado($_POST['id'],$_POST['titulo'],$_POST['tipo'],$_POST['resumen'],$_POST['voceria'],$_POST['estatus_']);
+		if($res)
+			{
+			$msj['envio']="<center><div class='mensaje_envio'>Proyecto actualizado correctamente</div></center>";
+			$mostrarFormulario=false;	
+			}
+		else
+			{
+			$msj['error']="<center><div class='validacion'><img style='margin:0px;padding:0px;'src='views/imagen/exclamation.png'>&nbsp;&nbsp;ERROR: Problemas con el registro del proyecto al sistema. Si el problemas persiste, contacte a su administrador de sistema</div></center>";
+			$mostrarFormulario=false;	
+			}
+
+		}
+	}
+if($mostrarFormulario)
+{
+?>
+<div class='tema'><p><?php echo $tema; ?></p></div>
+
+<form id="form" name="form" method="POST" action="" onSubmit="if(confirm('¿Está de acuerdo con la infomación suministrada?')) return true; else return false;">
+<table class='principal' cellspacing='15px' border='0' align='center'  style='margin-bottom:10px;'> 
+			<tr>
+				<td colspan="2">Título o nombre del proyecto:<br>	
+					<input class='input' value='<?php echo $modificaProyecto[0]['titulo']; ?>' type='text'  maxlength='100' name='titulo' id='dni' placeholder='Título del proyecto' class='input' onKeyPress='' style='width:325px;'>
+				</td>
+			<tr>
+			</tr>
+				<td>Categoría del proyecto:<br>
+					<input style='width:150px;' class='input' value='<?php echo $modificaProyecto[0]['tipo']; ?>' type='text' maxlength='50' name='tipo' id='tipo' placeholder='Ej. Socioeconómico' onKeyPress='return validaLetra(event);' >
+				</td>	
+				<td>Nuevo estatus:<br>
+				<input	value='En espera' name='estatus_' type='text' readonly class='input'>
+
+				</td>						
+			</tr>
+			<!--
+					<?php 
+
+					for($i=0;$i<count($listaVoceria);$i++)
+						{
+
+						if($listaVoceria[$i]['estatus']==1)
+							{
+
+					?>
+							<option <?php if ($modificaProyecto[0]['autor_voceria']==$listaVoceria[$i]['id']) {?>selected<?php } ?> value='<?php echo $modificaProyecto[0]['autor_voceria']; ?>'><?php echo $listaVoceria[$i]['nombre']; ?></option>
+					<?php 
+
+							}
+						}
+					?>
+					</select>
+				</td>
+			</tr>-->
+			<tr>
+				<td colspan="2">Resumen del proyecto:<BR>
+				<textarea name='resumen' rows='8' style='width:325px; resize:none;' maxlength='300' style='resize:none;'><?php echo $modificaProyecto[0]['resumen']; ?></textarea>		
+				</td>
+			</tr>	
+					<input type='hidden' name='id' value='<?php echo $_REQUEST['id']; ?>' >
+			<tr >
+				<td style='text-align:center;' colspan='2'>
+
+				<input class='accion' style='margin-right:12px;' type='submit' name='registrar' value='Actualizar' >
+	
+				<input class='accion' style='margin-left:12px;' type='reset' name='limpiar' value='Salir'>
+			</td>
+			</tr>
+		</table>
+<?php
+}if(isset($res))
+	{
+	if($res)
+		{
+		echo $msj['envio'];
+		header("refresh:2;url=?opcion=cproyecto");
+		}
+	else
+		{
+		echo $msj['error'];
+		header("refresh:3;url=?opcion=inicio");			
+		}
+	}
+?>
+
+</body>
+</html>
+<?php
+/*
+echo '<pre>';
+  print_r($_REQUEST);
+echo '</pre>';*/
+}
+?>

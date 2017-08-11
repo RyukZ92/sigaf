@@ -1,0 +1,101 @@
+<!doctype html>
+<html>
+	<head>
+		<title>Procesar familia</title>
+	<meta charset='utf-8'>
+	<link rel='stylesheet' type='text/css' href='views/css/mensajes_validacion.css'/>
+	</head>
+	</head>
+<body>
+<?php
+$j=0;
+//Organizar los miembros de familias en orden accedente por variables dinámicas var$i...varn donde $i va desde '0' a 'n' número 
+for($i=0;$i<=$_SESSION['cont'];$i++)
+	{
+	//Verificando que las varibles sea validas o contengas algo.
+	if(isset($_SESSION["tipo_dni$i"])&&isset($_SESSION["dni$i"])&&isset($_SESSION["nombre$i"])&&isset($_SESSION["apellido$i"])&&isset($_SESSION["fecha_nac_m$i"])&&isset($_SESSION["sexo$i"])&&isset($_SESSION["parentesco$i"])&&isset($_SESSION["nivel_instruccion$i"])/*&&isset($_SESSION["habilidad_trabajo$i"])&&isset($_SESSION["profesion$i"])&&isset($_SESSION["enfermedad$i"])&&isset($_SESSION["discapacidad$i"])&&isset($_SESSION["ano_residencia$i"])*/)
+		{
+		//Asignando nuevos puestos
+		$_SESSION["tipo_dni$j"]=$_SESSION["tipo_dni$i"];
+		$_SESSION["dni$j"]=$_SESSION["dni$i"];
+		$_SESSION["nombre$j"]=$_SESSION["nombre$i"];
+		$_SESSION["apellido$j"]=$_SESSION["apellido$i"];
+		$_SESSION["fecha_nac_m$j"]=$_SESSION["fecha_nac_m$i"];
+		$_SESSION["sexo$j"]=$_SESSION["sexo$i"];
+		$_SESSION["parentesco$j"]=$_SESSION["parentesco$i"];
+		$_SESSION["nivel_instruccion$j"]=$_SESSION["nivel_instruccion$i"];
+		$_SESSION["habilidad_trabajo$j"]=$_SESSION["habilidad_trabajo$i"];
+		$_SESSION["profesion$j"]=$_SESSION["profesion$i"];
+		$_SESSION["enfermedad$j"]=$_SESSION["enfermedad$i"];
+		$_SESSION["discapacidad$j"]=$_SESSION["discapacidad$i"];
+		$_SESSION["discapacid$j"]=$_SESSION["discapacid$i"];
+		$_SESSION["ano_residencia$j"]=$_SESSION["ano_residencia$i"];
+		$j++;
+		}
+	$_SESSION['total']=$j;
+	}
+$fecha=explode('-',$_SESSION['fecha_nac']);
+if(!empty($_SESSION['telefono']))
+	$telef=$_SESSION['cod_area']."-".$_SESSION['telefono'];
+else
+	$telef='';
+//Se comienza agregar al representante familiar
+//Se guarda al DNI que representa el jefe o responsable en la familia
+$repFamiliaDni=$nuevaFamilia->agregarDniRepFamilia($_SESSION['dni'],$_SESSION['inst_sub_hab'], $_SESSION['inst_solicitud_v'],$_SESSION['a_seguro_social']);
+$idRep=$nuevaFamilia->consultarIdRepFamilia($_SESSION['dni']);
+if($_SESSION['nueva_familia'])
+	{
+	$repFamilia=$nuevaFamilia->moverMiembroNuevaFamilia($_SESSION['dni'],$idRep[0]['id'],$_SESSION['nombre'], $_SESSION['apellido'],$fecha[2].'-'.$fecha[1].'-'.$fecha[0], $_SESSION['estado_civil'], $_SESSION['situacion_conyugal'], $_SESSION['sexo'], $_SESSION['nivel_instruccion'], $_SESSION['ano_residencia'], $telef, $_SESSION['email'], $_SESSION['empleo_nombre'], $_SESSION['profesion'], $_SESSION['enfermedad']);
+	Historial::movimiento($_SESSION['codigo'],"Movió a la persona de identificación: <b>".$_SESSION['tipo_dni']."-".$_SESSION['dni']."</b> a una nueva familia");
+	}
+else
+	$repFamilia=$nuevaFamilia->agregarRepFamilia($_SESSION['tipo_dni'], $_SESSION['dni'],$idRep[0]['id'], $_SESSION['nombre'], $_SESSION['apellido'],$fecha[2].'-'.$fecha[1].'-'.$fecha[0], $_SESSION['estado_civil'], $_SESSION['situacion_conyugal'], $_SESSION['sexo'], $_SESSION['nivel_instruccion'], $_SESSION['ano_residencia'], $telef, $_SESSION['email'], $_SESSION['empleo_nombre'], $_SESSION['profesion'], $_SESSION['enfermedad']);
+	
+	if($_SESSION['total']>0)//Si la registro anterior e e exitoso entonces se accede a registrar a los miembros familiares (si existen).
+		{
+		for($i=0;$i<$_SESSION['total'];$i++)
+			{		
+			$miembroFamilia=$nuevaFamilia->agregarMiembroFamilia($_SESSION["tipo_dni$i"],$_SESSION["dni$i"],$idRep[0]['id'],$_SESSION["nombre$i"],$_SESSION["apellido$i"],$_SESSION["fecha_nac_m$i"],$_SESSION["sexo$i"],$_SESSION["parentesco$i"],$_SESSION["nivel_instruccion$i"],$_SESSION["habilidad_trabajo$i"],$_SESSION["profesion$i"],$_SESSION["enfermedad$i"],$_SESSION["discapacidad$i"],$_SESSION["ano_residencia$i"]);
+			}
+		}
+		//Registrando vivienda familiar
+		$viviendaFamilia=$nuevaVivienda->agregarVivienda($_SESSION['tipo_vivienda'], $_SESSION['ocupacion_vivienda'], $_SESSION['uso_vivienda'], $_SESSION['tipo_techo'], $_SESSION['tipo_paredes'], $_SESSION['tipo_piso'], $_SESSION['nivel_vivienda'], $_SESSION['propiedad_vivienda'], $_SESSION['banio'], $_SESSION['dormitorio'], $_SESSION['cocina'], $_SESSION['nevera'], $_SESSION['aguas_blancas'], $_SESSION['gas'], $_SESSION['electricidad'], $_SESSION['tv_radio'], $_SESSION['observacion'], $idRep[0]['id']);
+		//Registrando dirección de la familia
+		$viviendaFamilia=$viviendaFamilia?'true':'false';
+		//echo $viviendaFamilia;
+		$direccion=$nuevaDireccion->agregarDireccion($_SESSION['direccion'],$_SESSION['sector'],$_SESSION['numero_casa'],$_SESSION['parroquia'],$idRep[0]['id']);
+			if($direccion)
+				{
+				for($i=0;$i<$_SESSION['cont'];$i++)
+					{
+					unset($_SESSION["dni$i"],$_SESSION["tipo_dni$i"],$_SESSION["nombre$i"],$_SESSION["apellido$i"],$_SESSION["fecha_nac_m$i"],$_SESSION["sexo$i"],
+					$_SESSION["parentesco$i"],$_SESSION["nivel_instruccion$i"],$_SESSION["habilidad_trabajo$i"],$_SESSION["profesion$i"],$_SESSION["enfermedad$i"],$_SESSION["discapacidad$i"]);		
+					}
+				//Se destruyen todas las varibales usadas en formularios con sesiones (donde se registra la familia).
+				unset($_SESSION['tipo_dni'],$_SESSION['dni'],$_SESSION['nombre'],$_SESSION['apellido'],$_SESSION['fecha_nac'],$_SESSION['estado_civil'],$_SESSION['situacion_conyugal'],$_SESSION['sexo'],$_SESSION['nivel_instruccion'],$_SESSION['ano_residencia'],$_SESSION['telefono'],$_SESSION['cod_area'],		$_SESSION['email'],		$_SESSION['empleo'],$_SESSION['empleo_nombre'],$_SESSION['profesion'],$_SESSION['enfermedad'],$_SESSION['sub_habitacional'],$_SESSION['inst_sub_hab'],$_SESSION['inst_sub_hab'],$_SESSION['solicitud_v'],$_SESSION['inst_solicitud_v'],$_SESSION['seguro_social'],$_SESSION['a_seguro_social']); //Destryuyendo variables del representante de familia
+				unset($_SESSION['tipo_vivienda'],$_SESSION['ocupacion_vivienda'],$_SESSION['uso_vivienda'],$_SESSION['tipo_techo'],$_SESSION['tipo_paredes'],$_SESSION['tipo_piso'],$_SESSION['nivel_vivienda'],$_SESSION['propiedad_vivienda'],$_SESSION['bano'],$_SESSION['cant_bano'],$_SESSION['dormitorio'],$_SESSION['cant_dormitorio'],$_SESSION['cocina'],$_SESSION['cant_cocina'],$_SESSION['nevera'],$_SESSION['cant_nevera'],$_SESSION['aguas_blancas'],$_SESSION['gas'],$_SESSION['electricidad'],$_SESSION['tv_radio'],$_SESSION['observacion']); //Destruyendo variables de la vivienda
+				unset($_SESSION['estado'],$_SESSION['municipio'],$_SESSION['parroquia'],$_SESSION['sector'],$_SESSION['direccion'],$_SESSION['numero_casa'],$_SESSION['cod_postal']);//Destruyendo variables de la dirección
+				unset($_SESSION['estado'],$_SESSION['municipio'],$_SESSION['parroquia'],$_SESSION['sector'],$_SESSION['direccion'],	$_SESSION['numero_casa'],$_SESSION['cod_postal']);//Se destruyen las variables de dirección
+				unset($_SESSION['total'],$_SESSION['cont'],$_SESSION['nueva_familia']); //Otras variasbles utilizadas
+				echo $mensaje['registered'];
+				header("refresh:2;url=?opcion=inicio");
+				}
+			else 
+				{
+				for($i=0;$i<$_SESSION['cont'];$i++)
+					{
+					unset($_SESSION["dni$i"],$_SESSION["tipo_dni$i"],$_SESSION["nombre$i"],$_SESSION["apellido$i"],$_SESSION["fecha_nac_m$i"],$_SESSION["sexo$i"],
+					$_SESSION["parentesco$i"],$_SESSION["nivel_instruccion$i"],$_SESSION["habilidad_trabajo$i"],$_SESSION["profesion$i"],$_SESSION["enfermedad$i"],$_SESSION["discapacidad$i"]);		
+					}
+				//Se destruyen todas las varibales usadas en formularios con sesiones (donde se registra la familia).
+				unset($_SESSION['tipo_dni'],$_SESSION['dni'],$_SESSION['nombre'],$_SESSION['apellido'],$_SESSION['fecha_nac'],$_SESSION['estado_civil'],$_SESSION['situacion_conyugal'],$_SESSION['sexo'],$_SESSION['nivel_instruccion'],$_SESSION['ano_residencia'],$_SESSION['telefono'],$_SESSION['cod_area'],		$_SESSION['email'],		$_SESSION['empleo'],$_SESSION['empleo_nombre'],$_SESSION['profesion'],$_SESSION['enfermedad'],$_SESSION['sub_habitacional'],$_SESSION['inst_sub_hab'],$_SESSION['inst_sub_hab'],$_SESSION['solicitud_v'],$_SESSION['inst_solicitud_v'],$_SESSION['seguro_social'],$_SESSION['a_seguro_social']); //Destryuyendo variables del representante de familia
+				unset($_SESSION['tipo_vivienda'],$_SESSION['ocupacion_vivienda'],$_SESSION['uso_vivienda'],$_SESSION['tipo_techo'],$_SESSION['tipo_paredes'],$_SESSION['tipo_piso'],$_SESSION['nivel_vivienda'],$_SESSION['propiedad_vivienda'],$_SESSION['banio'],$_SESSION['p_banio'],$_SESSION['dormitorio'],$_SESSION['p_dormitorio'],$_SESSION['cocina'],$_SESSION['p_cocina'],$_SESSION['nevera'],$_SESSION['p_nevera'],$_SESSION['aguas_blancas'],$_SESSION['gas'],$_SESSION['electricidad'],$_SESSION['tv_radio'],$_SESSION['observacion']); //Destruyendo variables de la vivienda
+				unset($_SESSION['estado'],$_SESSION['municipio'],$_SESSION['parroquia'],$_SESSION['sector'],$_SESSION['direccion'],$_SESSION['numero_casa'],$_SESSION['cod_postal']);//Destruyendo variables de la dirección
+				unset($_SESSION['estado'],$_SESSION['municipio'],$_SESSION['parroquia'],$_SESSION['sector'],$_SESSION['direccion'],	$_SESSION['numero_casa'],$_SESSION['cod_postal']);//Se destruyen las variables de dirección
+				unset($_SESSION['total'],$_SESSION['cont'],$_SESSION['nueva_familia']); //Otras variasbles utilizadas
+				echo $mensaje['error_registered']; //Mensaje que se le muestra al usuario
+				header("refresh:3;url=?opcion=inicio");
+				}
+?>
+ </body> 
+ </html>
